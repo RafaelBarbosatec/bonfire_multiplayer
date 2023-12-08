@@ -1,7 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dart';
 import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
-import 'package:bonfire_multiplayer/main.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,7 +11,7 @@ class Game extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MyPlayerBloc(myWebsocket),
+      create: (context) => MyPlayerBloc(context.read()),
       child: BonfireWidget(
         map: WorldMapByTiled('map/map.tmj'),
         joystick: Joystick(

@@ -1,6 +1,7 @@
 import 'package:bonfire_multiplayer/data/my_websocket.dart';
 import 'package:bonfire_multiplayer/pages/game/game.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 late MyWebsocket myWebsocket;
 
@@ -17,13 +18,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
+    return Provider(
+      create: (context) => myWebsocket,
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          useMaterial3: true,
+        ),
+        home: const Game(),
       ),
-      home: const Game(),
     );
   }
 }
