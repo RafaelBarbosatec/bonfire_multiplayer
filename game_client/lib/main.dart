@@ -1,7 +1,13 @@
+import 'package:bonfire_multiplayer/data/my_websocket.dart';
 import 'package:bonfire_multiplayer/pages/game/game.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+late MyWebsocket myWebsocket;
+
+void main() async {
+  String address = '127.0.0.1';
+  // String addressAndroidEmulator = '10.0.2.2';
+  myWebsocket = MyWebsocket(address: address);
   runApp(const MyApp());
 }
 

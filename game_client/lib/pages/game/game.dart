@@ -1,6 +1,9 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:bonfire_multiplayer/components/my_player.dart';
+import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dart';
+import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
+import 'package:bonfire_multiplayer/main.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Game extends StatelessWidget {
   static const tileSize = 16.0;
@@ -8,23 +11,26 @@ class Game extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BonfireWidget(
-      map: WorldMapByTiled('map/map.tmj'),
-      joystick: Joystick(
-        keyboardConfig: KeyboardConfig(
-          enableDiagonalInput: false,
+    return BlocProvider(
+      create: (context) => MyPlayerBloc(myWebsocket),
+      child: BonfireWidget(
+        map: WorldMapByTiled('map/map.tmj'),
+        joystick: Joystick(
+          keyboardConfig: KeyboardConfig(
+            enableDiagonalInput: false,
+          ),
+          directional: JoystickDirectional(
+            enableDiagonalInput: false,
+          ),
         ),
-        directional: JoystickDirectional(
-          enableDiagonalInput: false,
+        player: MyPlayer(
+          position: Vector2(8 * tileSize, 7 * tileSize),
+          skin: PayerSkin.boy,
         ),
-      ),
-      player: MyPlayer(
-        position: Vector2(8 * tileSize, 7 * tileSize),
-        skin: PayerSkin.boy,
-      ),
-      cameraConfig: CameraConfig(
-        initialMapZoomFit: InitialMapZoomFitEnum.fitHeight,
-        moveOnlyMapArea: true,
+        cameraConfig: CameraConfig(
+          initialMapZoomFit: InitialMapZoomFitEnum.fitHeight,
+          moveOnlyMapArea: true,
+        ),
       ),
     );
   }
