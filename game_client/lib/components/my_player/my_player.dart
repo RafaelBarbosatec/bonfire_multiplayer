@@ -15,6 +15,13 @@ enum PayerSkin {
         return 'player_boy.png';
     }
   }
+
+  factory PayerSkin.fromName(String name) {
+    return PayerSkin.values.firstWhere(
+      (element) => element.name == name,
+      orElse: () => PayerSkin.boy,
+    );
+  }
 }
 
 class MyPlayer extends SimplePlayer
@@ -44,10 +51,8 @@ class MyPlayer extends SimplePlayer
 
   @override
   void update(double dt) {
-    // use checkInterval to sent move state 30 times per second
-    if (checkInterval('updateServer', 33, dt)) {
-      _sendMoveState();
-    }
+    // sent move state
+    _sendMoveState();
     super.update(dt);
   }
 

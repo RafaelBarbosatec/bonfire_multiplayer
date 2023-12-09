@@ -1,11 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'my_remote_player_bloc.dart';
 
-class MyRemotePlayerState {
+class MyRemotePlayerState extends Equatable {
   final Vector2 position;
   final Direction? direction;
 
-  MyRemotePlayerState({
+  const MyRemotePlayerState({
     required this.position,
     this.direction,
   });
@@ -16,7 +16,10 @@ class MyRemotePlayerState {
   }) {
     return MyRemotePlayerState(
       position: position ?? this.position,
-      direction: direction ?? this.direction,
+      direction: direction,
     );
   }
+
+  @override
+  List<Object?> get props => [position, direction];
 }
