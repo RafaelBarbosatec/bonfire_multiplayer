@@ -57,6 +57,13 @@ class _HomePageState extends State<HomePage> {
                   child: const Text('Enter'),
                 ),
               ),
+              const SizedBox(height: 16),
+              Text(
+                connected ? 'Connected' : 'Connecting',
+                style: TextStyle(
+                  color: connected ? Colors.green : Colors.yellow,
+                ),
+              ),
             ],
           ),
         ),
