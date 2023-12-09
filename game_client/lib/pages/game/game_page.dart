@@ -46,6 +46,7 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
+  // Adds player in the game with ack informations
   Player _getPlayer(PlayerStateModel state) {
     return MyPlayer(
       position: state.position.toVector2(),
@@ -54,6 +55,7 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
+  // Adds remote plasyers with ack informations
   List<GameComponent> _getComponents(JoinAckEvent event, BuildContext context) {
     return event.players.map((e) {
       return MyRemotePlayer(
@@ -66,6 +68,9 @@ class _GamePageState extends State<GamePage> {
     }).toList();
   }
 
+  // When the game is ready init listeners:
+  // PLAYER_LEAVE: When some player leave remove it of game.
+  // PLAYER_JOIN: When some player enter adds it in the game.
   void _onReady(BonfireGameInterface game) {
     _eventManager = context.read();
     _eventManager.onDisconnect(() {
