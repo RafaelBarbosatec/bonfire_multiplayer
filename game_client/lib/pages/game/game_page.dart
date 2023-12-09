@@ -50,6 +50,7 @@ class _GamePageState extends State<GamePage> {
     return MyPlayer(
       position: state.position.toVector2(),
       skin: PayerSkin.fromName(state.skin),
+      name: state.name,
     );
   }
 
@@ -59,6 +60,7 @@ class _GamePageState extends State<GamePage> {
         position: e.position.toVector2(),
         skin: PayerSkin.fromName(e.skin),
         eventManager: context.read(),
+        name: e.name,
         id: e.id,
       );
     }).toList();
@@ -86,6 +88,7 @@ class _GamePageState extends State<GamePage> {
         skin: PayerSkin.fromName(event.player.skin),
         eventManager: context.read(),
         id: event.player.id,
+        name: event.player.name,
       ));
     });
   }

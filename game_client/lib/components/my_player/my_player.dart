@@ -2,6 +2,7 @@ import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_bloc/bonfire_bloc.dart';
 import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
+import 'package:bonfire_multiplayer/util/name_bottom.dart';
 
 enum PayerSkin {
   girl,
@@ -27,15 +28,19 @@ enum PayerSkin {
 class MyPlayer extends SimplePlayer
     with
         BlockMovementCollision,
+        WithNameBottom,
         BonfireBlocListenable<MyPlayerBloc, MyPlayerState> {
   MyPlayer({
     required super.position,
+    required String name,
     required PayerSkin skin,
   }) : super(
           size: Vector2.all(32),
           animation: PlayersSpriteSheet.simpleAnimation(skin.path),
           initDirection: Direction.down,
-        );
+        ) {
+    this.name = name;
+  }
 
   @override
   Future<void> onLoad() {
@@ -46,6 +51,7 @@ class MyPlayer extends SimplePlayer
         position: Vector2(size.x / 4, size.y / 2),
       ),
     );
+
     return super.onLoad();
   }
 

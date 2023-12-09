@@ -4,10 +4,12 @@ import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/bloc/my_remote_player_bloc.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
+import 'package:bonfire_multiplayer/util/name_bottom.dart';
 
 class MyRemotePlayer extends SimplePlayer
     with
         BlockMovementCollision,
+        WithNameBottom,
         BonfireBlocListenable<MyRemotePlayerBloc, MyRemotePlayerState> {
   final String id;
   MyRemotePlayer({
@@ -15,11 +17,13 @@ class MyRemotePlayer extends SimplePlayer
     required PayerSkin skin,
     required GameEventManager eventManager,
     required this.id,
+    required String name,
   }) : super(
           size: Vector2.all(32),
           animation: PlayersSpriteSheet.simpleAnimation(skin.path),
           initDirection: Direction.down,
         ) {
+    this.name = name;
     bloc = MyRemotePlayerBloc(
       id,
       position,
