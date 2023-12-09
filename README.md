@@ -1,6 +1,6 @@
-# bonfire_multiplayer
+# Bonfire Multiplayer
 
-A new Flutter project.
+Simple example of multiplayer game using Bonfire + Dart Frog + Polo
 
 ## Getting Started
 
@@ -14,3 +14,36 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+## Running the server
+
+You need to make sure you have `frog_cli` installed:
+```
+# 📦 Install the dart_frog cli from pub.dev
+dart pub global activate dart_frog_cli
+```
+
+Now, to run just open the `server` folder and execute `dart_frog dev` in the terminal.
+
+## Running the client
+
+Just open the `game_client` and execute `flutter run` in the terminal.
+
+## GameCliente packages:
+
+| Package    | Version |
+| -------- | ------- |
+| bonfire  | `^3.1.1`    |
+| bonfire_bloc | `^0.0.2`     |
+| flutter_bloc    | `^8.1.3`    |
+| provider    | `^6.1.1`    |
+
+## Server packages:
+
+| Package    | Version |
+| -------- | ------- |
+| dart_frog  | `^1.0.0`    |
+| polo_server    | `^0.0.3`    |
+| logger | `^2.0.2+1`     |
+
