@@ -10,6 +10,8 @@ dependencies:
   dart_frog: ^1.0.0
   logger: ^2.0.2+1
   polo_server: ^0.0.3
+  shared_events:
+    path: "../shared_events"
 
 dev_dependencies:
   mocktail: ^1.0.0

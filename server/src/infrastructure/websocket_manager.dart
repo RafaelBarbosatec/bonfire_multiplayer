@@ -1,7 +1,5 @@
 import 'package:polo_server/polo_server.dart';
-
-import '../model/join_event.dart';
-import '../model/move_event.dart';
+import 'package:shared_events/shared_events.dart';
 
 export 'package:polo_server/polo_server.dart';
 
@@ -69,6 +67,24 @@ class WebsocketManager {
         PoloTypeAdapter(
           toMap: (type) => type.toMap(),
           fromMap: JoinEvent.fromMap,
+        ),
+      )
+      ..registerType<JoinAckEvent>(
+        PoloTypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: JoinAckEvent.fromMap,
+        ),
+      )
+      ..registerType<GameStateModel>(
+        PoloTypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: GameStateModel.fromMap,
+        ),
+      )
+      ..registerType<PlayerEvent>(
+        PoloTypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: PlayerEvent.fromMap,
         ),
       )
       ..registerType<MoveEvent>(
