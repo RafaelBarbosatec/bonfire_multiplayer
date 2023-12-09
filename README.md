@@ -1,5 +1,8 @@
 # Bonfire Multiplayer
 
+![](https://raw.githubusercontent.com/RafaelBarbosatec/bonfire_multiplayer/main/imgs/screenshot1.png)
+![](https://raw.githubusercontent.com/RafaelBarbosatec/bonfire_multiplayer/main/imgs/screenshot2.png)
+
 Simple example of multiplayer game using Bonfire + Dart Frog + Polo
 
 ## Getting Started
