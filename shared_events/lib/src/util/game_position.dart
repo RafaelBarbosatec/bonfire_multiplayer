@@ -15,8 +15,8 @@ class GamePosition {
 
   factory GamePosition.fromMap(Map<String, dynamic> map) {
     return GamePosition(
-      x: map['x'] as double,
-      y: map['y'] as double,
+      x: double.parse(map['x']?.toString() ?? '0'),
+      y: double.parse(map['y']?.toString() ?? '0'),
     );
   }
 

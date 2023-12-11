@@ -46,7 +46,7 @@ class MyRemotePlayer extends SimplePlayer
   @override
   bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
     // cancel collision with Myplayer
-    if (other is MyPlayer) {
+    if (other is MyPlayer || other is MyRemotePlayer) {
       return false;
     }
     return super.onBlockMovement(intersectionPoints, other);
