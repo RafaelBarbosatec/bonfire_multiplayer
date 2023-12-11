@@ -1,11 +1,9 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
-import 'package:bonfire_multiplayer/data/game_event_manager.dart';
-import 'package:bonfire_multiplayer/data/websocket/websocket_provider.dart';
 import 'package:bonfire_multiplayer/pages/game/game_route.dart';
+import 'package:bonfire_multiplayer/pages/home/bloc/home_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_events/shared_events.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,96 +14,92 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late TextEditingController _controller;
-  late GameEventManager _eventManager;
-  bool connected = false;
-  PayerSkin skinSlected = PayerSkin.boy;
+  late HomeBloc _bloc;
   @override
   void initState() {
     _controller = TextEditingController();
-    Future.delayed(Duration.zero, _startWebSocket);
+    Future.delayed(Duration.zero, init);
     super.initState();
+  }
+
+  void init() {
+    _bloc = context.read<HomeBloc>();
+    _bloc.add(ConnectEvent());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          width: MediaQuery.of(context).size.width / 1.5,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Wrap(
+    return BlocConsumer<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state.ackEvent != null) {
+          GameRoute.open(context, state.ackEvent!);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          body: Center(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              width: MediaQuery.of(context).size.width / 1.5,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildItem(PayerSkin.boy, skinSlected, _selectSkin),
-                  _buildItem(PayerSkin.girl, skinSlected, _selectSkin),
+                  Wrap(
+                    children: [
+                      _buildItem(
+                          PayerSkin.boy, state.skinSelected, _selectSkin),
+                      _buildItem(
+                          PayerSkin.girl, state.skinSelected, _selectSkin),
+                    ],
+                  ),
+                  const SizedBox(height: 50),
+                  TextFormField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      labelText: 'Nickname',
+                    ),
+                  ),
+                  const SizedBox(height: 50),
+                  SizedBox(
+                    width: double.maxFinite,
+                    child: ElevatedButton(
+                      onPressed: state.connected ? _enter : null,
+                      child: const Text('Enter'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    state.connected ? 'Connected' : 'Connecting',
+                    style: TextStyle(
+                      color: state.connected ? Colors.green : Colors.yellow,
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 50),
-              TextFormField(
-                controller: _controller,
-                decoration: const InputDecoration(
-                  labelText: 'Nickname',
-                ),
-              ),
-              const SizedBox(height: 50),
-              SizedBox(
-                width: double.maxFinite,
-                child: ElevatedButton(
-                  onPressed: connected ? _enter : null,
-                  child: const Text('Enter'),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                connected ? 'Connected' : 'Connecting',
-                style: TextStyle(
-                  color: connected ? Colors.green : Colors.yellow,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
-  }
-
-  void _startWebSocket() async {
-    final websocket = context.read<WebsocketProvider>();
-    await websocket.init(
-      onConnect: _onConnect,
-      onDisconnect: _onDisconnect,
-    );
-  }
-
-  void _onConnect() {
-    _eventManager = context.read();
-    _eventManager.onEvent<JoinAckEvent>(EventType.JOIN_ACK.name, (event) {
-      GameRoute.open(context, event);
-    });
-    setState(() {
-      connected = true;
-    });
-  }
-
-  void _onDisconnect() {
-    setState(() {
-      connected = false;
-    });
   }
 
   void _enter() {
     if (_controller.text.isNotEmpty) {
-      _eventManager.send(
-        EventType.JOIN.name,
-        JoinEvent(name: _controller.text, skin: skinSlected.name),
-      );
+      _bloc.add(JoinGameEvent(name: _controller.text));
     }
   }
 
   Widget _buildItem(
-      PayerSkin skin, PayerSkin skinSlected, ValueChanged<PayerSkin> onTap) {
+    PayerSkin skin,
+    PayerSkin skinSlected,
+    ValueChanged<PayerSkin> onTap,
+  ) {
     return FutureBuilder(
       future: Sprite.load(
         skin.path,
@@ -133,8 +127,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _selectSkin(PayerSkin value) {
-    setState(() {
-      skinSlected = value;
-    });
+    _bloc.add(SelectSkinEvent(skin: value));
   }
 }

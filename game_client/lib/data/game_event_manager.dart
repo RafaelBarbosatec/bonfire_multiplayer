@@ -7,9 +7,20 @@ class GameEventManager {
   final Map<String, void Function(PlayerStateModel data)>
       playerStateSubscriber = {};
 
-  GameEventManager({required this.websocket}) {
-    _registerTypes();
-    _initOnPlayerState();
+  GameEventManager({required this.websocket});
+
+  Future<void> connect({
+    void Function()? onConnect,
+    void Function()? onDisconnect,
+  }) async {
+    await websocket.init(
+      onConnect: () {
+        _registerTypes();
+        _initOnPlayerState();
+        onConnect?.call();
+      },
+      onDisconnect: onDisconnect,
+    );
   }
 
   void send<T>(String event, T data) {

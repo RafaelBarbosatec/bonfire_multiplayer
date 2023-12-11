@@ -8,6 +8,4 @@ class UpdateStateEvent extends MyRemotePlayerEvent {
   UpdateStateEvent({required this.state});
 }
 
-class RemoveSbscribe extends MyRemotePlayerEvent{
-  
-}
+class RemoveSbscribe extends MyRemotePlayerEvent {}

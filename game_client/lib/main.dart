@@ -2,8 +2,10 @@ import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/data/websocket/polo_websocket.dart';
 import 'package:bonfire_multiplayer/data/websocket/websocket_provider.dart';
 import 'package:bonfire_multiplayer/pages/game/game_route.dart';
+import 'package:bonfire_multiplayer/pages/home/bloc/home_bloc.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -26,7 +28,8 @@ class MyApp extends StatelessWidget {
         ),
         Provider(
           create: (context) => GameEventManager(websocket: context.read()),
-        )
+        ),
+        BlocProvider(create: (context) => HomeBloc(context.read()))
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
