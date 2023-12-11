@@ -1,25 +1,38 @@
+// ignore_for_file: strict_raw_type
+
 import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
 
+import 'src/game/game.dart';
 import 'src/game/game_impl.dart';
 import 'src/infrastructure/logger/logger_logger.dart';
 import 'src/infrastructure/logger/logger_provider.dart';
-import 'src/infrastructure/websocket_manager.dart';
+import 'src/infrastructure/websocket/polo_websocket.dart';
+import 'src/infrastructure/websocket/websocket_provider.dart';
 
-GameImpl? game;
+Game? game;
 final LoggerProvider logger = LoggerLogger();
 
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
-  final server = await WebsocketManager().init(
+  final server = await PoloWebsocket().init(
     onClientConnect: onClientConnect,
     onClientDisconnect: onClientDisconnect,
   );
   game ??= GameImpl(server: server)..start();
-  return serve(handler, ip, port);
+
+  return serve(
+    handler.use(
+      provider<Game>(
+        (context) => game!,
+      ),
+    ),
+    ip,
+    port,
+  );
 }
 
-void onClientConnect(PoloClient client, WebsocketManager websocket) {
+void onClientConnect(PoloClient client, WebsocketProvider websocket) {
   game?.enterPlayer(client);
 }
 

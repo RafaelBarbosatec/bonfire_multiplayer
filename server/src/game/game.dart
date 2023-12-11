@@ -5,4 +5,5 @@ abstract class Game<T> {
   void leavePlayer(T client);
   void onUpdate();
   void requestUpdate();
+  List<dynamic> players();
 }

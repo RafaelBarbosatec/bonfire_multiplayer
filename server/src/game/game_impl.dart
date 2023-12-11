@@ -4,15 +4,18 @@ import 'dart:math';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
-import '../infrastructure/websocket_manager.dart';
+import '../infrastructure/websocket/polo_websocket.dart';
+import '../infrastructure/websocket/websocket_provider.dart';
 import '../player_manager.dart';
 import 'game.dart';
 import 'game_state.dart';
 
 class GameImpl extends Game<PoloClient> {
-  GameImpl({required this.server});
+  GameImpl({required this.server}) {
+    _registerTypes();
+  }
 
-  final WebsocketManager server;
+  final WebsocketProvider<PoloClient> server;
   Timer? _gameTimer;
   final GameState state = GameState();
   final Map<String, PlayerManager> _playerManagers = {};
@@ -48,23 +51,28 @@ class GameImpl extends Game<PoloClient> {
 
   @override
   void leavePlayer(PoloClient client) {
-    server.broadcastFrom(
-      client,
-      EventType.PLAYER_LEAVE.name,
-      PlayerEvent(player: state.players[client.id]!),
-    );
-    state.players.remove(client.id);
-    _playerManagers.remove(client.id);
+    if (state.players.containsKey(client.id)) {
+      server.broadcastFrom(
+        client,
+        EventType.PLAYER_LEAVE.name,
+        PlayerEvent(player: state.players[client.id]!),
+      );
+      state.players.remove(client.id);
+      _playerManagers.remove(client.id);
+    }
+
     logger.i('Client(${client.id}) Disconnected!');
   }
 
   @override
   void onUpdate() {
     if (_needUpdate) {
-      server.send(
-        EventType.UPDATE_STATE.name,
-        GameStateModel(players: state.players.values.toList()),
-      );
+      _playerManagers.forEach((key, value) {
+        value.client.send(
+          EventType.UPDATE_STATE.name,
+          GameStateModel(players: state.players.values.toList()),
+        );
+      });
       _needUpdate = false;
     }
   }
@@ -114,5 +122,44 @@ class GameImpl extends Game<PoloClient> {
   @override
   void requestUpdate() {
     _needUpdate = true;
+  }
+
+  @override
+  List<PlayerStateModel> players() {
+    return state.players.values.toList();
+  }
+
+  void _registerTypes() {
+    server
+      ..registerType<JoinEvent>(
+        TypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: JoinEvent.fromMap,
+        ),
+      )
+      ..registerType<JoinAckEvent>(
+        TypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: JoinAckEvent.fromMap,
+        ),
+      )
+      ..registerType<GameStateModel>(
+        TypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: GameStateModel.fromMap,
+        ),
+      )
+      ..registerType<PlayerEvent>(
+        TypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: PlayerEvent.fromMap,
+        ),
+      )
+      ..registerType<MoveEvent>(
+        TypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: MoveEvent.fromMap,
+        ),
+      );
   }
 }

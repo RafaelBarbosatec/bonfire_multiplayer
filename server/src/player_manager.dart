@@ -2,7 +2,7 @@
 import 'package:shared_events/shared_events.dart';
 
 import 'game/game.dart';
-import 'infrastructure/websocket_manager.dart';
+import 'infrastructure/websocket/polo_websocket.dart';
 
 class PlayerManager {
   PlayerManager({
