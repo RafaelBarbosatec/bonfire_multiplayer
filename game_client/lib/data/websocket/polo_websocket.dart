@@ -51,7 +51,9 @@ class PoloWebsocket extends WebsocketProvider {
       });
       _client?.listen();
     } catch (e) {
-      print('Error connection: $e');
+      if (kDebugMode) {
+        print('Error connection: $e');
+      }
       _tryReconnect(onConnect: onConnect, onDisconnect: onDisconnect);
     }
   }
