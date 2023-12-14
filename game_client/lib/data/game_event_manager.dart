@@ -4,8 +4,7 @@ import 'package:shared_events/shared_events.dart';
 class GameEventManager {
   final WebsocketProvider websocket;
 
-  final Map<String, void Function(PlayerStateModel data)>
-      playerStateSubscriber = {};
+  final Map<String, void Function(PlayerStateModel data)> playerStateSubscriber = {};
 
   GameEventManager({required this.websocket});
 
@@ -74,6 +73,12 @@ class GameEventManager {
       TypeAdapter(
         toMap: (type) => type.toMap(),
         fromMap: GameStateModel.fromMap,
+      ),
+    );
+    websocket.registerType<MoveValidationEvent>(
+      TypeAdapter(
+        toMap: (type) => type.toMap(),
+        fromMap: MoveValidationEvent.fromMap,
       ),
     );
     websocket.registerType<MoveEvent>(

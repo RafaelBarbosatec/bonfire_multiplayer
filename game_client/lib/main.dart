@@ -8,9 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-// String address = '192.168.0.10';
 String address = '127.0.0.1';
-// String address = '10.0.2.2';
 
 void main() {
   runApp(const MyApp());

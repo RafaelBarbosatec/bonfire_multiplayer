@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:async';
 import 'dart:math';
 
@@ -43,10 +45,50 @@ class GameImpl extends Game<PoloClient> {
   @override
   void enterPlayer(PoloClient client) {
     logger.i('Client(${client.id}) Connected!');
-    client.onEvent<JoinEvent>(EventType.JOIN.name, (message) {
-      logger.i('JoinEvent: ${message.toMap()}');
-      _joinPlayerInTheGame(client, message);
-    });
+    client
+      ..onEvent<JoinEvent>(EventType.JOIN.name, (message) {
+        logger.i('JoinEvent: ${message.toMap()}');
+        _joinPlayerInTheGame(client, message);
+      })
+      ..onEvent<MoveEvent>(EventType.PLAYER_MOVE.name, (message) {
+        _validateAndMovePlayer(client, message);
+      });
+  }
+
+  void _validateAndMovePlayer(PoloClient client, MoveEvent message) {
+    logger.i('MoveEvent: ${message.toMap()}');
+    final player = state.players[client.id];
+
+    if (player == null) {
+      logger.i('Player not found: ${client.id}');
+      return;
+    }
+
+    final oldPosition = player.position;
+    final newPosition = message.position;
+
+    if (isMoveValid(oldPosition, newPosition)) {
+      player.position = newPosition;
+      requestUpdate();
+      client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: true, position: newPosition));
+      logger.i('Move is valid. New position of player ${client.id}: $newPosition');
+    } else {
+      logger.i('Invalid move from player: ${client.id}');
+      client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: false, position: oldPosition));
+    }
+  }
+
+  bool isMoveValid(GamePosition oldPosition, GamePosition newPosition) {
+    final distance = sqrt(pow(newPosition.x - oldPosition.x, 2) + pow(newPosition.y - oldPosition.y, 2));
+
+    // Por enquanto, apenas verifique a distância do movimento
+    if (distance > 3) {
+      return false;
+    }
+
+    // No futuro, adicione a lógica para verificar os bloqueios do mapa aqui
+
+    return true;
   }
 
   @override
@@ -159,6 +201,12 @@ class GameImpl extends Game<PoloClient> {
         TypeAdapter(
           toMap: (type) => type.toMap(),
           fromMap: MoveEvent.fromMap,
+        ),
+      )
+      ..registerType<MoveValidationEvent>(
+        TypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: MoveValidationEvent.fromMap,
         ),
       );
   }
