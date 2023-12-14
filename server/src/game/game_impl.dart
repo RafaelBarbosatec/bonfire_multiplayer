@@ -102,14 +102,20 @@ class GameImpl extends Game<PoloClient> {
       client: client,
       game: this,
     );
-    // send ACK to client that request join.
-    client.send(
-      EventType.JOIN_ACK.name,
-      JoinAckEvent(
-        state: state.players[client.id]!,
-        players: state.players.values.toList(),
-      ),
-    );
+
+    client
+      ..onEvent<MoveEvent>(EventType.PLAYER_MOVE.name, (data) {
+        _handleMoveEvent(client, data);
+      })
+
+      // send ACK to client that request join.
+      ..send(
+        EventType.JOIN_ACK.name,
+        JoinAckEvent(
+          state: state.players[client.id]!,
+          players: state.players.values.toList(),
+        ),
+      );
 
     // send to others players that this player is joining
     server.broadcastFrom(
@@ -117,6 +123,48 @@ class GameImpl extends Game<PoloClient> {
       EventType.PLAYER_JOIN.name,
       PlayerEvent(player: state.players[client.id]!),
     );
+  }
+
+  void _handleMoveEvent(PoloClient client, MoveEvent event) {
+    // Get the PlayerManager for the client who sent the MoveEvent
+    PlayerManager? playerManager = _playerManagers[client.id];
+
+    // Calculate the new position based on the direction from the MoveEvent
+    // This is where you would add your game's movement logic
+    // For example, if the direction is "up", you might decrease the player's y coordinate
+    // If the direction is "down", you might increase the player's y coordinate
+    // And so on for "left" and "right"
+    GamePosition newPosition = calculateNewPosition(playerManager!.playerModel.position, event.direction);
+
+    // Check if the new position is valid (e.g., it's not outside the game area, it's not colliding with anything)
+    if (isValidPosition(newPosition)) {
+      // If the new position is valid, update the player's position
+      playerManager.playerModel.position = newPosition;
+
+      // Send a MoveResponseEvent with success = true back to the client
+      client.send(
+        EventType.MOVE_RESPONSE.name,
+        MoveResponseEvent(success: true),
+      );
+    } else {
+      // If the new position is not valid, send a MoveResponseEvent with success = false and an error message back to the client
+      client.send(
+        EventType.MOVE_RESPONSE.name,
+        MoveResponseEvent(success: false, errorMessage: "Invalid move"),
+      );
+    }
+  }
+
+  GamePosition calculateNewPosition(GamePosition currentPosition, String direction) {
+    // For now, let's just return the current position regardless of the direction
+    // In the future, you can add logic here to calculate the new position based on the direction
+    return currentPosition;
+  }
+
+  bool isValidPosition(GamePosition position) {
+    // For now, let's just return true to allow all positions
+    // In the future, you can add logic here to check if the position is valid (e.g., it's not outside the game area, it's not colliding with anything)
+    return true;
   }
 
   @override

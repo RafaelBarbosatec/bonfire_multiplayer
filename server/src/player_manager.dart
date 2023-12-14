@@ -20,10 +20,8 @@ class PlayerManager {
 
   void _confMove() {
     client.onEvent<MoveEvent>(EventType.PLAYER_MOVE.name, (data) {
-      // update playerState position
-      playerModel
-        ..position = data.position.clone()
-        ..direction = data.direction;
+      // update playerState direction
+      playerModel.direction = data.direction;
       game.requestUpdate();
     });
   }

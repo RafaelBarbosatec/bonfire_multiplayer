@@ -9,3 +9,11 @@ class UpdateMoveStateEvent extends MyPlayerEvent {
 
   UpdateMoveStateEvent({required this.position, this.direction});
 }
+
+class MoveResponseEvent extends MyPlayerEvent {
+  final bool success;
+  final String? errorMessage;
+  final Vector2? position; // Add this line
+
+  MoveResponseEvent({required this.success, this.errorMessage, this.position}); // Modify this line
+}
