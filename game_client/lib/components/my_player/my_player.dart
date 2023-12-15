@@ -67,6 +67,7 @@ class MyPlayer extends SimplePlayer with BlockMovementCollision, WithNameBottom,
         direction: lastDirection,
       );
       bloc.add(event);
+      print('Sending move event: $event');
       // Wait for the server to validate the move before updating the player's position
       bloc.stream.firstWhere((state) => state is MoveValidationState && state.event == event).then((state) {
         if (state is MoveValidationState) {

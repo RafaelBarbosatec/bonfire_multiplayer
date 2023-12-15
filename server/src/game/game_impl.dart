@@ -45,22 +45,21 @@ class GameImpl extends Game<PoloClient> {
   @override
   void enterPlayer(PoloClient client) {
     logger.i('Client(${client.id}) Connected!');
-    client
-      ..onEvent<JoinEvent>(EventType.JOIN.name, (message) {
+    client.onEvent<JoinEvent>(
+      EventType.JOIN.name,
+      (message) {
         logger.i('JoinEvent: ${message.toMap()}');
         _joinPlayerInTheGame(client, message);
-      })
-      ..onEvent<MoveEvent>(EventType.PLAYER_MOVE.name, (message) {
-        _validateAndMovePlayer(client, message);
-      });
+      },
+    );
   }
 
   void _validateAndMovePlayer(PoloClient client, MoveEvent message) {
-    logger.i('MoveEvent: ${message.toMap()}');
+    logger.i('_validateAndMovePlayer');
     final player = state.players[client.id];
 
     if (player == null) {
-      logger.i('Player not found: ${client.id}');
+      logger.i('player==null');
       return;
     }
 
@@ -70,10 +69,10 @@ class GameImpl extends Game<PoloClient> {
     if (isMoveValid(oldPosition, newPosition)) {
       player.position = newPosition;
       requestUpdate();
+      logger.i('Sending move validation event with direction: ${message.direction}');
       client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: true, position: newPosition));
-      logger.i('Move is valid. New position of player ${client.id}: $newPosition');
     } else {
-      logger.i('Invalid move from player: ${client.id}');
+      logger.i('else');
       client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: false, position: oldPosition));
     }
   }
@@ -83,11 +82,12 @@ class GameImpl extends Game<PoloClient> {
 
     // Por enquanto, apenas verifique a distância do movimento
     if (distance > 3) {
+      logger.i('isNotValid');
       return false;
     }
 
     // No futuro, adicione a lógica para verificar os bloqueios do mapa aqui
-
+    logger.i('isMoveValid');
     return true;
   }
 
@@ -144,14 +144,25 @@ class GameImpl extends Game<PoloClient> {
       client: client,
       game: this,
     );
-    // send ACK to client that request join.
-    client.send(
-      EventType.JOIN_ACK.name,
-      JoinAckEvent(
-        state: state.players[client.id]!,
-        players: state.players.values.toList(),
-      ),
-    );
+
+    client
+      ..onEvent<MoveEvent>(
+        EventType.PLAYER_MOVE.name,
+        (message) {
+          logger.i('PLAYER_MOVE');
+          print('Received move event: ${message.toMap()}');
+          _validateAndMovePlayer(client, message);
+        },
+      )
+
+      // send ACK to client that request join.
+      ..send(
+        EventType.JOIN_ACK.name,
+        JoinAckEvent(
+          state: state.players[client.id]!,
+          players: state.players.values.toList(),
+        ),
+      );
 
     // send to others players that this player is joining
     server.broadcastFrom(
