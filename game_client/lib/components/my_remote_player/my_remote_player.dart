@@ -50,7 +50,7 @@ class MyRemotePlayer extends SimplePlayer with BlockMovementCollision, WithNameB
 
   @override
   void onNewState(MyRemotePlayerState state) {
-    print('Received new state: $state with direction: ${state.direction}');
+    print('Received new state: $state with direction: ${state.direction.toString()}');
     // if distance greater than 5 pixel do interpolation of position
     if (position.distanceTo(state.position) > 5) {
       add(
@@ -61,10 +61,10 @@ class MyRemotePlayer extends SimplePlayer with BlockMovementCollision, WithNameB
       );
     }
     if (state.direction != null) {
-      print(state.direction!);
+      print('ANIMAÇÃO: ${state.direction!}');
       moveFromDirection(state.direction!);
     } else {
-      print(null);
+      print('NULL AQUI');
       stopMove();
     }
     super.onNewState(state);

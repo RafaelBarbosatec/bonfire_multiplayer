@@ -70,10 +70,10 @@ class GameImpl extends Game<PoloClient> {
       player.position = newPosition;
       requestUpdate();
       logger.i('Sending move validation event with direction: ${message.direction}');
-      client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: true, position: newPosition));
+      client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: true, position: newPosition, direction: message.direction));
     } else {
       logger.i('else');
-      client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: false, position: oldPosition));
+      client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: false, position: oldPosition, direction: message.direction));
     }
   }
 
@@ -81,7 +81,7 @@ class GameImpl extends Game<PoloClient> {
     final distance = sqrt(pow(newPosition.x - oldPosition.x, 2) + pow(newPosition.y - oldPosition.y, 2));
 
     // Por enquanto, apenas verifique a distância do movimento
-    if (distance > 3) {
+    if (distance > 32) {
       logger.i('isNotValid');
       return false;
     }
