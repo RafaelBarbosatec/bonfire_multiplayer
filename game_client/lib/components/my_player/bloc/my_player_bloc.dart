@@ -27,5 +27,6 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
         direction: event.direction?.name,
       ),
     );
+    print('Sending move event: $event');
   }
 }

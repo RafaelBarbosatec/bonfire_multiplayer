@@ -67,7 +67,9 @@ class GameImpl extends Game<PoloClient> {
     final newPosition = message.position;
 
     if (isMoveValid(oldPosition, newPosition)) {
-      player.position = newPosition;
+      player
+        ..position = newPosition
+        ..direction = message.direction;
       requestUpdate();
       logger.i('Sending move validation event with direction: ${message.direction}');
       client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: true, position: newPosition, direction: message.direction));
@@ -82,12 +84,12 @@ class GameImpl extends Game<PoloClient> {
 
     // Por enquanto, apenas verifique a distância do movimento
     if (distance > 32) {
-      logger.i('isNotValid');
+      logger.i('Move is not valid. Distance: $distance');
       return false;
     }
 
     // No futuro, adicione a lógica para verificar os bloqueios do mapa aqui
-    logger.i('isMoveValid');
+    logger.i('Move is valid. Distance: $distance');
     return true;
   }
 
