@@ -25,11 +25,7 @@ enum PayerSkin {
   }
 }
 
-class MyPlayer extends SimplePlayer
-    with
-        BlockMovementCollision,
-        WithNameBottom,
-        BonfireBlocListenable<MyPlayerBloc, MyPlayerState> {
+class MyPlayer extends SimplePlayer with BlockMovementCollision, WithNameBottom, BonfireBlocListenable<MyPlayerBloc, MyPlayerState> {
   MyPlayer({
     required super.position,
     required String name,
@@ -62,15 +58,24 @@ class MyPlayer extends SimplePlayer
     super.update(dt);
   }
 
+  // Altere este método na classe MyPlayer
   void _sendMoveState() {
     // send move state if not stoped
     if (!isIdle) {
-      bloc.add(
-        UpdateMoveStateEvent(
-          position: position,
-          direction: lastDirection,
-        ),
+      final event = UpdateMoveStateEvent(
+        position: position,
+        direction: lastDirection,
       );
+      bloc.add(event);
+      print('Sending move event: $event');
+      // Wait for the server to validate the move before updating the player's position
+      bloc.stream.firstWhere((state) => state is MoveValidationState && state.event == event).then((state) {
+        if (state is MoveValidationState) {
+          // The server has validated the move, update the player's position
+          position = state.position;
+          print('Received move validation from server. New position: $position');
+        }
+      });
     }
   }
 

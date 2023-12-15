@@ -6,11 +6,7 @@ import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 
-class MyRemotePlayer extends SimplePlayer
-    with
-        BlockMovementCollision,
-        WithNameBottom,
-        BonfireBlocListenable<MyRemotePlayerBloc, MyRemotePlayerState> {
+class MyRemotePlayer extends SimplePlayer with BlockMovementCollision, WithNameBottom, BonfireBlocListenable<MyRemotePlayerBloc, MyRemotePlayerState> {
   final String id;
   MyRemotePlayer({
     required super.position,
@@ -54,6 +50,7 @@ class MyRemotePlayer extends SimplePlayer
 
   @override
   void onNewState(MyRemotePlayerState state) {
+    print('Received new state: $state with direction: ${state.direction.toString()}');
     // if distance greater than 5 pixel do interpolation of position
     if (position.distanceTo(state.position) > 5) {
       add(
@@ -64,8 +61,10 @@ class MyRemotePlayer extends SimplePlayer
       );
     }
     if (state.direction != null) {
+      print('ANIMAÇÃO: ${state.direction!}');
       moveFromDirection(state.direction!);
     } else {
+      print('NULL AQUI');
       stopMove();
     }
     super.onNewState(state);

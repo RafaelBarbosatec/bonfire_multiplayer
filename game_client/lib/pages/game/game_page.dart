@@ -70,16 +70,13 @@ class _GamePageState extends State<GamePage> {
 
   // When the game is ready init listeners:
   // PLAYER_LEAVE: When some player leave remove it of game.
-  // PLAYER_JOIN: When some player enter adds it in the game.
   void _onReady(BonfireGameInterface game) {
     _eventManager = context.read();
     _eventManager.onDisconnect(() {
       HomeRoute.open(context);
     });
     _eventManager.onEvent<PlayerEvent>(EventType.PLAYER_LEAVE.name, (event) {
-      final toRemove = game
-          .query<MyRemotePlayer>()
-          .where((element) => element.id == event.player.id);
+      final toRemove = game.query<MyRemotePlayer>().where((element) => element.id == event.player.id);
       if (toRemove.isNotEmpty) {
         for (var p in toRemove) {
           p.removeFromParent();

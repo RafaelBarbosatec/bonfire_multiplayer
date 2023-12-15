@@ -28,3 +28,31 @@ class MoveEvent {
     );
   }
 }
+
+class MoveValidationEvent {
+  MoveValidationEvent({
+    required this.isValid,
+    required this.position,
+    required this.direction, // Add this line
+  });
+
+  final bool isValid;
+  final GamePosition position;
+  final String? direction; // And this line
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'isValid': isValid,
+      'position': position.toMap(),
+      'direction': direction, // And this line
+    };
+  }
+
+  factory MoveValidationEvent.fromMap(Map<String, dynamic> map) {
+    return MoveValidationEvent(
+      isValid: map['isValid'] as bool,
+      position: GamePosition.fromMap(map['position'] as Map<String, dynamic>),
+      direction: map['direction'] as String?, // And this line
+    );
+  }
+}

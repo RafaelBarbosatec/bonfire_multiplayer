@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:async';
 import 'dart:math';
 
@@ -43,10 +45,52 @@ class GameImpl extends Game<PoloClient> {
   @override
   void enterPlayer(PoloClient client) {
     logger.i('Client(${client.id}) Connected!');
-    client.onEvent<JoinEvent>(EventType.JOIN.name, (message) {
-      logger.i('JoinEvent: ${message.toMap()}');
-      _joinPlayerInTheGame(client, message);
-    });
+    client.onEvent<JoinEvent>(
+      EventType.JOIN.name,
+      (message) {
+        logger.i('JoinEvent: ${message.toMap()}');
+        _joinPlayerInTheGame(client, message);
+      },
+    );
+  }
+
+  void _validateAndMovePlayer(PoloClient client, MoveEvent message) {
+    logger.i('_validateAndMovePlayer');
+    final player = state.players[client.id];
+
+    if (player == null) {
+      logger.i('player==null');
+      return;
+    }
+
+    final oldPosition = player.position;
+    final newPosition = message.position;
+
+    if (isMoveValid(oldPosition, newPosition)) {
+      player
+        ..position = newPosition
+        ..direction = message.direction;
+      requestUpdate();
+      logger.i('Sending move validation event with direction: ${message.direction}');
+      client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: true, position: newPosition, direction: message.direction));
+    } else {
+      logger.i('else');
+      client.send(EventType.MOVE_VALIDATION.name, MoveValidationEvent(isValid: false, position: oldPosition, direction: message.direction));
+    }
+  }
+
+  bool isMoveValid(GamePosition oldPosition, GamePosition newPosition) {
+    final distance = sqrt(pow(newPosition.x - oldPosition.x, 2) + pow(newPosition.y - oldPosition.y, 2));
+
+    // Por enquanto, apenas verifique a distância do movimento
+    if (distance > 32) {
+      logger.i('Move is not valid. Distance: $distance');
+      return false;
+    }
+
+    // No futuro, adicione a lógica para verificar os bloqueios do mapa aqui
+    logger.i('Move is valid. Distance: $distance');
+    return true;
   }
 
   @override
@@ -102,14 +146,25 @@ class GameImpl extends Game<PoloClient> {
       client: client,
       game: this,
     );
-    // send ACK to client that request join.
-    client.send(
-      EventType.JOIN_ACK.name,
-      JoinAckEvent(
-        state: state.players[client.id]!,
-        players: state.players.values.toList(),
-      ),
-    );
+
+    client
+      ..onEvent<MoveEvent>(
+        EventType.PLAYER_MOVE.name,
+        (message) {
+          logger.i('PLAYER_MOVE');
+          print('Received move event: ${message.toMap()}');
+          _validateAndMovePlayer(client, message);
+        },
+      )
+
+      // send ACK to client that request join.
+      ..send(
+        EventType.JOIN_ACK.name,
+        JoinAckEvent(
+          state: state.players[client.id]!,
+          players: state.players.values.toList(),
+        ),
+      );
 
     // send to others players that this player is joining
     server.broadcastFrom(
@@ -159,6 +214,12 @@ class GameImpl extends Game<PoloClient> {
         TypeAdapter(
           toMap: (type) => type.toMap(),
           fromMap: MoveEvent.fromMap,
+        ),
+      )
+      ..registerType<MoveValidationEvent>(
+        TypeAdapter(
+          toMap: (type) => type.toMap(),
+          fromMap: MoveValidationEvent.fromMap,
         ),
       );
   }
