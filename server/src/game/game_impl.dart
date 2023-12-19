@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:shared_events/shared_events.dart';
@@ -8,6 +7,7 @@ import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
 import '../player_manager.dart';
 import 'game.dart';
+import 'game_client.dart';
 import 'game_state.dart';
 
 class GameImpl extends Game<PoloClient> {
@@ -16,49 +16,28 @@ class GameImpl extends Game<PoloClient> {
   }
 
   final WebsocketProvider<PoloClient> server;
-  Timer? _gameTimer;
   final GameState state = GameState();
-  final Map<String, PlayerManager> _playerManagers = {};
 
   bool _needUpdate = false;
 
   @override
-  void start() {
-    if (_gameTimer == null) {
-      logger.i('Start Game loop');
-      _gameTimer = Timer.periodic(
-        const Duration(milliseconds: 30),
-        (timer) => onUpdate(),
-      );
-    }
-  }
-
-  @override
-  void stop() {
-    logger.i('Stop Game loop');
-    _gameTimer?.cancel();
-    _gameTimer = null;
-  }
-
-  @override
-  void enterPlayer(PoloClient client) {
+  void enterClient(GameClient<PoloClient> client) {
     logger.i('Client(${client.id}) Connected!');
-    client.onEvent<JoinEvent>(EventType.JOIN.name, (message) {
+    client.socketClient.onEvent<JoinEvent>(EventType.JOIN.name, (message) {
       logger.i('JoinEvent: ${message.toMap()}');
       _joinPlayerInTheGame(client, message);
     });
   }
 
   @override
-  void leavePlayer(PoloClient client) {
+  void leaveClient(GameClient<PoloClient> client) {
     if (state.players.containsKey(client.id)) {
       server.broadcastFrom(
-        client,
+        client.socketClient,
         EventType.PLAYER_LEAVE.name,
-        PlayerEvent(player: state.players[client.id]!),
+        PlayerEvent(player: state.players[client.id]!.state),
       );
       state.players.remove(client.id);
-      _playerManagers.remove(client.id);
     }
 
     logger.i('Client(${client.id}) Disconnected!');
@@ -67,17 +46,21 @@ class GameImpl extends Game<PoloClient> {
   @override
   void onUpdate() {
     if (_needUpdate) {
-      _playerManagers.forEach((key, value) {
-        value.client.send(
+      final stateList = statePlayerList;
+      for (final player in state.players.values) {
+        player.client.socketClient.send(
           EventType.UPDATE_STATE.name,
-          GameStateModel(players: state.players.values.toList()),
+          GameStateModel(players: stateList),
         );
-      });
+      }
       _needUpdate = false;
     }
   }
 
-  void _joinPlayerInTheGame(PoloClient client, JoinEvent message) {
+  List<PlayerStateModel> get statePlayerList =>
+      state.players.values.map((e) => e.state).toList();
+
+  void _joinPlayerInTheGame(GameClient<PoloClient> client, JoinEvent message) {
     if (state.players.containsKey(client.id)) {
       return;
     }
@@ -89,34 +72,34 @@ class GameImpl extends Game<PoloClient> {
       y: 5 * tileSize,
     );
     // Adds Player
-    state.players[client.id] = PlayerStateModel(
-      id: client.id,
-      name: message.name,
-      skin: message.skin,
-      position: position,
-      life: 100,
-    );
 
-    _playerManagers[client.id] = PlayerManager(
-      playerModel: state.players[client.id]!,
+    state.players[client.id] = Player(
+      state: PlayerStateModel(
+        id: client.id,
+        name: message.name,
+        skin: message.skin,
+        position: position,
+        life: 100,
+      ),
       client: client,
       game: this,
     );
+
     // send ACK to client that request join.
-    client.send(
+    client.socketClient.send(
       EventType.JOIN_ACK.name,
       JoinAckEvent(
-        state: state.players[client.id]!,
-        players: state.players.values.toList(),
+        state: state.players[client.id]!.state,
+        players: statePlayerList,
         map: 'map.tmj',
       ),
     );
 
     // send to others players that this player is joining
     server.broadcastFrom(
-      client,
+      client.socketClient,
       EventType.PLAYER_JOIN.name,
-      PlayerEvent(player: state.players[client.id]!),
+      PlayerEvent(player: state.players[client.id]!.state),
     );
   }
 
@@ -127,7 +110,7 @@ class GameImpl extends Game<PoloClient> {
 
   @override
   List<PlayerStateModel> players() {
-    return state.players.values.toList();
+    return statePlayerList;
   }
 
   void _registerTypes() {

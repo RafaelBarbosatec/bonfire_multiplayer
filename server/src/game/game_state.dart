@@ -1,5 +1,5 @@
-import 'package:shared_events/shared_events.dart';
+import '../player_manager.dart';
 
 class GameState {
-  final Map<String, PlayerStateModel> players = {};
+  final Map<String, Player> players = {};
 }

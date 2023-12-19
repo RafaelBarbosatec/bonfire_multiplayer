@@ -2,26 +2,27 @@
 import 'package:shared_events/shared_events.dart';
 
 import 'game/game.dart';
+import 'game/game_client.dart';
 import 'infrastructure/websocket/polo_websocket.dart';
 
-class PlayerManager {
-  PlayerManager({
-    required this.playerModel,
+class Player {
+  Player({
+    required this.state,
     required this.client,
     required this.game,
   }) {
     _confMove();
   }
 
-  final PlayerStateModel playerModel;
-  final PoloClient client;
+  final PlayerStateModel state;
+  final GameClient<PoloClient> client;
   // ignore: strict_raw_type
   final Game game;
 
   void _confMove() {
-    client.onEvent<MoveEvent>(EventType.PLAYER_MOVE.name, (data) {
+    client.socketClient.onEvent<MoveEvent>(EventType.PLAYER_MOVE.name, (data) {
       // update playerState position
-      playerModel
+      state
         ..position = data.position.clone()
         ..direction = data.direction;
       game.requestUpdate();
