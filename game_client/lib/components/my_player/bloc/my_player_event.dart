@@ -9,3 +9,9 @@ class UpdateMoveStateEvent extends MyPlayerEvent {
 
   UpdateMoveStateEvent({required this.position, this.direction});
 }
+
+class UpdatePlayerPositionEvent extends MyPlayerEvent {
+  final Vector2 position;
+
+  UpdatePlayerPositionEvent({required this.position});
+}

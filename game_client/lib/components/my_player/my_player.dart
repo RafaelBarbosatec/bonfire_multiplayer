@@ -87,4 +87,17 @@ class MyPlayer extends SimplePlayer
 
     super.idle();
   }
+
+  @override
+  void onNewState(MyPlayerState state) {
+    if (position.distanceTo(state.position) > width / 2) {
+      add(
+        MoveEffect.to(
+          state.position,
+          EffectController(duration: 0.05),
+        ),
+      );
+    }
+    super.onNewState(state);
+  }
 }

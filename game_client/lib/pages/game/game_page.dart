@@ -24,7 +24,11 @@ class _GamePageState extends State<GamePage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MyPlayerBloc(context.read()),
+      create: (context) => MyPlayerBloc(
+        context.read(),
+        widget.event.state.id,
+        widget.event.state.position.toVector2(),
+      ),
       child: BonfireWidget(
         map: WorldMapByTiled('map/map.tmj'),
         joystick: Joystick(
