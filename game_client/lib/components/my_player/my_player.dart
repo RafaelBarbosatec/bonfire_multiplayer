@@ -90,7 +90,7 @@ class MyPlayer extends SimplePlayer
 
   @override
   void onNewState(MyPlayerState state) {
-    if (position.distanceTo(state.position) > width / 2) {
+    if (position.distanceTo(state.position) > width / 4) {
       add(
         MoveEffect.to(
           state.position,
