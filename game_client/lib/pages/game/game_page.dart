@@ -3,6 +3,7 @@ import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dar
 import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
+import 'package:bonfire_multiplayer/main.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:flutter/widgets.dart';
@@ -30,7 +31,7 @@ class _GamePageState extends State<GamePage> {
         widget.event.state.position.toVector2(),
       ),
       child: BonfireWidget(
-        map: WorldMapByTiled('map/map.tmj'),
+        map: WorldMapByTiled('http://$address:8080/maps/${widget.event.map}'),
         joystick: Joystick(
           keyboardConfig: KeyboardConfig(
             enableDiagonalInput: false,

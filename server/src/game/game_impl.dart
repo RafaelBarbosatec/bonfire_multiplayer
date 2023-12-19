@@ -108,6 +108,7 @@ class GameImpl extends Game<PoloClient> {
       JoinAckEvent(
         state: state.players[client.id]!,
         players: state.players.values.toList(),
+        map: 'map.tmj',
       ),
     );
 
