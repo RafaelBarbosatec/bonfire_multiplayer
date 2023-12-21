@@ -6,6 +6,7 @@ import '../infrastructure/websocket/polo_websocket.dart';
 import '../util/geometry.dart';
 
 class Player extends GameComponent {
+  static const speed = 100;
   Player({
     required this.state,
     required this.client,
@@ -52,19 +53,20 @@ class Player extends GameComponent {
 
   void _updatePosition(double dt) {
     final newPosition = state.position.clone();
+    final displacement = dt * speed;
 
     if (state.direction == 'left') {
-      newPosition.x -= dt * 100;
+      newPosition.x -= displacement;
     }
     if (state.direction == 'right') {
-      newPosition.x += dt * 100;
+      newPosition.x += displacement;
     }
 
     if (state.direction == 'up') {
-      newPosition.y -= dt * 100;
+      newPosition.y -= displacement;
     }
     if (state.direction == 'down') {
-      newPosition.y += dt * 100;
+      newPosition.y += displacement;
     }
     if (!checkCollisionWithParent(_getRect(newPosition))) {
       state.position = newPosition;
