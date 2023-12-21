@@ -18,6 +18,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<EnterGameEvent>(_onEnterGameEvent);
     on<SelectSkinEvent>(_onSelectSkin);
     on<JoinGameEvent>(_onJoinGameEvent);
+    on<DisposeEvent>(_onDisposeEvent);
   }
 
   FutureOr<void> _onConnectEvent(
@@ -77,5 +78,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         skin: state.skinSelected.name,
       ),
     );
+  }
+
+  FutureOr<void> _onDisposeEvent(DisposeEvent event, Emitter<HomeState> emit) {
+    emit(const HomeState());
   }
 }

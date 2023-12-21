@@ -15,11 +15,14 @@ class HomeState extends Equatable {
   @override
   List<Object?> get props => [connected, ackEvent, skinSelected];
 
-  HomeState copyWith(
-      {bool? connected, JoinAckEvent? ackEvent, PayerSkin? skinSelected}) {
+  HomeState copyWith({
+    bool? connected,
+    JoinAckEvent? ackEvent,
+    PayerSkin? skinSelected,
+  }) {
     return HomeState(
       connected: connected ?? this.connected,
-      ackEvent: ackEvent ?? this.ackEvent,
+      ackEvent: ackEvent,
       skinSelected: skinSelected ?? this.skinSelected,
     );
   }

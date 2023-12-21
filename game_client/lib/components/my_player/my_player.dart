@@ -2,6 +2,7 @@ import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_bloc/bonfire_bloc.dart';
 import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
+import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 
 enum PayerSkin {
@@ -30,6 +31,8 @@ class MyPlayer extends SimplePlayer
         BlockMovementCollision,
         WithNameBottom,
         BonfireBlocListenable<MyPlayerBloc, MyPlayerState> {
+  JoystickMoveDirectional? _joystickDirectional;
+  bool sendedIdle = false;
   MyPlayer({
     required super.position,
     required String name,
@@ -40,6 +43,14 @@ class MyPlayer extends SimplePlayer
           initDirection: Direction.down,
         ) {
     this.name = name;
+  }
+
+  @override
+  void onJoystickChangeDirectional(JoystickDirectionalEvent event) {
+    _joystickDirectional = event.directional;
+
+    // comments this part to not move component
+    // super.onJoystickChangeDirectional(event);
   }
 
   @override
@@ -64,40 +75,39 @@ class MyPlayer extends SimplePlayer
 
   void _sendMoveState() {
     // send move state if not stoped
-    if (!isIdle) {
-      bloc.add(
-        UpdateMoveStateEvent(
-          position: position,
-          direction: lastDirection,
-        ),
-      );
+    if (_joystickDirectional == JoystickMoveDirectional.IDLE) {
+      if (!sendedIdle) {
+        sendedIdle = true;
+        _sendMove();
+      }
+    } else if (_joystickDirectional != null) {
+      sendedIdle = false;
+      _sendMove();
     }
-  }
-
-  @override
-  void idle() {
-    // send move state stopped
-    if (isMounted) {
-      bloc.add(
-        UpdateMoveStateEvent(
-          position: position,
-        ),
-      );
-    }
-
-    super.idle();
   }
 
   @override
   void onNewState(MyPlayerState state) {
-    if (position.distanceTo(state.position) > width / 4) {
-      add(
-        MoveEffect.to(
-          state.position,
-          EffectController(duration: 0.05),
-        ),
-      );
+    add(
+      MoveEffect.to(
+        state.position,
+        EffectController(duration: 0.05),
+      ),
+    );
+    if (state.direction != null) {
+      moveFromDirection(state.direction!);
+    } else {
+      stopMove();
     }
     super.onNewState(state);
+  }
+
+  void _sendMove() {
+    bloc.add(
+      UpdateMoveStateEvent(
+        position: position,
+        direction: _joystickDirectional?.toDirection(),
+      ),
+    );
   }
 }

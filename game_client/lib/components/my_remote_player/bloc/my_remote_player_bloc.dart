@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
+import 'package:bonfire_multiplayer/util/functions.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_events/shared_events.dart';
@@ -18,8 +19,8 @@ class MyRemotePlayerBloc
   MyRemotePlayerBloc(this.playerId, this.initPosition, this._eventManager)
       : super(MyRemotePlayerState(position: initPosition)) {
     on<UpdateStateEvent>(_onUpdateStateEvent);
-    on<RemoveSbscribe>(_onRemoveSbscribe);
-    _eventManager.onPlayerState(
+    on<RemoveSbscribe>(_onRemoveSubscribe);
+    _eventManager.onSpecificPlayerState(
       playerId,
       _onPlayerState,
     );
@@ -33,25 +34,17 @@ class MyRemotePlayerBloc
   ) {
     emit(
       state.copyWith(
-        direction: _getDirectionFromName(event.state.direction),
+        direction: getDirectionFromName(event.state.direction),
         position: event.state.position.toVector2(),
       ),
     );
   }
 
-  FutureOr<void> _onRemoveSbscribe(
+  FutureOr<void> _onRemoveSubscribe(
     RemoveSbscribe event,
     Emitter<MyRemotePlayerState> emit,
   ) {
-    _eventManager.removeOnPlayerState(playerId);
+    _eventManager.removeOnSpecificPlayerState(playerId);
   }
 
-  Direction? _getDirectionFromName(String? direction) {
-    if (direction != null) {
-      return Direction.values.firstWhere(
-        (element) => element.name == direction,
-      );
-    }
-    return null;
-  }
 }

@@ -4,7 +4,5 @@ enum EventType {
   JOIN,
   JOIN_ACK,
   UPDATE_STATE,
-  PLAYER_JOIN,
-  PLAYER_LEAVE,
   PLAYER_MOVE;
 }

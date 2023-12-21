@@ -1,8 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class GamePosition {
-  final double x;
-  final double y;
+  double x;
+  double y;
 
   GamePosition({required this.x, required this.y});
 

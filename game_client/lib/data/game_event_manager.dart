@@ -5,7 +5,10 @@ class GameEventManager {
   final WebsocketProvider websocket;
 
   final Map<String, void Function(PlayerStateModel data)>
-      playerStateSubscriber = {};
+      specificPlayerStateSubscriber = {};
+
+  final List<void Function(List<PlayerStateModel> data)> playerStateSubscriber =
+      [];
 
   GameEventManager({required this.websocket});
 
@@ -35,23 +38,38 @@ class GameEventManager {
     websocket.onDisconnect(onDisconnect);
   }
 
-  void onPlayerState(
+  void onSpecificPlayerState(
     String id,
     void Function(PlayerStateModel data) callback,
   ) {
-    playerStateSubscriber[id] = callback;
+    specificPlayerStateSubscriber[id] = callback;
   }
 
-  void removeOnPlayerState(String id) {
-    playerStateSubscriber.remove(id);
+  void onPlayerState(
+    void Function(List<PlayerStateModel> data) callback,
+  ) {
+    playerStateSubscriber.add(callback);
+  }
+
+  void removeOnSpecificPlayerState(String id) {
+    specificPlayerStateSubscriber.remove(id);
+  }
+
+  void removeOnPlayerState(
+    void Function(PlayerStateModel data) callback,
+  ) {
+    playerStateSubscriber.remove(callback);
   }
 
   void _initOnPlayerState() {
     websocket.onEvent<GameStateModel>(
       EventType.UPDATE_STATE.name,
       (state) {
+        for (var call in playerStateSubscriber) {
+          call(state.players);
+        }
         for (var player in state.players) {
-          playerStateSubscriber[player.id]?.call(player);
+          specificPlayerStateSubscriber[player.id]?.call(player);
         }
       },
     );

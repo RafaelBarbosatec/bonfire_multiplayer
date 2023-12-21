@@ -1,4 +1,4 @@
-import '../player_manager.dart';
+import '../player.dart';
 
 class GameState {
   final Map<String, Player> players = {};

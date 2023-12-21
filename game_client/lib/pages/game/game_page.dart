@@ -73,6 +73,8 @@ class _GamePageState extends State<GamePage> {
     }).toList();
   }
 
+  int lastServerRemotes = 0;
+
   // When the game is ready init listeners:
   // PLAYER_LEAVE: When some player leave remove it of game.
   // PLAYER_JOIN: When some player enter adds it in the game.
@@ -81,25 +83,41 @@ class _GamePageState extends State<GamePage> {
     _eventManager.onDisconnect(() {
       HomeRoute.open(context);
     });
-    _eventManager.onEvent<PlayerEvent>(EventType.PLAYER_LEAVE.name, (event) {
-      final toRemove = game
-          .query<MyRemotePlayer>()
-          .where((element) => element.id == event.player.id);
-      if (toRemove.isNotEmpty) {
-        for (var p in toRemove) {
-          p.removeFromParent();
-        }
-      }
-    });
 
-    _eventManager.onEvent<PlayerEvent>(EventType.PLAYER_JOIN.name, (event) {
-      game.add(MyRemotePlayer(
-        position: event.player.position.toVector2(),
-        skin: PayerSkin.fromName(event.player.skin),
-        eventManager: context.read(),
-        id: event.player.id,
-        name: event.player.name,
-      ));
-    });
+    _eventManager.onPlayerState(
+      (serverPlayers) {
+        if (lastServerRemotes != serverPlayers.length) {
+          final remotePlayers = game.query<MyRemotePlayer>();
+          for (var serverPlayer in serverPlayers) {
+            if (serverPlayer.id == widget.event.state.id) {
+              return;
+            }
+            final contain =
+                remotePlayers.any((element) => element.id == serverPlayer.id);
+            if (!contain) {
+              game.add(
+                MyRemotePlayer(
+                  position: serverPlayer.position.toVector2(),
+                  skin: PayerSkin.fromName(serverPlayer.skin),
+                  eventManager: context.read(),
+                  id: serverPlayer.id,
+                  name: serverPlayer.name,
+                ),
+              );
+            }
+          }
+
+          for (var player in remotePlayers) {
+            final contain = serverPlayers.any(
+              (element) => element.id == player.id,
+            );
+            if (contain) {
+              player.removeFromParent();
+            }
+          }
+          lastServerRemotes = serverPlayers.length;
+        }
+      },
+    );
   }
 }

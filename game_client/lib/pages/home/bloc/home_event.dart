@@ -32,3 +32,7 @@ class JoinGameEvent extends HomeEvent {
     required this.name,
   });
 }
+
+class DisposeEvent extends HomeEvent{
+
+}
