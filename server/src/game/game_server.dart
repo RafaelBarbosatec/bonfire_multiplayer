@@ -4,6 +4,7 @@ import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
 import '../core/game.dart';
+import '../core/game_component.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
 import 'player.dart';
@@ -31,14 +32,14 @@ class GameServer extends Game {
         .whereType<Player>()
         .where((element) => element.id == client.id)
         .forEach((element) => element.removeFromParent());
-    requestUpdate('');
+    requestUpdate();
     logger.i('Client(${client.id}) Disconnected!');
   }
 
   @override
-  void onUpdateState(String key) {
-    final stateList = statePlayerList;
-    for (final player in components.whereType<Player>()) {
+  void onUpdateState(GameComponent comp) {
+    final stateList = statePlayerList(comp);
+    for (final player in comp.components.whereType<Player>()) {
       player.client.send(
         EventType.UPDATE_STATE.name,
         GameStateModel(players: stateList),
@@ -46,8 +47,9 @@ class GameServer extends Game {
     }
   }
 
-  List<PlayerStateModel> get statePlayerList {
-    return components.whereType<Player>().map((e) => e.state).toList();
+  List<PlayerStateModel> statePlayerList(GameComponent? comp) {
+    if (comp == null) return [];
+    return comp.components.whereType<Player>().map((e) => e.state).toList();
   }
 
   void _joinPlayerInTheGame(PoloClient client, JoinEvent message) {
@@ -85,13 +87,13 @@ class GameServer extends Game {
       EventType.JOIN_ACK.name,
       JoinAckEvent(
         state: player.state,
-        players: statePlayerList,
+        players: statePlayerList(player.parent),
         map: 'map.tmj',
       ),
     );
 
     // send to others players that this player is joining
-    requestUpdate('');
+    requestUpdate();
   }
 
   void _registerTypes() {

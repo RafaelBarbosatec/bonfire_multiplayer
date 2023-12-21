@@ -3,43 +3,36 @@ import 'dart:async';
 import '../../main.dart';
 import 'game_component.dart';
 
-abstract class Game {
-  List<GameComponent> components = [];
-  final List<GameComponent> _compsToRemove = [];
-
+abstract class Game extends GameComponent {
+  final List<GameComponent> _compRequestedUpdate = [];
   Timer? _gameTimer;
-  bool _needUpdate = false;
   final DateTime _initialTime = DateTime.now();
   double get _currentTime {
     return DateTime.now().difference(_initialTime).inMilliseconds / 1000.0;
   }
+
   double _previous = 0;
 
+  @override
   void onUpdate(double dt) {
-    for (final element in components) {
-      element.onUpdate(dt);
-    }
-
-    if (_compsToRemove.isNotEmpty) {
-      for (final comp in _compsToRemove) {
-        components.remove(comp);
+    super.onUpdate(dt);
+    if (_compRequestedUpdate.isNotEmpty) {
+      for (final comp in _compRequestedUpdate) {
+        onUpdateState(comp);
       }
-      _compsToRemove.clear();
-    }
-
-    if (_needUpdate) {
-      _needUpdate = false;
-      onUpdateState('');
+      _compRequestedUpdate.clear();
     }
   }
 
-  void requestUpdate(String id) {
-    _needUpdate = true;
+  @override
+  void onRequestUpdate(GameComponent comp) {
+    _compRequestedUpdate.add(comp);
   }
 
-  void onUpdateState(String key);
+  void onUpdateState(GameComponent comp);
 
-  void start() {
+  // ignore: strict_raw_type
+  Future start() {
     if (_gameTimer == null) {
       logger.i('Start Game loop');
       _gameTimer = Timer.periodic(
@@ -52,20 +45,12 @@ abstract class Game {
         },
       );
     }
+    return Future.value();
   }
 
   void stop() {
     logger.i('Stop Game loop');
     _gameTimer?.cancel();
     _gameTimer = null;
-  }
-
-  void add(GameComponent comp) {
-    comp.game = this;
-    components.add(comp);
-  }
-
-  void remove(GameComponent comp) {
-    _compsToRemove.add(comp);
   }
 }

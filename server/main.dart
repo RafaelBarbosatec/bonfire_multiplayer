@@ -19,7 +19,8 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
     onClientConnect: onClientConnect,
     onClientDisconnect: onClientDisconnect,
   );
-  game ??= GameServer(server: server)..start();
+  game ??= GameServer(server: server);
+  await game!.start();
 
   return serve(
     handler.use(
