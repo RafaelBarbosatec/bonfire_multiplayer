@@ -61,7 +61,7 @@ class GameServer extends Game {
     const tileSize = 16.0;
 
     // Create initial position
-    final position = GamePosition(
+    final position = GameVector(
       x: (8 + Random().nextInt(3)) * tileSize,
       y: 5 * tileSize,
     );

@@ -18,7 +18,7 @@ class Player extends GameComponent {
 
   String get id => state.id;
 
-  Rect _getRect(GamePosition position) => Rect.fromLTWH(
+  Rect _getRect(GameVector position) => Rect.fromLTWH(
         position.x,
         position.y,
         0, // TODO adds size collision

@@ -17,9 +17,9 @@ class PlayerStateModel {
   final String name;
   final String skin;
   String? direction;
-  GamePosition position;
+  GameVector position;
   int life;
-  late final GamePosition initPosition;
+  late final GameVector initPosition;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -37,7 +37,7 @@ class PlayerStateModel {
       id: map['id'] as String,
       name: map['name'] as String,
       skin: map['skin'] as String,
-      position: GamePosition.fromMap(map['position'] as Map<String, dynamic>),
+      position: GameVector.fromMap(map['position'] as Map<String, dynamic>),
       life: map['life'] as int,
       direction: map['direction'] as String?,
     );

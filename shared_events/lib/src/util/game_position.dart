@@ -1,10 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-class GamePosition {
+class GameVector {
   double x;
   double y;
 
-  GamePosition({required this.x, required this.y});
+  GameVector({required this.x, required this.y});
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -13,14 +13,14 @@ class GamePosition {
     };
   }
 
-  factory GamePosition.fromMap(Map<String, dynamic> map) {
-    return GamePosition(
+  factory GameVector.fromMap(Map<String, dynamic> map) {
+    return GameVector(
       x: double.parse(map['x']?.toString() ?? '0'),
       y: double.parse(map['y']?.toString() ?? '0'),
     );
   }
 
-  GamePosition clone() {
-    return GamePosition(x: x, y: y);
+  GameVector clone() {
+    return GameVector(x: x, y: y);
   }
 }

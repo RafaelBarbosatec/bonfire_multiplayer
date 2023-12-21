@@ -33,6 +33,4 @@ class JoinGameEvent extends HomeEvent {
   });
 }
 
-class DisposeEvent extends HomeEvent{
-
-}
+class DisposeEvent extends HomeEvent {}

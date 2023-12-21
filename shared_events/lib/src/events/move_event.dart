@@ -8,7 +8,7 @@ class MoveEvent {
     required this.direction,
   });
 
-  final GamePosition position;
+  final GameVector position;
   final String time;
   final String? direction;
 
@@ -22,7 +22,7 @@ class MoveEvent {
 
   factory MoveEvent.fromMap(Map<String, dynamic> map) {
     return MoveEvent(
-      position: GamePosition.fromMap(map['position'] as Map<String, dynamic>),
+      position: GameVector.fromMap(map['position'] as Map<String, dynamic>),
       time: map['time'] as String,
       direction: map['direction'] as String?,
     );

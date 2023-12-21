@@ -14,9 +14,7 @@ class UpdatePlayerPositionEvent extends MyPlayerEvent {
   final Vector2 position;
   final Direction? direction;
 
-  UpdatePlayerPositionEvent({required this.position,required this.direction});
+  UpdatePlayerPositionEvent({required this.position, required this.direction});
 }
 
-class DisposeEvent extends MyPlayerEvent{
-
-}
+class DisposeEvent extends MyPlayerEvent {}

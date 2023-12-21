@@ -46,5 +46,4 @@ class MyRemotePlayerBloc
   ) {
     _eventManager.removeOnSpecificPlayerState(playerId);
   }
-
 }
