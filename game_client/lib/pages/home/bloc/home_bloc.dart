@@ -25,6 +25,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     ConnectEvent event,
     Emitter<HomeState> emit,
   ) async {
+    
     await _eventManager.connect(
       onConnect: _onConnect,
       onDisconnect: _onDisconnect,

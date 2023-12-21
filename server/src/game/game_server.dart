@@ -3,22 +3,22 @@ import 'dart:math';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
+import '../core/game.dart';
+import '../core/game_client.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
-import '../player.dart';
-import 'game.dart';
-import 'game_client.dart';
+import 'player.dart';
 
-class GameImpl extends Game<PoloClient> {
-  GameImpl({required this.server}) {
+class GameServer extends Game {
+  GameServer({required this.server}) {
     _registerTypes();
   }
+  List<GameClient<PoloClient>> clients = [];
 
   final WebsocketProvider<PoloClient> server;
-  // final GameState state = GameState();
 
-  @override
   void enterClient(GameClient<PoloClient> client) {
+    clients.add(client);
     logger.i('Client(${client.id}) Connected!');
     client.socketClient.onEvent<JoinEvent>(EventType.JOIN.name, (message) {
       logger.i('JoinEvent: ${message.toMap()}');
@@ -26,8 +26,8 @@ class GameImpl extends Game<PoloClient> {
     });
   }
 
-  @override
   void leaveClient(GameClient<PoloClient> client) {
+    clients.remove(client);
     components
         .whereType<Player>()
         .where((element) => element.id == client.id)
@@ -93,11 +93,6 @@ class GameImpl extends Game<PoloClient> {
 
     // send to others players that this player is joining
     requestUpdate('');
-  }
-
-  @override
-  List<PlayerStateModel> players() {
-    return statePlayerList;
   }
 
   void _registerTypes() {

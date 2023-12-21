@@ -21,6 +21,13 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> {
   late GameEventManager _eventManager;
+  late BonfireGameInterface game;
+
+  @override
+  void dispose() {
+    _eventManager.removeOnPlayerState(_onPlayerState);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,45 +86,50 @@ class _GamePageState extends State<GamePage> {
   // PLAYER_LEAVE: When some player leave remove it of game.
   // PLAYER_JOIN: When some player enter adds it in the game.
   void _onReady(BonfireGameInterface game) {
+    this.game = game;
     _eventManager = context.read();
     _eventManager.onDisconnect(() {
       HomeRoute.open(context);
     });
 
     _eventManager.onPlayerState(
-      (serverPlayers) {
-        if (lastServerRemotes != serverPlayers.length) {
-          final remotePlayers = game.query<MyRemotePlayer>();
-          for (var serverPlayer in serverPlayers) {
-            if (serverPlayer.id == widget.event.state.id) {
-              return;
-            }
-            final contain =
-                remotePlayers.any((element) => element.id == serverPlayer.id);
-            if (!contain) {
-              game.add(
-                MyRemotePlayer(
-                  position: serverPlayer.position.toVector2(),
-                  skin: PayerSkin.fromName(serverPlayer.skin),
-                  eventManager: context.read(),
-                  id: serverPlayer.id,
-                  name: serverPlayer.name,
-                ),
-              );
-            }
-          }
-
-          for (var player in remotePlayers) {
-            final contain = serverPlayers.any(
-              (element) => element.id == player.id,
-            );
-            if (contain) {
-              player.removeFromParent();
-            }
-          }
-          lastServerRemotes = serverPlayers.length;
-        }
-      },
+      _onPlayerState,
     );
+  }
+
+  void _onPlayerState(List<PlayerStateModel> serverPlayers) {
+    if (lastServerRemotes != serverPlayers.length) {
+      final remotePlayers = game.query<MyRemotePlayer>();
+      // adds RemotePlayer if no exist in the game but exist in server
+      for (var serverPlayer in serverPlayers) {
+        if (serverPlayer.id != widget.event.state.id) {
+          final contain = remotePlayers.any(
+            (element) => element.id == serverPlayer.id,
+          );
+          if (!contain) {
+            game.add(
+              MyRemotePlayer(
+                position: serverPlayer.position.toVector2(),
+                skin: PayerSkin.fromName(serverPlayer.skin),
+                eventManager: context.read(),
+                id: serverPlayer.id,
+                name: serverPlayer.name,
+              ),
+            );
+          }
+        }
+      }
+
+      // remove RemotePlayer if no exist in server
+      for (var player in remotePlayers) {
+        final contain = serverPlayers.any(
+          (element) => element.id == player.id,
+        );
+        if (!contain) {
+          player.removeFromParent();
+        }
+      }
+      lastServerRemotes = serverPlayers.length;
+    }
   }
 }

@@ -20,6 +20,7 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
             MyPlayerState(position: initPosition, direction: Direction.down)) {
     on<UpdateMoveStateEvent>(_onUpdateMoveStateEvent);
     on<UpdatePlayerPositionEvent>(_onUpdatePlayerPositionEvent);
+    on<DisposeEvent>(_onDisposeEvent);
 
     _eventManager.onSpecificPlayerState(
       id,
@@ -53,5 +54,10 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
     Emitter<MyPlayerState> emit,
   ) {
     emit(state.copyWith(position: event.position, direction: event.direction));
+  }
+
+  FutureOr<void> _onDisposeEvent(
+      DisposeEvent event, Emitter<MyPlayerState> emit) {
+    _eventManager.removeOnSpecificPlayerState(id);
   }
 }

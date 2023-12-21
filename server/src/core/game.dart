@@ -1,13 +1,12 @@
 import 'dart:async';
 
 import '../../main.dart';
-import 'game_client.dart';
 import 'game_component.dart';
 
-abstract class Game<T> {
-  List<GameComponent<T>> components = [];
-  final List<GameComponent<T>> _compsToRemove = [];
-  List<GameClient<T>> clients = [];
+abstract class Game {
+  List<GameComponent> components = [];
+  final List<GameComponent> _compsToRemove = [];
+
   Timer? _gameTimer;
   bool _needUpdate = false;
   final DateTime _initialTime = DateTime.now();
@@ -32,8 +31,6 @@ abstract class Game<T> {
       onUpdateState('');
     }
   }
-
-  List<dynamic> players();
 
   void requestUpdate(String id) {
     _needUpdate = true;
@@ -62,20 +59,12 @@ abstract class Game<T> {
     _gameTimer = null;
   }
 
-  void enterClient(GameClient<T> client) {
-    clients.add(client);
-  }
-
-  void leaveClient(GameClient<T> client) {
-    clients.remove(client);
-  }
-
-  void add(GameComponent<T> comp) {
+  void add(GameComponent comp) {
     comp.game = this;
     components.add(comp);
   }
 
-  void remove(GameComponent<T> comp) {
+  void remove(GameComponent comp) {
     _compsToRemove.add(comp);
   }
 }

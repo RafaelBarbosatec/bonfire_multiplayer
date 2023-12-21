@@ -110,4 +110,10 @@ class MyPlayer extends SimplePlayer
       ),
     );
   }
+
+  @override
+  void onRemove() {
+    bloc.add(DisposeEvent());
+    super.onRemove();
+  }
 }

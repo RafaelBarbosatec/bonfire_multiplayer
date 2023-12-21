@@ -56,7 +56,7 @@ class GameEventManager {
   }
 
   void removeOnPlayerState(
-    void Function(PlayerStateModel data) callback,
+    void Function(List<PlayerStateModel> data) callback,
   ) {
     playerStateSubscriber.remove(callback);
   }

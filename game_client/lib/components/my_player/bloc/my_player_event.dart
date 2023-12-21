@@ -16,3 +16,7 @@ class UpdatePlayerPositionEvent extends MyPlayerEvent {
 
   UpdatePlayerPositionEvent({required this.position,required this.direction});
 }
+
+class DisposeEvent extends MyPlayerEvent{
+
+}
