@@ -10,8 +10,9 @@ abstract class Game {
   Timer? _gameTimer;
   bool _needUpdate = false;
   final DateTime _initialTime = DateTime.now();
-  double get _currentTime =>
-      DateTime.now().difference(_initialTime).inMilliseconds / 1000.0;
+  double get _currentTime {
+    return DateTime.now().difference(_initialTime).inMilliseconds / 1000.0;
+  }
   double _previous = 0;
 
   void onUpdate(double dt) {

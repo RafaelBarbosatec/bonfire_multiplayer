@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/shared_events.dart';
 
-import '../core/game_client.dart';
+
 import '../core/game_component.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 
@@ -14,12 +14,12 @@ class Player extends GameComponent {
   }
 
   final PlayerStateModel state;
-  final GameClient<PoloClient> client;
+  final PoloClient client;
 
   String get id => state.id;
 
   void _confMove() {
-    client.socketClient.onEvent<MoveEvent>(
+    client.onEvent<MoveEvent>(
       EventType.PLAYER_MOVE.name,
       (data) {
         state.direction = data.direction;

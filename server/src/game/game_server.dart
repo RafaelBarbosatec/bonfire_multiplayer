@@ -4,7 +4,6 @@ import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
 import '../core/game.dart';
-import '../core/game_client.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
 import 'player.dart';
@@ -13,20 +12,20 @@ class GameServer extends Game {
   GameServer({required this.server}) {
     _registerTypes();
   }
-  List<GameClient<PoloClient>> clients = [];
+  List<PoloClient> clients = [];
 
   final WebsocketProvider<PoloClient> server;
 
-  void enterClient(GameClient<PoloClient> client) {
+  void enterClient(PoloClient client) {
     clients.add(client);
     logger.i('Client(${client.id}) Connected!');
-    client.socketClient.onEvent<JoinEvent>(EventType.JOIN.name, (message) {
+    client.onEvent<JoinEvent>(EventType.JOIN.name, (message) {
       logger.i('JoinEvent: ${message.toMap()}');
       _joinPlayerInTheGame(client, message);
     });
   }
 
-  void leaveClient(GameClient<PoloClient> client) {
+  void leaveClient(PoloClient client) {
     clients.remove(client);
     components
         .whereType<Player>()
@@ -40,7 +39,7 @@ class GameServer extends Game {
   void onUpdateState(String key) {
     final stateList = statePlayerList;
     for (final player in components.whereType<Player>()) {
-      player.client.socketClient.send(
+      player.client.send(
         EventType.UPDATE_STATE.name,
         GameStateModel(players: stateList),
       );
@@ -51,7 +50,7 @@ class GameServer extends Game {
     return components.whereType<Player>().map((e) => e.state).toList();
   }
 
-  void _joinPlayerInTheGame(GameClient<PoloClient> client, JoinEvent message) {
+  void _joinPlayerInTheGame(PoloClient client, JoinEvent message) {
     if (components
         .whereType<Player>()
         .any((element) => element.state.id == client.id)) {
@@ -82,7 +81,7 @@ class GameServer extends Game {
     );
 
     // send ACK to client that request join.
-    client.socketClient.send(
+    client.send(
       EventType.JOIN_ACK.name,
       JoinAckEvent(
         state: player.state,

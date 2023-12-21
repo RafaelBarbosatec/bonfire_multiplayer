@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 
 import 'src/core/game.dart';
-import 'src/core/game_client.dart';
 import 'src/game/game_server.dart';
 import 'src/infrastructure/logger/logger_logger.dart';
 import 'src/infrastructure/logger/logger_provider.dart';
@@ -34,9 +33,9 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
 }
 
 void onClientConnect(PoloClient client, WebsocketProvider websocket) {
-  game?.enterClient(GameClient(id: client.id, socketClient: client));
+  game?.enterClient(client);
 }
 
 void onClientDisconnect(PoloClient client) {
-  game?.leaveClient(GameClient(id: client.id, socketClient: client));
+  game?.leaveClient(client);
 }
