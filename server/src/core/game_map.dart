@@ -46,7 +46,7 @@ abstract class GameMap extends GameComponent {
       case TypeLayer.tilelayer:
         for (final tile in (layer as TileLayer).data ?? <int>[]) {
           if (tile != 0) {
-            _getCollitionFromTile(tile, map);
+            _getCollisionFromTile(tile, map);
           }
         }
       case TypeLayer.objectgroup:
@@ -74,7 +74,7 @@ abstract class GameMap extends GameComponent {
     }
   }
 
-  void _getCollitionFromTile(int tile, TiledMap map) {
+  void _getCollisionFromTile(int tile, TiledMap map) {
     // TODO extract collision from tile configuration.
   }
 }
