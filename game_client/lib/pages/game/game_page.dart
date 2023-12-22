@@ -38,7 +38,7 @@ class _GamePageState extends State<GamePage> {
         widget.event.state.position.toVector2(),
       ),
       child: BonfireWidget(
-        map: WorldMapByTiled('http://$address:8080/maps/${widget.event.map}'),
+        map: WorldMapByTiled('http://$address:8080/${widget.event.map}'),
         joystick: Joystick(
           keyboardConfig: KeyboardConfig(
             enableDiagonalInput: false,

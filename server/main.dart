@@ -5,8 +5,8 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 
 import 'src/core/game.dart';
-import 'src/game/game_map.dart';
 import 'src/game/game_server.dart';
+import 'src/game/maps/map1.dart';
 import 'src/infrastructure/logger/logger_logger.dart';
 import 'src/infrastructure/logger/logger_provider.dart';
 import 'src/infrastructure/websocket/polo_websocket.dart';
@@ -23,10 +23,7 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   game ??= GameServer(
     server: server,
     maps: [
-      GameMap(
-        name: 'map1',
-        path: 'public/maps/map.tmj',
-      ),
+      Map1(),
     ],
   );
   await game!.start();

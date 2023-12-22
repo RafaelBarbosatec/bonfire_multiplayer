@@ -5,13 +5,13 @@ import 'package:tiledjsonreader/map/layer/objects.dart';
 import 'package:tiledjsonreader/map/layer/type_layer.dart';
 import 'package:tiledjsonreader/tiledjsonreader.dart';
 
-import '../core/game_component.dart';
 import '../util/geometry.dart';
+import 'game_component.dart';
 
-class GameMap extends GameComponent {
+abstract class GameMap extends GameComponent {
   final String name;
   final String path;
-  final List<Rect> collisions = [];
+  final List<Rect> _collisions = [];
 
   GameMap({
     required this.name,
@@ -20,7 +20,7 @@ class GameMap extends GameComponent {
 
   @override
   bool checkCollisionWithParent(Rect rect) {
-    for (final collision in collisions) {
+    for (final collision in _collisions) {
       if (rect.overlaps(collision)) {
         return true;
       }
@@ -29,7 +29,7 @@ class GameMap extends GameComponent {
   }
 
   Future<void> load() async {
-    final tiled = TiledJsonReader(path);
+    final tiled = TiledJsonReader('public/$path');
     final map = await tiled.read();
     for (final layer in map.layers ?? <MapLayer>[]) {
       switch (layer.type) {
@@ -38,7 +38,7 @@ class GameMap extends GameComponent {
         case TypeLayer.objectgroup:
           if (layer.layerClass == 'collision') {
             for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
-              collisions.add(
+              _collisions.add(
                 Rect.fromLTWH(
                   obj.x ?? 0,
                   obj.y ?? 0,

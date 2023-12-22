@@ -5,9 +5,9 @@ import 'package:shared_events/shared_events.dart';
 import '../../main.dart';
 import '../core/game.dart';
 import '../core/game_component.dart';
+import '../core/game_map.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
-import 'game_map.dart';
 import 'player.dart';
 
 class GameServer extends Game {
@@ -80,7 +80,9 @@ class GameServer extends Game {
       client: client,
     );
 
-    maps[0].add(player);
+    const initialMap = 0;
+
+    maps[initialMap].add(player);
 
     // send ACK to client that request join.
     client.send(
@@ -88,7 +90,7 @@ class GameServer extends Game {
       JoinAckEvent(
         state: player.state,
         players: statePlayerList(player.parent),
-        map: 'map.tmj',
+        map: maps[initialMap].path,
       ),
     );
 
@@ -101,6 +103,7 @@ class GameServer extends Game {
   @override
   Future<void> start() async {
     if (!mapLoaded) {
+      logger.d('Loading maps...');
       for (final map in maps) {
         await map.load();
         add(map);
