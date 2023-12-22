@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/shared_events.dart';
+import 'package:tiledjsonreader/map/layer/group_layer.dart';
 import 'package:tiledjsonreader/map/layer/map_layer.dart';
 import 'package:tiledjsonreader/map/layer/object_layer.dart';
 import 'package:tiledjsonreader/map/layer/objects.dart';
@@ -36,33 +37,40 @@ abstract class GameMap extends GameComponent {
     final tiled = TiledJsonReader('public/$path');
     final map = await tiled.read();
     for (final layer in map.layers ?? <MapLayer>[]) {
-      switch (layer.type) {
-        case TypeLayer.tilelayer:
-          for (final tile in (layer as TileLayer).data ?? <int>[]) {
-            if (tile != 0) {
-              _getCollitionFromTile(tile, map);
-            }
+      _collectLayerInformations(layer, map);
+    }
+  }
+
+  void _collectLayerInformations(MapLayer layer, TiledMap map) {
+    switch (layer.type) {
+      case TypeLayer.tilelayer:
+        for (final tile in (layer as TileLayer).data ?? <int>[]) {
+          if (tile != 0) {
+            _getCollitionFromTile(tile, map);
           }
-        case TypeLayer.objectgroup:
-          if (layer.layerClass == 'collision') {
-            for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
-              _collisions.add(
-                GameRectangle(
-                  position: GameVector(x: obj.x ?? 0, y: obj.y ?? 0),
-                  size: GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
-                ),
-              );
-            }
-          } else {
-            for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
-              onObjectBuild(GameMapObject.fromObjects(obj));
-            }
+        }
+      case TypeLayer.objectgroup:
+        if (layer.layerClass == 'collision') {
+          for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
+            _collisions.add(
+              GameRectangle(
+                position: GameVector(x: obj.x ?? 0, y: obj.y ?? 0),
+                size: GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
+              ),
+            );
           }
-        case TypeLayer.imagelayer:
-        case TypeLayer.group:
-        // ignore: no_default_cases
-        default:
-      }
+        } else {
+          for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
+            onObjectBuild(GameMapObject.fromObjects(obj));
+          }
+        }
+      case TypeLayer.group:
+        for (final subLayer in (layer as GroupLayer).layers ?? <MapLayer>[]) {
+          _collectLayerInformations(subLayer, map);
+        }
+      case TypeLayer.imagelayer:
+      // ignore: no_default_cases
+      default:
     }
   }
 
