@@ -31,8 +31,7 @@ abstract class Game extends GameComponent {
 
   void onUpdateState(GameComponent comp);
 
-  // ignore: strict_raw_type
-  Future start() {
+  Future<void> start() {
     if (_gameTimer == null) {
       logger.i('Start Game loop');
       _gameTimer = Timer.periodic(

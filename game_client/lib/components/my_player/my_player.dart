@@ -88,16 +88,18 @@ class MyPlayer extends SimplePlayer
 
   @override
   void onNewState(MyPlayerState state) {
-    add(
-      MoveEffect.to(
-        state.position,
-        EffectController(duration: 0.05),
-      ),
-    );
+    if (state.position.distanceTo(position) > 4) {
+      add(
+        MoveEffect.to(
+          state.position,
+          EffectController(duration: 0.05),
+        ),
+      );
+    }
     if (state.direction != null) {
       moveFromDirection(state.direction!);
     } else {
-      stopMove();
+      stopMove(forceIdle: true);
     }
     super.onNewState(state);
   }

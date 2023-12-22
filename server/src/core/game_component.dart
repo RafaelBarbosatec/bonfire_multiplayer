@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import '../util/geometry.dart';
-import 'game.dart';
 
 abstract class GameComponent {
   GameComponent({
@@ -39,7 +38,7 @@ abstract class GameComponent {
   }
 
   void add(GameComponent comp) {
-    comp.parent = (this is Game ? this : parent) as Game?;
+    comp.parent = this;
     components.add(comp);
   }
 

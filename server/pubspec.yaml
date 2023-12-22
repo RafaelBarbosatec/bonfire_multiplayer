@@ -10,6 +10,10 @@ dependencies:
   dart_frog: ^1.0.0
   logger: ^2.0.2+1
   polo_server: ^0.0.3
+  tiledjsonreader:
+    git:
+      url: https://github.com/RafaelBarbosatec/tiled_json_reader.git
+      ref: without-flutter
   shared_events:
     path: "../shared_events"
 

@@ -7,12 +7,14 @@ import '../core/game.dart';
 import '../core/game_component.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
+import 'game_map.dart';
 import 'player.dart';
 
 class GameServer extends Game {
-  GameServer({required this.server}) {
+  GameServer({required this.server, required this.maps}) {
     _registerTypes();
   }
+  final List<GameMap> maps;
   List<PoloClient> clients = [];
 
   final WebsocketProvider<PoloClient> server;
@@ -78,9 +80,7 @@ class GameServer extends Game {
       client: client,
     );
 
-    add(
-      player,
-    );
+    maps[0].add(player);
 
     // send ACK to client that request join.
     client.send(
@@ -94,6 +94,21 @@ class GameServer extends Game {
 
     // send to others players that this player is joining
     requestUpdate();
+  }
+
+  bool mapLoaded = false;
+
+  @override
+  Future<void> start() async {
+    if (!mapLoaded) {
+      for (final map in maps) {
+        await map.load();
+        add(map);
+      }
+      mapLoaded = true;
+    }
+
+    return super.start();
   }
 
   void _registerTypes() {

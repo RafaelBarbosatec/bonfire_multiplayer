@@ -6,7 +6,7 @@ import '../infrastructure/websocket/polo_websocket.dart';
 import '../util/geometry.dart';
 
 class Player extends GameComponent {
-  static const speed = 100;
+  static const speed = 80;
   Player({
     required this.state,
     required this.client,
@@ -20,10 +20,10 @@ class Player extends GameComponent {
   String get id => state.id;
 
   Rect _getRect(GameVector position) => Rect.fromLTWH(
-        position.x,
-        position.y,
-        0, // TODO adds size collision
-        0, // TODO adds size collision
+        position.x + 8,
+        position.y + 16,
+        16, // TODO adds size collision
+        16, // TODO adds size collision
       );
 
   void _confMove() {
@@ -42,11 +42,11 @@ class Player extends GameComponent {
     if (state.direction != null) {
       sendedIdle = false;
       _updatePosition(dt);
-      parent?.requestUpdate();
+      requestUpdate();
     } else {
       if (!sendedIdle) {
         sendedIdle = true;
-        parent?.requestUpdate();
+        requestUpdate();
       }
     }
   }
