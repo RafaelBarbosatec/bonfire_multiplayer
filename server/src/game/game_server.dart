@@ -31,10 +31,12 @@ class GameServer extends Game {
 
   void leaveClient(PoloClient client) {
     clients.remove(client);
-    components
-        .whereType<Player>()
-        .where((element) => element.id == client.id)
-        .forEach((element) => element.removeFromParent());
+    for (final map in maps) {
+      map.components
+          .whereType<Player>()
+          .where((element) => element.id == client.id)
+          .forEach((element) => element.removeFromParent());
+    }
     requestUpdate();
     logger.i('Client(${client.id}) Disconnected!');
   }
@@ -64,7 +66,7 @@ class GameServer extends Game {
         .any((element) => element.id == client.id)) {
       return;
     }
-    
+
     const tileSize = 16.0;
 
     // Create initial position

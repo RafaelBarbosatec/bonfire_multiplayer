@@ -56,12 +56,12 @@ class MyPlayer extends SimplePlayer
   @override
   Future<void> onLoad() {
     // adds Rectangle collision
-    add(
-      RectangleHitbox(
-        size: size / 2,
-        position: Vector2(size.x / 4, size.y / 2),
-      ),
-    );
+    // add(
+    //   RectangleHitbox(
+    //     size: size / 2,
+    //     position: Vector2(size.x / 4, size.y / 2),
+    //   ),
+    // );
 
     return super.onLoad();
   }
