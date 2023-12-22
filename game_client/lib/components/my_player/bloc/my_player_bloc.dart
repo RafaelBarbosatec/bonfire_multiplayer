@@ -33,7 +33,7 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
     Emitter<MyPlayerState> emit,
   ) {
     _eventManager.send(
-      EventType.PLAYER_MOVE.name,
+      EventType.MOVE.name,
       MoveEvent(
         position: event.position.toGamePosition(),
         time: DateTime.now().toIso8601String(),

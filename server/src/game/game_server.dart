@@ -107,6 +107,16 @@ class GameServer extends Game {
     requestUpdate();
   }
 
+  void changeMap(Player player, String newMap) {
+    try {
+      final map = maps.firstWhere((element) => element.name == newMap);
+      player.removeFromParent();
+      map.add(player);
+    } catch (e) {
+      print('Not found map: $newMap');
+    }
+  }
+
   @override
   Future<void> start() async {
     await _loadMaps();

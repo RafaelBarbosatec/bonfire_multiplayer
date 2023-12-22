@@ -1,10 +1,16 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/shared_events.dart';
 
+import 'game_sensor.dart';
+
 abstract class GameComponent {
+  GameVector position;
+
   GameComponent({
     List<GameComponent>? components,
-  }) : components = components ?? [];
+    GameVector? position,
+  })  : components = components ?? [],
+        position = position ?? GameVector.zero();
 
   final List<GameComponent> _compsToRemove = [];
   GameComponent? parent;
@@ -46,7 +52,12 @@ abstract class GameComponent {
     _compsToRemove.add(comp);
   }
 
-  bool checkCollisionWithParent(GameRectangle rect) {
-    return parent?.checkCollisionWithParent(rect) ?? false;
+  bool checkCollisionWithParent(GameSensorContact comp) {
+    for (final sensor in components.whereType<GameSensorContact>()) {
+      if (sensor.checkCollision(comp)) {
+        return true;
+      }
+    }
+    return parent?.checkCollisionWithParent(comp) ?? false;
   }
 }

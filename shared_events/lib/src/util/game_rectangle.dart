@@ -7,6 +7,13 @@ class GameRectangle {
 
   GameRectangle({required this.position, required this.size});
 
+  factory GameRectangle.zero() {
+    return GameRectangle(
+      position: GameVector.zero(),
+      size: GameVector.zero(),
+    );
+  }
+
   bool overlaps(GameRectangle other) {
     if (right <= other.left || other.right <= left) {
       return false;

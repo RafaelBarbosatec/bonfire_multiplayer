@@ -6,6 +6,14 @@ class GameVector {
 
   GameVector({required this.x, required this.y});
 
+  factory GameVector.zero() {
+    return GameVector(x: 0, y: 0);
+  }
+
+  factory GameVector.all(double value) {
+    return GameVector(x: value, y: value);
+  }
+
   /// Check if two vectors are the same.
   @override
   bool operator ==(Object other) =>

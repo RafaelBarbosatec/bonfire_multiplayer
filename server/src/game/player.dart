@@ -2,14 +2,22 @@
 import 'package:shared_events/shared_events.dart';
 
 import '../core/game_component.dart';
+import '../core/game_sensor.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 
-class Player extends GameComponent {
+class Player extends GameComponent with GameSensorContact {
   Player({
     required this.state,
     required this.client,
   }) {
+    position = state.position;
     _confMove();
+    setupGameSensor(
+      GameRectangle(
+        position: GameVector(x: 8, y: 16),
+        size: GameVector.all(16),
+      ),
+    );
   }
 
   final ComponentStateModel state;
@@ -17,14 +25,9 @@ class Player extends GameComponent {
 
   String get id => state.id;
 
-  GameRectangle _getRect(GameVector position) => GameRectangle(
-        position: GameVector(x: position.x + 8, y: position.y + 16),
-        size: GameVector(x: 16, y: 16),
-      );
-
   void _confMove() {
     client.onEvent<MoveEvent>(
-      EventType.PLAYER_MOVE.name,
+      EventType.MOVE.name,
       (data) {
         state.direction = data.direction;
       },
@@ -48,26 +51,27 @@ class Player extends GameComponent {
   }
 
   void _updatePosition(double dt) {
-    final newPosition = state.position.clone();
+    final lastPosition = position.clone();
     final displacement = dt * state.speed;
 
     if (state.direction == 'left') {
-      newPosition.x -= displacement;
+      position.x -= displacement;
     }
     if (state.direction == 'right') {
-      newPosition.x += displacement;
+      position.x += displacement;
     }
 
     if (state.direction == 'up') {
-      newPosition.y -= displacement;
+      position.y -= displacement;
     }
     if (state.direction == 'down') {
-      newPosition.y += displacement;
+      position.y += displacement;
     }
-    if (!checkCollisionWithParent(_getRect(newPosition))) {
-      state.position = newPosition;
-    } else {
+    if (checkCollisionWithParent(this)) {
+      position = lastPosition;
       state.direction = null;
     }
+
+    state.position = position;
   }
 }

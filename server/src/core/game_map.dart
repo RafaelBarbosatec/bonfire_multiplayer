@@ -9,7 +9,9 @@ import 'package:tiledjsonreader/map/layer/type_layer.dart';
 import 'package:tiledjsonreader/map/tiled_map.dart';
 import 'package:tiledjsonreader/tiledjsonreader.dart';
 
+import '../util/game_map_object.dart';
 import 'game_component.dart';
+import 'game_sensor.dart';
 
 abstract class GameMap extends GameComponent {
   final String name;
@@ -21,16 +23,16 @@ abstract class GameMap extends GameComponent {
     required this.path,
   });
 
-  void onObjectBuild(GameMapObject object);
+  void onObjectBuilder(GameMapObject object);
 
   @override
-  bool checkCollisionWithParent(GameRectangle rect) {
+  bool checkCollisionWithParent(GameSensorContact comp) {
     for (final collision in _collisions) {
-      if (rect.overlaps(collision)) {
+      if (comp.getRectContact().overlaps(collision)) {
         return true;
       }
     }
-    return super.checkCollisionWithParent(rect);
+    return super.checkCollisionWithParent(comp);
   }
 
   Future<void> load() async {
@@ -61,7 +63,7 @@ abstract class GameMap extends GameComponent {
           }
         } else {
           for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
-            onObjectBuild(GameMapObject.fromObjects(obj));
+            onObjectBuilder(GameMapObject.fromObjects(obj));
           }
         }
       case TypeLayer.group:
@@ -76,37 +78,5 @@ abstract class GameMap extends GameComponent {
 
   void _getCollisionFromTile(int tile, TiledMap map) {
     // TODO extract collision from tile configuration.
-  }
-}
-
-class GameMapObject {
-  GameMapObject({
-    required this.id,
-    required this.name,
-    required this.position,
-    required this.size,
-    required this.properties,
-  });
-
-  final int? id;
-  final String name;
-  final GameVector position;
-  final GameVector size;
-  final Map<String, dynamic> properties;
-
-  factory GameMapObject.fromObjects(Objects obj) {
-    final properties = <String, dynamic>{};
-    for (final prop in obj.properties ?? <Property>[]) {
-      if (prop.name != null && prop.value != null) {
-        properties[prop.name!] = prop.value;
-      }
-    }
-    return GameMapObject(
-      id: obj.id,
-      name: obj.name ?? '',
-      position: GameVector(x: obj.x ?? 0, y: obj.y ?? 0),
-      size: GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
-      properties: properties,
-    );
   }
 }
