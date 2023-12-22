@@ -59,7 +59,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   // Adds player in the game with ack informations
-  Player _getPlayer(PlayerStateModel state) {
+  Player _getPlayer(ComponentStateModel state) {
     return MyPlayer(
       position: state.position.toVector2(),
       skin: PayerSkin.fromName(state.skin),
@@ -97,7 +97,7 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  void _onPlayerState(List<PlayerStateModel> serverPlayers) {
+  void _onPlayerState(List<ComponentStateModel> serverPlayers) {
     if (lastServerRemotes != serverPlayers.length) {
       final remotePlayers = game.query<MyRemotePlayer>();
       // adds RemotePlayer if no exist in the game but exist in server

@@ -44,12 +44,15 @@ class GameServer extends Game {
     for (final player in comp.components.whereType<Player>()) {
       player.client.send(
         EventType.UPDATE_STATE.name,
-        GameStateModel(players: stateList),
+        GameStateModel(
+          players: stateList,
+          npcs: [],
+        ),
       );
     }
   }
 
-  List<PlayerStateModel> statePlayerList(GameComponent? comp) {
+  List<ComponentStateModel> statePlayerList(GameComponent? comp) {
     if (comp == null) return [];
     return comp.components.whereType<Player>().map((e) => e.state).toList();
   }
@@ -70,7 +73,7 @@ class GameServer extends Game {
     // Adds Player
 
     final player = Player(
-      state: PlayerStateModel(
+      state: ComponentStateModel(
         id: client.id,
         name: message.name,
         skin: message.skin,

@@ -42,7 +42,7 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
     );
   }
 
-  void _onPlayerState(PlayerStateModel state) => add(
+  void _onPlayerState(ComponentStateModel state) => add(
         UpdatePlayerPositionEvent(
           position: state.position.toVector2(),
           direction: getDirectionFromName(state.direction),

@@ -5,7 +5,7 @@ import 'package:shared_events/shared_events.dart';
 class PlayerEvent {
   PlayerEvent({required this.player});
 
-  final PlayerStateModel player;
+  final ComponentStateModel player;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -15,7 +15,7 @@ class PlayerEvent {
 
   factory PlayerEvent.fromMap(Map<String, dynamic> map) {
     return PlayerEvent(
-      player: PlayerStateModel.fromMap((map['player'] as Map).cast()),
+      player: ComponentStateModel.fromMap((map['player'] as Map).cast()),
     );
   }
 }

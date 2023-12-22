@@ -14,7 +14,7 @@ class Player extends GameComponent {
     _confMove();
   }
 
-  final PlayerStateModel state;
+  final ComponentStateModel state;
   final PoloClient client;
 
   String get id => state.id;

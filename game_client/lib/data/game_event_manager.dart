@@ -4,11 +4,11 @@ import 'package:shared_events/shared_events.dart';
 class GameEventManager {
   final WebsocketProvider websocket;
 
-  final Map<String, void Function(PlayerStateModel data)>
+  final Map<String, void Function(ComponentStateModel data)>
       specificPlayerStateSubscriber = {};
 
-  final List<void Function(List<PlayerStateModel> data)> playerStateSubscriber =
-      [];
+  final List<void Function(List<ComponentStateModel> data)>
+      playerStateSubscriber = [];
 
   GameEventManager({required this.websocket});
 
@@ -40,13 +40,13 @@ class GameEventManager {
 
   void onSpecificPlayerState(
     String id,
-    void Function(PlayerStateModel data) callback,
+    void Function(ComponentStateModel data) callback,
   ) {
     specificPlayerStateSubscriber[id] = callback;
   }
 
   void onPlayerState(
-    void Function(List<PlayerStateModel> data) callback,
+    void Function(List<ComponentStateModel> data) callback,
   ) {
     playerStateSubscriber.add(callback);
   }
@@ -56,7 +56,7 @@ class GameEventManager {
   }
 
   void removeOnPlayerState(
-    void Function(List<PlayerStateModel> data) callback,
+    void Function(List<ComponentStateModel> data) callback,
   ) {
     playerStateSubscriber.remove(callback);
   }
