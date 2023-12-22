@@ -15,6 +15,7 @@ class GameServer extends Game {
     _registerTypes();
   }
   final List<GameMap> maps;
+  bool mapLoaded = false;
   List<PoloClient> clients = [];
 
   final WebsocketProvider<PoloClient> server;
@@ -60,9 +61,10 @@ class GameServer extends Game {
   void _joinPlayerInTheGame(PoloClient client, JoinEvent message) {
     if (components
         .whereType<Player>()
-        .any((element) => element.state.id == client.id)) {
+        .any((element) => element.id == client.id)) {
       return;
     }
+    
     const tileSize = 16.0;
 
     // Create initial position
@@ -101,19 +103,9 @@ class GameServer extends Game {
     requestUpdate();
   }
 
-  bool mapLoaded = false;
-
   @override
   Future<void> start() async {
-    if (!mapLoaded) {
-      logger.d('Loading maps...');
-      for (final map in maps) {
-        await map.load();
-        add(map);
-      }
-      mapLoaded = true;
-    }
-
+    await _loadMaps();
     return super.start();
   }
 
@@ -149,5 +141,16 @@ class GameServer extends Game {
           fromMap: MoveEvent.fromMap,
         ),
       );
+  }
+
+  Future<void> _loadMaps() async {
+    if (!mapLoaded) {
+      logger.d('Loading maps...');
+      for (final map in maps) {
+        await map.load();
+        add(map);
+      }
+      mapLoaded = true;
+    }
   }
 }
