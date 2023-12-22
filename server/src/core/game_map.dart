@@ -20,6 +20,8 @@ abstract class GameMap extends GameComponent {
     required this.path,
   });
 
+  void onObjectBuild(GameMapObject object);
+
   @override
   bool checkCollisionWithParent(GameRectangle rect) {
     for (final collision in _collisions) {
@@ -51,6 +53,10 @@ abstract class GameMap extends GameComponent {
                 ),
               );
             }
+          } else {
+            for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
+              onObjectBuild(GameMapObject.fromObjects(obj));
+            }
           }
         case TypeLayer.imagelayer:
         case TypeLayer.group:
@@ -62,5 +68,37 @@ abstract class GameMap extends GameComponent {
 
   void _getCollitionFromTile(int tile, TiledMap map) {
     // TODO extract collision from tile configuration.
+  }
+}
+
+class GameMapObject {
+  GameMapObject({
+    required this.id,
+    required this.name,
+    required this.position,
+    required this.size,
+    required this.properties,
+  });
+
+  final int? id;
+  final String name;
+  final GameVector position;
+  final GameVector size;
+  final Map<String, dynamic> properties;
+
+  factory GameMapObject.fromObjects(Objects obj) {
+    final properties = <String, dynamic>{};
+    for (final prop in obj.properties ?? <Property>[]) {
+      if (prop.name != null && prop.value != null) {
+        properties[prop.name!] = prop.value;
+      }
+    }
+    return GameMapObject(
+      id: obj.id,
+      name: obj.name ?? '',
+      position: GameVector(x: obj.x ?? 0, y: obj.y ?? 0),
+      size: GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
+      properties: properties,
+    );
   }
 }
