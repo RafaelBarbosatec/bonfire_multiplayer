@@ -3,7 +3,9 @@ import 'package:shared_events/shared_events.dart';
 import 'package:tiledjsonreader/map/layer/map_layer.dart';
 import 'package:tiledjsonreader/map/layer/object_layer.dart';
 import 'package:tiledjsonreader/map/layer/objects.dart';
+import 'package:tiledjsonreader/map/layer/tile_layer.dart';
 import 'package:tiledjsonreader/map/layer/type_layer.dart';
+import 'package:tiledjsonreader/map/tiled_map.dart';
 import 'package:tiledjsonreader/tiledjsonreader.dart';
 
 import 'game_component.dart';
@@ -34,7 +36,11 @@ abstract class GameMap extends GameComponent {
     for (final layer in map.layers ?? <MapLayer>[]) {
       switch (layer.type) {
         case TypeLayer.tilelayer:
-          break;
+          for (final tile in (layer as TileLayer).data ?? <int>[]) {
+            if (tile != 0) {
+              _getCollitionFromTile(tile, map);
+            }
+          }
         case TypeLayer.objectgroup:
           if (layer.layerClass == 'collision') {
             for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
@@ -52,5 +58,9 @@ abstract class GameMap extends GameComponent {
         default:
       }
     }
+  }
+
+  void _getCollitionFromTile(int tile, TiledMap map) {
+    // TODO extract collision from tile configuration.
   }
 }
