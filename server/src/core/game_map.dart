@@ -1,17 +1,17 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:shared_events/shared_events.dart';
 import 'package:tiledjsonreader/map/layer/map_layer.dart';
 import 'package:tiledjsonreader/map/layer/object_layer.dart';
 import 'package:tiledjsonreader/map/layer/objects.dart';
 import 'package:tiledjsonreader/map/layer/type_layer.dart';
 import 'package:tiledjsonreader/tiledjsonreader.dart';
 
-import '../util/geometry.dart';
 import 'game_component.dart';
 
 abstract class GameMap extends GameComponent {
   final String name;
   final String path;
-  final List<Rect> _collisions = [];
+  final List<GameRectangle> _collisions = [];
 
   GameMap({
     required this.name,
@@ -19,7 +19,7 @@ abstract class GameMap extends GameComponent {
   });
 
   @override
-  bool checkCollisionWithParent(Rect rect) {
+  bool checkCollisionWithParent(GameRectangle rect) {
     for (final collision in _collisions) {
       if (rect.overlaps(collision)) {
         return true;
@@ -39,17 +39,16 @@ abstract class GameMap extends GameComponent {
           if (layer.layerClass == 'collision') {
             for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
               _collisions.add(
-                Rect.fromLTWH(
-                  obj.x ?? 0,
-                  obj.y ?? 0,
-                  obj.width ?? 0,
-                  obj.height ?? 0,
+                GameRectangle(
+                  position: GameVector(x: obj.x ?? 0, y: obj.y ?? 0),
+                  size: GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
                 ),
               );
             }
           }
         case TypeLayer.imagelayer:
         case TypeLayer.group:
+        // ignore: no_default_cases
         default:
       }
     }

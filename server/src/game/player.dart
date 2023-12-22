@@ -3,7 +3,6 @@ import 'package:shared_events/shared_events.dart';
 
 import '../core/game_component.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
-import '../util/geometry.dart';
 
 class Player extends GameComponent {
   static const speed = 80;
@@ -19,11 +18,9 @@ class Player extends GameComponent {
 
   String get id => state.id;
 
-  Rect _getRect(GameVector position) => Rect.fromLTWH(
-        position.x + 8,
-        position.y + 16,
-        16, // TODO adds size collision
-        16, // TODO adds size collision
+  GameRectangle _getRect(GameVector position) => GameRectangle(
+        position: GameVector(x: position.x + 8, y: position.y + 16),
+        size: GameVector(x: 16, y: 16),
       );
 
   void _confMove() {

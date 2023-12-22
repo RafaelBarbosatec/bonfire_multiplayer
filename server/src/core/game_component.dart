@@ -1,5 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import '../util/geometry.dart';
+import 'package:shared_events/shared_events.dart';
 
 abstract class GameComponent {
   GameComponent({
@@ -46,7 +46,7 @@ abstract class GameComponent {
     _compsToRemove.add(comp);
   }
 
-  bool checkCollisionWithParent(Rect rect) {
+  bool checkCollisionWithParent(GameRectangle rect) {
     return parent?.checkCollisionWithParent(rect) ?? false;
   }
 }
