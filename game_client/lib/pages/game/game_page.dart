@@ -62,21 +62,16 @@ class _GamePageState extends State<GamePage> {
   Player _getPlayer(ComponentStateModel state) {
     return MyPlayer(
       position: state.position.toVector2(),
-      skin: PayerSkin.fromName(state.skin),
+      skin: PayerSkin.fromName(state.properties['skin']),
       name: state.name,
+      speed: state.speed,
     );
   }
 
   // Adds remote plasyers with ack informations
   List<GameComponent> _getComponents(JoinAckEvent event, BuildContext context) {
     return event.players.map((e) {
-      return MyRemotePlayer(
-        position: e.position.toVector2(),
-        skin: PayerSkin.fromName(e.skin),
-        eventManager: context.read(),
-        name: e.name,
-        id: e.id,
-      );
+      return _createRemotePlayer(e);
     }).toList();
   }
 
@@ -108,13 +103,7 @@ class _GamePageState extends State<GamePage> {
           );
           if (!contain) {
             game.add(
-              MyRemotePlayer(
-                position: serverPlayer.position.toVector2(),
-                skin: PayerSkin.fromName(serverPlayer.skin),
-                eventManager: context.read(),
-                id: serverPlayer.id,
-                name: serverPlayer.name,
-              ),
+              _createRemotePlayer(serverPlayer),
             );
           }
         }
@@ -131,5 +120,16 @@ class _GamePageState extends State<GamePage> {
       }
       lastServerRemotes = serverPlayers.length;
     }
+  }
+
+  GameComponent _createRemotePlayer(ComponentStateModel state) {
+    return MyRemotePlayer(
+      position: state.position.toVector2(),
+      skin: PayerSkin.fromName(state.properties['skin']),
+      eventManager: context.read(),
+      id: state.id,
+      name: state.name,
+      speed: state.speed,
+    );
   }
 }

@@ -18,6 +18,7 @@ class MyRemotePlayer extends SimplePlayer
     required GameEventManager eventManager,
     required this.id,
     required String name,
+    super.speed,
   }) : super(
           size: Vector2.all(32),
           animation: PlayersSpriteSheet.simpleAnimation(skin.path),

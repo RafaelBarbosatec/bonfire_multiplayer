@@ -37,6 +37,7 @@ class MyPlayer extends SimplePlayer
     required super.position,
     required String name,
     required PayerSkin skin,
+    super.speed,
   }) : super(
           size: Vector2.all(32),
           animation: PlayersSpriteSheet.simpleAnimation(skin.path),

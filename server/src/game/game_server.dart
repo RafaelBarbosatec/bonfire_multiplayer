@@ -80,9 +80,11 @@ class GameServer extends Game {
       state: ComponentStateModel(
         id: client.id,
         name: message.name,
-        skin: message.skin,
         position: position,
         life: 100,
+        properties: {
+          'skin': message.skin,
+        },
       ),
       client: client,
     );

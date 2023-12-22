@@ -5,7 +5,6 @@ import '../core/game_component.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 
 class Player extends GameComponent {
-  static const speed = 80;
   Player({
     required this.state,
     required this.client,
@@ -50,7 +49,7 @@ class Player extends GameComponent {
 
   void _updatePosition(double dt) {
     final newPosition = state.position.clone();
-    final displacement = dt * speed;
+    final displacement = dt * state.speed;
 
     if (state.direction == 'left') {
       newPosition.x -= displacement;
