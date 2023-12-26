@@ -7,7 +7,7 @@ class GameEventManager {
   final Map<String, void Function(ComponentStateModel data)>
       specificPlayerStateSubscriber = {};
 
-  final List<void Function(List<ComponentStateModel> data)>
+  final List<void Function(Iterable<ComponentStateModel> data)>
       playerStateSubscriber = [];
 
   GameEventManager({required this.websocket});
@@ -46,7 +46,7 @@ class GameEventManager {
   }
 
   void onPlayerState(
-    void Function(List<ComponentStateModel> data) callback,
+    void Function(Iterable<ComponentStateModel> data) callback,
   ) {
     playerStateSubscriber.add(callback);
   }

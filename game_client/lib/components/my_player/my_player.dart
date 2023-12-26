@@ -33,6 +33,8 @@ class MyPlayer extends SimplePlayer
         BonfireBlocListenable<MyPlayerBloc, MyPlayerState> {
   JoystickMoveDirectional? _joystickDirectional;
   bool sendedIdle = false;
+  bool moveEnabled = true;
+
   MyPlayer({
     required super.position,
     required String name,
@@ -48,23 +50,12 @@ class MyPlayer extends SimplePlayer
 
   @override
   void onJoystickChangeDirectional(JoystickDirectionalEvent event) {
-    _joystickDirectional = event.directional;
+    if (moveEnabled) {
+      _joystickDirectional = event.directional;
+    }
 
     // comments this part to not move component
     // super.onJoystickChangeDirectional(event);
-  }
-
-  @override
-  Future<void> onLoad() {
-    // adds Rectangle collision
-    // add(
-    //   RectangleHitbox(
-    //     size: size / 2,
-    //     position: Vector2(size.x / 4, size.y / 2),
-    //   ),
-    // );
-
-    return super.onLoad();
   }
 
   @override

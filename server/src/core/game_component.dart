@@ -25,6 +25,7 @@ abstract class GameComponent {
         components.remove(comp);
       }
       _compsToRemove.clear();
+      requestUpdate();
     }
   }
 
@@ -46,6 +47,11 @@ abstract class GameComponent {
   void add(GameComponent comp) {
     comp.parent = this;
     components.add(comp);
+    requestUpdate();
+  }
+
+  void addAll(List<GameComponent> compList) {
+    compList.forEach(add);
   }
 
   void remove(GameComponent comp) {
@@ -54,8 +60,10 @@ abstract class GameComponent {
 
   bool checkCollisionWithParent(GameSensorContact comp) {
     for (final sensor in components.whereType<GameSensorContact>()) {
-      if (sensor.checkCollision(comp)) {
-        return true;
+      if (sensor != comp) {
+        if (sensor.checkCollision(comp)) {
+          return true;
+        }
       }
     }
     return parent?.checkCollisionWithParent(comp) ?? false;

@@ -4,6 +4,7 @@ import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/main.dart';
+import 'package:bonfire_multiplayer/pages/game/game_route.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:flutter/widgets.dart';
@@ -36,9 +37,10 @@ class _GamePageState extends State<GamePage> {
         context.read(),
         widget.event.state.id,
         widget.event.state.position.toVector2(),
+        widget.event.map.name,
       ),
       child: BonfireWidget(
-        map: WorldMapByTiled('http://$address:8080/${widget.event.map}'),
+        map: WorldMapByTiled('http://$address:8080/${widget.event.map.path}'),
         joystick: Joystick(
           keyboardConfig: KeyboardConfig(
             enableDiagonalInput: false,
@@ -90,9 +92,13 @@ class _GamePageState extends State<GamePage> {
     _eventManager.onPlayerState(
       _onPlayerState,
     );
+    _eventManager.onEvent<JoinAckEvent>(
+      EventType.JOIN_ACK.name,
+      _onAckJoint,
+    );
   }
 
-  void _onPlayerState(List<ComponentStateModel> serverPlayers) {
+  void _onPlayerState(Iterable<ComponentStateModel> serverPlayers) {
     if (lastServerRemotes != serverPlayers.length) {
       final remotePlayers = game.query<MyRemotePlayer>();
       // adds RemotePlayer if no exist in the game but exist in server
@@ -131,5 +137,9 @@ class _GamePageState extends State<GamePage> {
       name: state.name,
       speed: state.speed,
     );
+  }
+
+  void _onAckJoint(JoinAckEvent event) {
+    GameRoute.open(context, event);
   }
 }

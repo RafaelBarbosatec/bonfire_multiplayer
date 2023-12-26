@@ -6,29 +6,37 @@ class JoinAckEvent {
     required this.state,
     required this.map,
     required this.players,
+    required this.npcs,
   });
 
   final ComponentStateModel state;
-  final String map;
-  final List<ComponentStateModel> players;
+  final MapModel map;
+  final Iterable<ComponentStateModel> players;
+  final Iterable<ComponentStateModel> npcs;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'state': state.toMap(),
-      'map': map,
+      'map': map.toMap(),
       'players': players
           .where((element) => element.id != state.id)
           .map((x) => x.toMap())
           .toList(),
+      'npcs': npcs.map((x) => x.toMap()).toList(),
     };
   }
 
   factory JoinAckEvent.fromMap(Map<String, dynamic> map) {
     return JoinAckEvent(
       state: ComponentStateModel.fromMap(map['state'] as Map<String, dynamic>),
-      map: map['map'].toString(),
+      map: MapModel.fromMap(map['map'] as Map<String, dynamic>),
       players: List<ComponentStateModel>.from(
         (map['players'] as List).map<ComponentStateModel>(
+          (x) => ComponentStateModel.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
+      npcs: List<ComponentStateModel>.from(
+        (map['npcs'] as List).map<ComponentStateModel>(
           (x) => ComponentStateModel.fromMap(x as Map<String, dynamic>),
         ),
       ),

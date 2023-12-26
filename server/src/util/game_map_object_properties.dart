@@ -1,8 +1,8 @@
 import 'package:shared_events/shared_events.dart';
 import 'package:tiledjsonreader/map/layer/objects.dart';
 
-class GameMapObject {
-  GameMapObject({
+class GameMapObjectProperties {
+  GameMapObjectProperties({
     required this.id,
     required this.name,
     required this.typeOrClass,
@@ -11,14 +11,14 @@ class GameMapObject {
     required this.properties,
   });
 
-  factory GameMapObject.fromObjects(Objects obj) {
+  factory GameMapObjectProperties.fromObjects(Objects obj) {
     final properties = <String, dynamic>{};
     for (final prop in obj.properties ?? <Property>[]) {
       if (prop.name != null && prop.value != null) {
         properties[prop.name!] = prop.value;
       }
     }
-    return GameMapObject(
+    return GameMapObjectProperties(
       id: obj.id,
       name: obj.name ?? '',
       typeOrClass: obj.typeOrClass,

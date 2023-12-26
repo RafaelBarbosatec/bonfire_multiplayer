@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
+import '../components/player.dart';
 import '../core/game.dart';
 import '../core/game_component.dart';
 import '../core/game_map.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
-import 'player.dart';
 
 class GameServer extends Game {
   GameServer({required this.server, required this.maps}) {
@@ -43,21 +43,17 @@ class GameServer extends Game {
 
   @override
   void onUpdateState(GameComponent comp) {
-    final stateList = statePlayerList(comp);
-    for (final player in comp.components.whereType<Player>()) {
-      player.client.send(
-        EventType.UPDATE_STATE.name,
-        GameStateModel(
-          players: stateList,
-          npcs: [],
-        ),
-      );
+    if (comp is GameMap) {
+      for (final player in comp.players) {
+        player.send(
+          EventType.UPDATE_STATE.name,
+          GameStateModel(
+            players: comp.playersState,
+            npcs: comp.npcsState,
+          ),
+        );
+      }
     }
-  }
-
-  List<ComponentStateModel> statePlayerList(GameComponent? comp) {
-    if (comp == null) return [];
-    return comp.components.whereType<Player>().map((e) => e.state).toList();
   }
 
   void _joinPlayerInTheGame(PoloClient client, JoinEvent message) {
@@ -98,13 +94,14 @@ class GameServer extends Game {
       EventType.JOIN_ACK.name,
       JoinAckEvent(
         state: player.state,
-        players: statePlayerList(player.parent),
-        map: maps[initialMap].path,
+        players: maps[initialMap].playersState,
+        npcs: maps[initialMap].npcsState,
+        map: MapModel(
+          name: maps[initialMap].name,
+          path: maps[initialMap].path,
+        ),
       ),
     );
-
-    // send to others players that this player is joining
-    requestUpdate();
   }
 
   void changeMap(Player player, String newMap) {
@@ -160,9 +157,9 @@ class GameServer extends Game {
   Future<void> _loadMaps() async {
     if (!mapLoaded) {
       logger.d('Loading maps...');
+      addAll(maps);
       for (final map in maps) {
         await map.load();
-        add(map);
       }
       mapLoaded = true;
     }

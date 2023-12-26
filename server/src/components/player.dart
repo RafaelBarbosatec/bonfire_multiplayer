@@ -1,13 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/shared_events.dart';
 
-import '../core/game_component.dart';
+import '../core/game_map.dart';
+import '../core/game_player.dart';
 import '../core/game_sensor.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 
-class Player extends GameComponent with GameSensorContact {
+class Player extends GamePlayer with GameSensorContact {
   Player({
-    required this.state,
+    required super.state,
     required this.client,
   }) {
     position = state.position;
@@ -20,7 +21,6 @@ class Player extends GameComponent with GameSensorContact {
     );
   }
 
-  final ComponentStateModel state;
   final PoloClient client;
 
   String get id => state.id;
@@ -29,7 +29,9 @@ class Player extends GameComponent with GameSensorContact {
     client.onEvent<MoveEvent>(
       EventType.MOVE.name,
       (data) {
-        state.direction = data.direction;
+        if (data.map == (parent as GameMap?)?.name) {
+          state.direction = data.direction;
+        }
       },
     );
   }
@@ -71,7 +73,10 @@ class Player extends GameComponent with GameSensorContact {
       position = lastPosition;
       state.direction = null;
     }
+  }
 
-    state.position = position;
+  @override
+  void send<T>(String event, T data) {
+    client.send<T>(event, data);
   }
 }

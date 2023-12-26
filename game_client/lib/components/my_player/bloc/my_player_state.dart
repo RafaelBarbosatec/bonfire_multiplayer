@@ -4,7 +4,10 @@ class MyPlayerState extends Equatable {
   final Vector2 position;
   final Direction? direction;
 
-  const MyPlayerState({required this.position, required this.direction});
+  const MyPlayerState({
+    required this.position,
+    required this.direction,
+  });
 
   MyPlayerState copyWith({
     Vector2? position,

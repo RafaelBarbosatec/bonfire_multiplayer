@@ -2,8 +2,8 @@
 import 'package:shared_events/shared_events.dart';
 
 class GameStateModel {
-  final List<ComponentStateModel> players;
-  final List<ComponentStateModel> npcs;
+  final Iterable<ComponentStateModel> players;
+  final Iterable<ComponentStateModel> npcs;
 
   GameStateModel({required this.players, required this.npcs});
 

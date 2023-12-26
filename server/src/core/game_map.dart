@@ -9,8 +9,10 @@ import 'package:tiledjsonreader/map/layer/type_layer.dart';
 import 'package:tiledjsonreader/map/tiled_map.dart';
 import 'package:tiledjsonreader/tiledjsonreader.dart';
 
-import '../util/game_map_object.dart';
+import '../util/game_map_object_properties.dart';
 import 'game_component.dart';
+import 'game_npc.dart';
+import 'game_player.dart';
 import 'game_sensor.dart';
 
 abstract class GameMap extends GameComponent {
@@ -18,12 +20,18 @@ abstract class GameMap extends GameComponent {
   final String path;
   final List<GameRectangle> _collisions = [];
 
+  Iterable<GamePlayer> get players => components.whereType();
+  Iterable<GameNpc> get npcs => components.whereType();
+
+  Iterable<ComponentStateModel> get playersState => players.map((e) => e.state);
+  Iterable<ComponentStateModel> get npcsState => npcs.map((e) => e.state);
+
   GameMap({
     required this.name,
     required this.path,
   });
 
-  void onObjectBuilder(GameMapObject object);
+  void onObjectBuilder(GameMapObjectProperties object);
 
   @override
   bool checkCollisionWithParent(GameSensorContact comp) {
@@ -63,7 +71,16 @@ abstract class GameMap extends GameComponent {
           }
         } else {
           for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
-            onObjectBuilder(GameMapObject.fromObjects(obj));
+            if (obj.typeOrClass == 'collision') {
+              _collisions.add(
+                GameRectangle(
+                  position: GameVector(x: obj.x ?? 0, y: obj.y ?? 0),
+                  size: GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
+                ),
+              );
+            } else {
+              onObjectBuilder(GameMapObjectProperties.fromObjects(obj));
+            }
           }
         }
       case TypeLayer.group:

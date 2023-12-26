@@ -12,6 +12,10 @@ class GameRoute {
       };
 
   static Future open(BuildContext context, JoinAckEvent event) {
-    return Navigator.of(context).pushNamed(name, arguments: event);
+    return Navigator.of(context).pushNamedAndRemoveUntil(
+      name,
+      arguments: event,
+      (route) => false,
+    );
   }
 }
