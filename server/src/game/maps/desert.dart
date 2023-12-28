@@ -7,7 +7,11 @@ import '../../util/game_ref.dart';
 import '../game_server.dart';
 
 class DesertMap extends GameMap with GameRef<GameServer> {
-  DesertMap({super.name = 'desert', super.path = 'maps/map2/desert.tmj'});
+  DesertMap({
+    super.id = 'desertId',
+    super.name = 'desert',
+    super.path = 'maps/map2/desert.tmj',
+  });
 
   @override
   void onObjectBuilder(GameMapObjectProperties object) {
@@ -17,7 +21,7 @@ class DesertMap extends GameMap with GameRef<GameServer> {
           position: object.position,
           size: object.size,
           map: game.maps.firstWhere(
-            (m) => m.name == object.properties['map'].toString(),
+            (m) => m.id == object.properties['mapId'].toString(),
           ),
           playerPosition: GameVector(
             x: double.parse(object.properties['x'].toString()),

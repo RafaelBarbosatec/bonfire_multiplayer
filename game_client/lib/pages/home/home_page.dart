@@ -1,7 +1,7 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/pages/game/game_route.dart';
 import 'package:bonfire_multiplayer/pages/home/bloc/home_bloc.dart';
+import 'package:bonfire_multiplayer/util/player_skin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -54,9 +54,15 @@ class _HomePageState extends State<HomePage> {
                   Wrap(
                     children: [
                       _buildItem(
-                          PayerSkin.boy, state.skinSelected, _selectSkin),
+                        PlayerSkin.boy,
+                        state.skinSelected,
+                        _selectSkin,
+                      ),
                       _buildItem(
-                          PayerSkin.girl, state.skinSelected, _selectSkin),
+                        PlayerSkin.girl,
+                        state.skinSelected,
+                        _selectSkin,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 50),
@@ -97,9 +103,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildItem(
-    PayerSkin skin,
-    PayerSkin skinSlected,
-    ValueChanged<PayerSkin> onTap,
+    PlayerSkin skin,
+    PlayerSkin skinSlected,
+    ValueChanged<PlayerSkin> onTap,
   ) {
     return FutureBuilder(
       future: Sprite.load(
@@ -127,7 +133,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _selectSkin(PayerSkin value) {
+  void _selectSkin(PlayerSkin value) {
     _bloc.add(SelectSkinEvent(skin: value));
   }
 }

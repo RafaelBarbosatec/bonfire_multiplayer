@@ -2,7 +2,7 @@ part of 'my_player_bloc.dart';
 
 class MyPlayerState extends Equatable {
   final Vector2 position;
-  final Direction? direction;
+  final MoveDirectionEnum? direction;
 
   const MyPlayerState({
     required this.position,
@@ -11,7 +11,7 @@ class MyPlayerState extends Equatable {
 
   MyPlayerState copyWith({
     Vector2? position,
-    Direction? direction,
+    MoveDirectionEnum? direction,
   }) {
     return MyPlayerState(
       position: position ?? this.position,

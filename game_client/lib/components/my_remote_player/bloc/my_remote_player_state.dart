@@ -3,7 +3,7 @@ part of 'my_remote_player_bloc.dart';
 
 class MyRemotePlayerState extends Equatable {
   final Vector2 position;
-  final Direction? direction;
+  final MoveDirectionEnum? direction;
 
   const MyRemotePlayerState({
     required this.position,
@@ -12,7 +12,7 @@ class MyRemotePlayerState extends Equatable {
 
   MyRemotePlayerState copyWith({
     Vector2? position,
-    Direction? direction,
+    MoveDirectionEnum? direction,
   }) {
     return MyRemotePlayerState(
       position: position ?? this.position,

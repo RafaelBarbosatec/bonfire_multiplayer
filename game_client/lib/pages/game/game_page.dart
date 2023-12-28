@@ -7,12 +7,13 @@ import 'package:bonfire_multiplayer/main.dart';
 import 'package:bonfire_multiplayer/pages/game/game_route.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
-import 'package:flutter/widgets.dart';
+import 'package:bonfire_multiplayer/util/player_skin.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_events/shared_events.dart';
 
 class GamePage extends StatefulWidget {
-  final JoinAckEvent event;
+  final JoinMapEvent event;
   static const tileSize = 16.0;
   const GamePage({super.key, required this.event});
 
@@ -37,7 +38,7 @@ class _GamePageState extends State<GamePage> {
         context.read(),
         widget.event.state.id,
         widget.event.state.position.toVector2(),
-        widget.event.map.name,
+        widget.event.map,
       ),
       child: BonfireWidget(
         map: WorldMapByTiled('http://$address:8080/${widget.event.map.path}'),
@@ -56,6 +57,15 @@ class _GamePageState extends State<GamePage> {
           moveOnlyMapArea: true,
         ),
         onReady: _onReady,
+        progress: const Material(
+          color: Colors.black,
+          child: Center(
+            child: Text(
+              'Loading...',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -64,14 +74,15 @@ class _GamePageState extends State<GamePage> {
   Player _getPlayer(ComponentStateModel state) {
     return MyPlayer(
       position: state.position.toVector2(),
-      skin: PayerSkin.fromName(state.properties['skin']),
+      skin: PlayerSkin.fromName(state.properties['skin']),
+      initDirection: state.lastDirection?.toDirection(),
       name: state.name,
       speed: state.speed,
     );
   }
 
   // Adds remote plasyers with ack informations
-  List<GameComponent> _getComponents(JoinAckEvent event, BuildContext context) {
+  List<GameComponent> _getComponents(JoinMapEvent event, BuildContext context) {
     return event.players.map((e) {
       return _createRemotePlayer(e);
     }).toList();
@@ -92,8 +103,8 @@ class _GamePageState extends State<GamePage> {
     _eventManager.onPlayerState(
       _onPlayerState,
     );
-    _eventManager.onEvent<JoinAckEvent>(
-      EventType.JOIN_ACK.name,
+    _eventManager.onEvent<JoinMapEvent>(
+      EventType.JOIN_MAP.name,
       _onAckJoint,
     );
   }
@@ -131,7 +142,8 @@ class _GamePageState extends State<GamePage> {
   GameComponent _createRemotePlayer(ComponentStateModel state) {
     return MyRemotePlayer(
       position: state.position.toVector2(),
-      skin: PayerSkin.fromName(state.properties['skin']),
+      initDirection: state.lastDirection?.toDirection(),
+      skin: PlayerSkin.fromName(state.properties['skin']),
       eventManager: context.read(),
       id: state.id,
       name: state.name,
@@ -139,7 +151,7 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  void _onAckJoint(JoinAckEvent event) {
+  void _onAckJoint(JoinMapEvent event) {
     GameRoute.open(context, event);
   }
 }

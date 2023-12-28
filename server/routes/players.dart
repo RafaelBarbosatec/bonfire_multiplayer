@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:dart_frog/dart_frog.dart';
 
+import '../src/components/player.dart';
 import '../src/core/game.dart';
 import '../src/core/game_map.dart';
-import '../src/components/player.dart';
 
 Response onRequest(RequestContext context) {
   // ignore: strict_raw_type

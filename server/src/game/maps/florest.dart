@@ -7,7 +7,11 @@ import '../../util/game_ref.dart';
 import '../game_server.dart';
 
 class FlorestMap extends GameMap with GameRef<GameServer> {
-  FlorestMap({super.name = 'florest', super.path = 'maps/map1/florest.tmj'});
+  FlorestMap({
+    super.id = 'florestId',
+    super.name = 'florest',
+    super.path = 'maps/map1/florest.tmj',
+  });
 
   @override
   void onObjectBuilder(GameMapObjectProperties object) {
@@ -17,7 +21,7 @@ class FlorestMap extends GameMap with GameRef<GameServer> {
           position: object.position,
           size: object.size,
           map: game.maps.firstWhere(
-            (m) => m.name == object.properties['map'].toString(),
+            (m) => m.id == object.properties['mapId'].toString(),
           ),
           playerPosition: GameVector(
             x: double.parse(object.properties['x'].toString()),

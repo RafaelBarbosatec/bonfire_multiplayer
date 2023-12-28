@@ -4,7 +4,7 @@
 library;
 
 export 'src/event_type.dart';
-export 'src/events/join_ack_event.dart';
+export 'src/events/join_map_event.dart';
 export 'src/events/join_event.dart';
 export 'src/events/move_event.dart';
 export 'src/events/player_event.dart';

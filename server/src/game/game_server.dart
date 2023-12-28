@@ -91,15 +91,12 @@ class GameServer extends Game {
 
     // send ACK to client that request join.
     client.send(
-      EventType.JOIN_ACK.name,
-      JoinAckEvent(
+      EventType.JOIN_MAP.name,
+      JoinMapEvent(
         state: player.state,
         players: maps[initialMap].playersState,
         npcs: maps[initialMap].npcsState,
-        map: MapModel(
-          name: maps[initialMap].name,
-          path: maps[initialMap].path,
-        ),
+        map: maps[initialMap].toModel(),
       ),
     );
   }
@@ -110,7 +107,7 @@ class GameServer extends Game {
       player.removeFromParent();
       map.add(player);
     } catch (e) {
-      print('Not found map: $newMap');
+      logger.e('Not found map: $newMap');
     }
   }
 
@@ -128,10 +125,10 @@ class GameServer extends Game {
           fromMap: JoinEvent.fromMap,
         ),
       )
-      ..registerType<JoinAckEvent>(
+      ..registerType<JoinMapEvent>(
         TypeAdapter(
           toMap: (type) => type.toMap(),
-          fromMap: JoinAckEvent.fromMap,
+          fromMap: JoinMapEvent.fromMap,
         ),
       )
       ..registerType<GameStateModel>(

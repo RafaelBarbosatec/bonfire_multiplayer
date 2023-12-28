@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
+import 'package:bonfire_multiplayer/util/player_skin.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_events/shared_events.dart';
@@ -43,7 +43,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     ConnectedEvent event,
     Emitter<HomeState> emit,
   ) {
-    _eventManager.onEvent<JoinAckEvent>(EventType.JOIN_ACK.name, (event) {
+    _eventManager.onEvent<JoinMapEvent>(EventType.JOIN_MAP.name, (event) {
       add(EnterGameEvent(ackEvent: event));
     });
     emit(state.copyWith(connected: true));

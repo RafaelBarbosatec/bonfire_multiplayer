@@ -11,9 +11,8 @@ class PoloWebsocket extends WebsocketProvider {
   final int countReconnect;
   int _countTryReconnect = 0;
 
-  List<void Function()> onConnectSubscribers = [];
-  List<void Function()> onDisconnectSubscribers = [];
-
+  void Function()? onConnectSubscriber;
+  void Function()? onDisconnectSubscriber;
   PoloWebsocket({
     required this.address,
     this.port = 3000,
@@ -34,9 +33,7 @@ class PoloWebsocket extends WebsocketProvider {
           print("Client Connected to Server");
         }
         onConnect?.call();
-        for (var sub in onConnectSubscribers) {
-          sub();
-        }
+        onConnectSubscriber?.call();
       });
 
       _client?.onDisconnect(() {
@@ -45,9 +42,7 @@ class PoloWebsocket extends WebsocketProvider {
           print("Client Disconnected from Server");
         }
         onDisconnect?.call();
-        for (var sub in onDisconnectSubscribers) {
-          sub();
-        }
+        onDisconnectSubscriber?.call();
       });
       _client?.listen();
     } catch (e) {
@@ -70,12 +65,12 @@ class PoloWebsocket extends WebsocketProvider {
 
   @override
   void onConnect(void Function() onConnect) {
-    onConnectSubscribers.add(onConnect);
+    onConnectSubscriber = onConnect;
   }
 
   @override
   void onDisconnect(void Function() onDisconnect) {
-    onDisconnectSubscribers.add(onDisconnect);
+    onDisconnectSubscriber = onDisconnect;
   }
 
   @override

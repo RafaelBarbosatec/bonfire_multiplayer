@@ -30,25 +30,22 @@ class MapGateway extends GameComponent
   @override
   bool onContact(GameComponent comp) {
     if (comp is GamePlayer) {
+      logger.i(
+        'Player(${comp.state.id}) change map {${comp.parent} to {$map}}',
+      );
       comp
-        ..position = playerPosition
+        ..position = playerPosition.clone()
         ..state.direction = null
         ..removeFromParent();
       map.add(comp);
       comp.send(
-        EventType.JOIN_ACK.name,
-        JoinAckEvent(
+        EventType.JOIN_MAP.name,
+        JoinMapEvent(
           state: comp.state,
           players: map.playersState,
           npcs: map.npcsState,
-          map: MapModel(
-            name: map.name,
-            path: map.path,
-          ),
+          map: map.toModel(),
         ),
-      );
-      logger.i(
-        'Player(${comp.state.id}) change map {${comp.parent} to {$map}}',
       );
     }
     return super.onContact(comp);

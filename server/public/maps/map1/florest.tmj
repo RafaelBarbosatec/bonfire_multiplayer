@@ -293,14 +293,14 @@
                  "name":"",
                  "properties":[
                         {
-                         "name":"map",
+                         "name":"mapId",
                          "type":"string",
-                         "value":"desert"
+                         "value":"desertId"
                         }, 
                         {
                          "name":"x",
                          "type":"string",
-                         "value":"48"
+                         "value":"20"
                         }, 
                         {
                          "name":"y",

@@ -14,13 +14,13 @@ class ConnectedEvent extends HomeEvent {}
 class DisconnectedEvent extends HomeEvent {}
 
 class EnterGameEvent extends HomeEvent {
-  final JoinAckEvent ackEvent;
+  final JoinMapEvent ackEvent;
 
   const EnterGameEvent({required this.ackEvent});
 }
 
 class SelectSkinEvent extends HomeEvent {
-  final PayerSkin skin;
+  final PlayerSkin skin;
 
   const SelectSkinEvent({required this.skin});
 }

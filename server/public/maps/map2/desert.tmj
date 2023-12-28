@@ -66,14 +66,14 @@
                  "name":"",
                  "properties":[
                         {
-                         "name":"map",
+                         "name":"mapId",
                          "type":"string",
-                         "value":"florest"
+                         "value":"florestId"
                         }, 
                         {
                          "name":"x",
                          "type":"string",
-                         "value":"256"
+                         "value":"270"
                         }, 
                         {
                          "name":"y",

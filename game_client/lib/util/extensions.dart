@@ -14,26 +14,37 @@ extension Vector2Ext on Vector2 {
 }
 
 extension JoystickMoveDirectionalExt on JoystickMoveDirectional {
-  Direction? toDirection() {
+  MoveDirectionEnum? toMoveDirection() {
     switch (this) {
       case JoystickMoveDirectional.MOVE_UP:
-        return Direction.up;
-      case JoystickMoveDirectional.MOVE_UP_LEFT:
-        return Direction.upLeft;
-      case JoystickMoveDirectional.MOVE_UP_RIGHT:
-        return Direction.upRight;
+        return MoveDirectionEnum.up;
       case JoystickMoveDirectional.MOVE_RIGHT:
-        return Direction.right;
+        return MoveDirectionEnum.right;
       case JoystickMoveDirectional.MOVE_DOWN:
-        return Direction.down;
-      case JoystickMoveDirectional.MOVE_DOWN_RIGHT:
-        return Direction.downRight;
-      case JoystickMoveDirectional.MOVE_DOWN_LEFT:
-        return Direction.downLeft;
+        return MoveDirectionEnum.down;
       case JoystickMoveDirectional.MOVE_LEFT:
-        return Direction.left;
+        return MoveDirectionEnum.left;
+      case JoystickMoveDirectional.MOVE_UP_LEFT:
+      case JoystickMoveDirectional.MOVE_UP_RIGHT:
+      case JoystickMoveDirectional.MOVE_DOWN_RIGHT:
+      case JoystickMoveDirectional.MOVE_DOWN_LEFT:
       case JoystickMoveDirectional.IDLE:
         return null;
+    }
+  }
+}
+
+extension MoveDirectionEnumExt on MoveDirectionEnum {
+  Direction toDirection() {
+    switch (this) {
+      case MoveDirectionEnum.up:
+        return Direction.up;
+      case MoveDirectionEnum.right:
+        return Direction.right;
+      case MoveDirectionEnum.down:
+        return Direction.down;
+      case MoveDirectionEnum.left:
+        return Direction.left;
     }
   }
 }

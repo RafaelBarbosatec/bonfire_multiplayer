@@ -7,11 +7,11 @@ class GameRoute {
 
   static Map<String, WidgetBuilder> get builder => {
         name: (context) => GamePage(
-              event: ModalRoute.of(context)?.settings.arguments as JoinAckEvent,
+              event: ModalRoute.of(context)?.settings.arguments as JoinMapEvent,
             ),
       };
 
-  static Future open(BuildContext context, JoinAckEvent event) {
+  static Future open(BuildContext context, JoinMapEvent event) {
     return Navigator.of(context).pushNamedAndRemoveUntil(
       name,
       arguments: event,

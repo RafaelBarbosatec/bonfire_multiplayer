@@ -18,6 +18,7 @@ import 'game_sensor.dart';
 abstract class GameMap extends GameComponent {
   final String name;
   final String path;
+  final String id;
   final List<GameRectangle> _collisions = [];
 
   Iterable<GamePlayer> get players => components.whereType();
@@ -27,9 +28,18 @@ abstract class GameMap extends GameComponent {
   Iterable<ComponentStateModel> get npcsState => npcs.map((e) => e.state);
 
   GameMap({
+    required this.id,
     required this.name,
     required this.path,
   });
+
+  MapModel toModel() {
+    return MapModel(
+      id: id,
+      name: name,
+      path: path,
+    );
+  }
 
   void onObjectBuilder(GameMapObjectProperties object);
 

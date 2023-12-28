@@ -4,27 +4,7 @@ import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dar
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
-
-enum PayerSkin {
-  girl,
-  boy;
-
-  String get path {
-    switch (this) {
-      case PayerSkin.girl:
-        return 'player_girl.png';
-      case PayerSkin.boy:
-        return 'player_boy.png';
-    }
-  }
-
-  factory PayerSkin.fromName(String name) {
-    return PayerSkin.values.firstWhere(
-      (element) => element.name == name,
-      orElse: () => PayerSkin.boy,
-    );
-  }
-}
+import 'package:bonfire_multiplayer/util/player_skin.dart';
 
 class MyPlayer extends SimplePlayer
     with
@@ -33,24 +13,24 @@ class MyPlayer extends SimplePlayer
         BonfireBlocListenable<MyPlayerBloc, MyPlayerState> {
   JoystickMoveDirectional? _joystickDirectional;
   bool sendedIdle = false;
-  bool moveEnabled = true;
 
   MyPlayer({
     required super.position,
     required String name,
-    required PayerSkin skin,
+    required PlayerSkin skin,
+    Direction? initDirection,
     super.speed,
   }) : super(
           size: Vector2.all(32),
           animation: PlayersSpriteSheet.simpleAnimation(skin.path),
-          initDirection: Direction.down,
+          initDirection: initDirection ?? Direction.down,
         ) {
     this.name = name;
   }
 
   @override
   void onJoystickChangeDirectional(JoystickDirectionalEvent event) {
-    if (moveEnabled) {
+    if (isMounted) {
       _joystickDirectional = event.directional;
     }
 
@@ -89,7 +69,7 @@ class MyPlayer extends SimplePlayer
       );
     }
     if (state.direction != null) {
-      moveFromDirection(state.direction!);
+      moveFromDirection(state.direction!.toDirection());
     } else {
       stopMove(forceIdle: true);
     }
@@ -100,7 +80,7 @@ class MyPlayer extends SimplePlayer
     bloc.add(
       UpdateMoveStateEvent(
         position: position,
-        direction: _joystickDirectional?.toDirection(),
+        direction: _joystickDirectional?.toMoveDirection(),
       ),
     );
   }

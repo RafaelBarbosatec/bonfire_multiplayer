@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
-import 'package:bonfire_multiplayer/util/functions.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_events/shared_events.dart';
@@ -15,10 +14,10 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
   final GameEventManager _eventManager;
   final String id;
   final Vector2 initPosition;
-  final String map;
+  final MapModel map;
   MyPlayerBloc(this._eventManager, this.id, this.initPosition, this.map)
-      : super(
-            MyPlayerState(position: initPosition, direction: Direction.down)) {
+      : super(MyPlayerState(
+            position: initPosition, direction: MoveDirectionEnum.down)) {
     on<UpdateMoveStateEvent>(_onUpdateMoveStateEvent);
     on<UpdatePlayerPositionEvent>(_onUpdatePlayerPositionEvent);
     on<DisposeEvent>(_onDisposeEvent);
@@ -38,8 +37,8 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
       MoveEvent(
         position: event.position.toGamePosition(),
         time: DateTime.now().toIso8601String(),
-        direction: event.direction?.name,
-        map: map,
+        direction: event.direction,
+        mapId: map.id,
       ),
     );
   }
@@ -47,7 +46,7 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
   void _onPlayerState(ComponentStateModel state) => add(
         UpdatePlayerPositionEvent(
           position: state.position.toVector2(),
-          direction: getDirectionFromName(state.direction),
+          direction: state.direction,
         ),
       );
 

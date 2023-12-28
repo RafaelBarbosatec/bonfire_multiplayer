@@ -6,20 +6,20 @@ class MoveEvent {
     required this.position,
     required this.time,
     required this.direction,
-    required this.map,
+    required this.mapId,
   });
 
   final GameVector position;
   final String time;
-  final String? direction;
-  final String map;
+  final MoveDirectionEnum? direction;
+  final String mapId;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'position': position.toMap(),
       'time': time,
-      'direction': direction,
-      'map': map,
+      'direction': direction?.index,
+      'map': mapId,
     };
   }
 
@@ -27,8 +27,17 @@ class MoveEvent {
     return MoveEvent(
       position: GameVector.fromMap(map['position'] as Map<String, dynamic>),
       time: map['time'] as String,
-      map: map['map'] as String,
-      direction: map['direction'] as String?,
+      mapId: map['map'] as String,
+      direction: map['direction'] != null
+          ? MoveDirectionEnum.values[map['direction']]
+          : null,
     );
   }
+}
+
+enum MoveDirectionEnum {
+  left,
+  right,
+  up,
+  down;
 }

@@ -4,21 +4,21 @@ part of 'home_bloc.dart';
 class HomeState extends Equatable {
   const HomeState({
     this.connected = false,
-    this.skinSelected = PayerSkin.boy,
+    this.skinSelected = PlayerSkin.boy,
     this.ackEvent,
   });
 
   final bool connected;
-  final JoinAckEvent? ackEvent;
-  final PayerSkin skinSelected;
+  final JoinMapEvent? ackEvent;
+  final PlayerSkin skinSelected;
 
   @override
   List<Object?> get props => [connected, ackEvent, skinSelected];
 
   HomeState copyWith({
     bool? connected,
-    JoinAckEvent? ackEvent,
-    PayerSkin? skinSelected,
+    JoinMapEvent? ackEvent,
+    PlayerSkin? skinSelected,
   }) {
     return HomeState(
       connected: connected ?? this.connected,

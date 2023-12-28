@@ -4,7 +4,9 @@ import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/bloc/my_remote_player_bloc.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
+import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
+import 'package:bonfire_multiplayer/util/player_skin.dart';
 
 class MyRemotePlayer extends SimplePlayer
     with
@@ -14,15 +16,16 @@ class MyRemotePlayer extends SimplePlayer
   final String id;
   MyRemotePlayer({
     required super.position,
-    required PayerSkin skin,
+    required PlayerSkin skin,
     required GameEventManager eventManager,
     required this.id,
     required String name,
+    Direction? initDirection,
     super.speed,
   }) : super(
           size: Vector2.all(32),
           animation: PlayersSpriteSheet.simpleAnimation(skin.path),
-          initDirection: Direction.down,
+          initDirection: initDirection ?? Direction.down,
         ) {
     this.name = name;
     bloc = MyRemotePlayerBloc(
@@ -65,7 +68,7 @@ class MyRemotePlayer extends SimplePlayer
       );
     }
     if (state.direction != null) {
-      moveFromDirection(state.direction!);
+      moveFromDirection(state.direction!.toDirection());
     } else {
       stopMove();
     }

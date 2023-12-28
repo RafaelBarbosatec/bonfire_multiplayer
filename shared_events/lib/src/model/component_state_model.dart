@@ -8,10 +8,13 @@ class ComponentStateModel {
     required this.position,
     required this.life,
     this.speed = 80,
-    this.direction,
+    MoveDirectionEnum? direction,
+    MoveDirectionEnum? lastDirection,
     this.action,
     Map<String, dynamic>? properties,
-  }) : properties = properties ?? {} {
+  })  : properties = properties ?? {},
+        _direction = direction,
+        _lastDirection = lastDirection ?? direction {
     initPosition = position.clone();
   }
 
@@ -19,11 +22,22 @@ class ComponentStateModel {
   final String name;
   final String? action;
   final double speed;
-  String? direction;
+  MoveDirectionEnum? _lastDirection;
+  MoveDirectionEnum? _direction;
   GameVector position;
   int life;
   final Map<String, dynamic> properties;
   late final GameVector initPosition;
+
+  set direction(MoveDirectionEnum? d) {
+    if (d == null && _direction != null) {
+      _lastDirection = direction;
+    }
+    _direction = d;
+  }
+
+  MoveDirectionEnum? get direction => _direction;
+  MoveDirectionEnum? get lastDirection => _lastDirection;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -31,7 +45,8 @@ class ComponentStateModel {
       'name': name,
       'position': position.toMap(),
       'life': life,
-      'direction': direction,
+      'lastDirection': _lastDirection?.index,
+      'direction': direction?.index,
       'action': action,
       'speed': action,
       'properties': properties,
@@ -44,7 +59,12 @@ class ComponentStateModel {
       name: map['name'] as String,
       position: GameVector.fromMap(map['position'] as Map<String, dynamic>),
       life: map['life'] as int,
-      direction: map['direction'] as String?,
+      direction: map['direction'] != null
+          ? MoveDirectionEnum.values[map['direction']]
+          : null,
+      lastDirection: map['lastDirection'] != null
+          ? MoveDirectionEnum.values[map['lastDirection']]
+          : null,
       action: map['action'] as String?,
       speed: double.tryParse(map['speed'].toString()) ?? 80,
       properties: map['properties'] as Map<String, dynamic>? ?? {},

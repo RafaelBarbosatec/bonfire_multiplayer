@@ -29,7 +29,7 @@ class Player extends GamePlayer with GameSensorContact {
     client.onEvent<MoveEvent>(
       EventType.MOVE.name,
       (data) {
-        if (data.map == (parent as GameMap?)?.name) {
+        if (data.mapId == (parent as GameMap?)?.id) {
           state.direction = data.direction;
         }
       },
@@ -53,22 +53,22 @@ class Player extends GamePlayer with GameSensorContact {
   }
 
   void _updatePosition(double dt) {
+    if (state.direction == null) return;
     final lastPosition = position.clone();
     final displacement = dt * state.speed;
 
-    if (state.direction == 'left') {
-      position.x -= displacement;
-    }
-    if (state.direction == 'right') {
-      position.x += displacement;
+    switch (state.direction) {
+      case MoveDirectionEnum.left:
+        position.x -= displacement;
+      case MoveDirectionEnum.right:
+        position.x += displacement;
+      case MoveDirectionEnum.up:
+        position.y -= displacement;
+      case MoveDirectionEnum.down:
+        position.y += displacement;
+      case null:
     }
 
-    if (state.direction == 'up') {
-      position.y -= displacement;
-    }
-    if (state.direction == 'down') {
-      position.y += displacement;
-    }
     if (checkCollisionWithParent(this)) {
       position = lastPosition;
       state.direction = null;

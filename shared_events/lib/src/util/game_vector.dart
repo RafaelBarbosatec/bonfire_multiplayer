@@ -89,4 +89,7 @@ class GameVector {
   GameVector clone() {
     return GameVector(x: x, y: y);
   }
+
+  @override
+  String toString() => 'GameVector(x: $x, y: $y)';
 }

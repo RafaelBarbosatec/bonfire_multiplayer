@@ -2,7 +2,7 @@
 
 enum EventType {
   JOIN,
-  JOIN_ACK,
+  JOIN_MAP,
   UPDATE_STATE,
   MOVE,
   CHANGE_MAP;

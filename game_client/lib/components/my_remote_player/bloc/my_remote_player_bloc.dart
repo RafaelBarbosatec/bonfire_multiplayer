@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
-import 'package:bonfire_multiplayer/util/functions.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_events/shared_events.dart';
@@ -34,7 +33,7 @@ class MyRemotePlayerBloc
   ) {
     emit(
       state.copyWith(
-        direction: getDirectionFromName(event.state.direction),
+        direction: event.state.direction,
         position: event.state.position.toVector2(),
       ),
     );

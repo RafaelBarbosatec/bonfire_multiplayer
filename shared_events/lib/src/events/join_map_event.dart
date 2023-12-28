@@ -1,8 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/shared_events.dart';
 
-class JoinAckEvent {
-  JoinAckEvent({
+class JoinMapEvent {
+  JoinMapEvent({
     required this.state,
     required this.map,
     required this.players,
@@ -26,8 +26,8 @@ class JoinAckEvent {
     };
   }
 
-  factory JoinAckEvent.fromMap(Map<String, dynamic> map) {
-    return JoinAckEvent(
+  factory JoinMapEvent.fromMap(Map<String, dynamic> map) {
+    return JoinMapEvent(
       state: ComponentStateModel.fromMap(map['state'] as Map<String, dynamic>),
       map: MapModel.fromMap(map['map'] as Map<String, dynamic>),
       players: List<ComponentStateModel>.from(

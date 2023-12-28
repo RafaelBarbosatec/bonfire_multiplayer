@@ -76,10 +76,10 @@ class GameEventManager {
   }
 
   void _registerTypes() {
-    websocket.registerType<JoinAckEvent>(
+    websocket.registerType<JoinMapEvent>(
       TypeAdapter(
         toMap: (type) => type.toMap(),
-        fromMap: JoinAckEvent.fromMap,
+        fromMap: JoinMapEvent.fromMap,
       ),
     );
     websocket.registerType<JoinEvent>(
