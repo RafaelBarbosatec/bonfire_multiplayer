@@ -41,7 +41,11 @@ class _GamePageState extends State<GamePage> {
         widget.event.map,
       ),
       child: BonfireWidget(
-        map: WorldMapByTiled('http://$address:8080/${widget.event.map.path}'),
+        map: WorldMapByTiled(
+          TiledReader.network(
+            Uri.parse('http://$address:8080/${widget.event.map.path}'),
+          ),
+        ),
         joystick: Joystick(
           keyboardConfig: KeyboardConfig(
             enableDiagonalInput: false,
@@ -57,15 +61,6 @@ class _GamePageState extends State<GamePage> {
           moveOnlyMapArea: true,
         ),
         onReady: _onReady,
-        progress: const Material(
-          color: Colors.black,
-          child: Center(
-            child: Text(
-              'Loading...',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
       ),
     );
   }
