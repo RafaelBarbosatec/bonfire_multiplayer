@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first, lines_longer_than_80_chars
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/shared_events.dart';
 import 'package:tiledjsonreader/map/layer/group_layer.dart';
 import 'package:tiledjsonreader/map/layer/map_layer.dart';
@@ -109,13 +109,22 @@ abstract class GameMap extends GameComponent {
     }
   }
 
-  void _getCollisionFromTile(int tileId, int tileIndex, TiledMap map, TileLayer layer) {
+  void _getCollisionFromTile(
+    int tileId,
+    int tileIndex,
+    TiledMap map,
+    TileLayer layer,
+  ) {
     final tile = getTileDetails(map.tileSets!, tileId);
 
     if (tile?.typeOrClass == 'collision') {
       final tileWidth = map.tileWidth ?? 0;
       final tileHeight = map.tileHeight ?? 0;
-      final position = getTilePosition(layer: layer, map: map, tileIndex: tileIndex);
+      final position = getTilePosition(
+        layer: layer,
+        map: map,
+        tileIndex: tileIndex,
+      );
       _collisions.add(
         GameRectangle(
           position: position,
@@ -127,7 +136,9 @@ abstract class GameMap extends GameComponent {
 
   TileSetItem? getTileDetails(List<TileSetDetail> tileSets, int tileId) {
     for (final tileSet in tileSets) {
-      final tileTilesetIndex = tileSet.tiles?.indexWhere((tile) => (tile.id! + tileSet.firsTgId!) == tileId) ?? -1;
+      final tileTilesetIndex = tileSet.tiles?.indexWhere(
+        (tile) => (tile.id! + tileSet.firsTgId!) == tileId,
+      ) ?? -1;
       if (tileTilesetIndex > -1) {
         return tileSet.tiles![tileTilesetIndex];
       }
@@ -135,7 +146,11 @@ abstract class GameMap extends GameComponent {
     return null;
   }
 
-  GameVector getTilePosition({required int tileIndex, required TileLayer layer, required TiledMap map}) {
+  GameVector getTilePosition({
+    required int tileIndex,
+    required TileLayer layer,
+    required TiledMap map,
+  }) {
     final xTileCount = tileIndex % layer.width!;
     final yTileCount = tileIndex ~/ layer.width!;
     final xTilePosition = xTileCount * map.tileWidth!;
