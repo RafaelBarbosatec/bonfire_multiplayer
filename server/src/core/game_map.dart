@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, lines_longer_than_80_chars
 import 'package:shared_events/shared_events.dart';
 import 'package:tiledjsonreader/map/layer/group_layer.dart';
 import 'package:tiledjsonreader/map/layer/map_layer.dart';
@@ -6,7 +6,9 @@ import 'package:tiledjsonreader/map/layer/object_layer.dart';
 import 'package:tiledjsonreader/map/layer/objects.dart';
 import 'package:tiledjsonreader/map/layer/tile_layer.dart';
 import 'package:tiledjsonreader/map/layer/type_layer.dart';
+import 'package:tiledjsonreader/map/tile_set_detail.dart';
 import 'package:tiledjsonreader/map/tiled_map.dart';
+import 'package:tiledjsonreader/tile_set/tile_set_item.dart';
 import 'package:tiledjsonreader/tiledjsonreader.dart';
 
 import '../util/game_map_object_properties.dart';
@@ -64,11 +66,15 @@ abstract class GameMap extends GameComponent {
   void _collectLayerInformations(MapLayer layer, TiledMap map) {
     switch (layer.type) {
       case TypeLayer.tilelayer:
-        for (final tile in (layer as TileLayer).data ?? <int>[]) {
-          if (tile != 0) {
-            _getCollisionFromTile(tile, map);
+        final tileLayer = layer as TileLayer;
+        final tileCount = tileLayer.data?.length ?? 0;
+        for (var tileIndex = 0; tileIndex < tileCount; tileIndex++) {
+          final tileId = tileLayer.data![tileIndex];
+          if (tileId != 0) {
+            _getCollisionFromTile(tileId, tileIndex, map, tileLayer);
           }
         }
+
       case TypeLayer.objectgroup:
         if (layer.layerClass == 'collision') {
           for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
@@ -103,7 +109,37 @@ abstract class GameMap extends GameComponent {
     }
   }
 
-  void _getCollisionFromTile(int tile, TiledMap map) {
-    // TODO extract collision from tile configuration.
+  void _getCollisionFromTile(int tileId, int tileIndex, TiledMap map, TileLayer layer) {
+    final tile = getTileDetails(map.tileSets!, tileId);
+
+    if (tile?.typeOrClass == 'collision') {
+      final tileWidth = map.tileWidth ?? 0;
+      final tileHeight = map.tileHeight ?? 0;
+      final position = getTilePosition(layer: layer, map: map, tileIndex: tileIndex);
+      _collisions.add(
+        GameRectangle(
+          position: position,
+          size: GameVector(x: tileWidth.toDouble(), y: tileHeight.toDouble()),
+        ),
+      );
+    }
+  }
+
+  TileSetItem? getTileDetails(List<TileSetDetail> tileSets, int tileId) {
+    for (final tileSet in tileSets) {
+      final tileTilesetIndex = tileSet.tiles?.indexWhere((tile) => (tile.id! + tileSet.firsTgId!) == tileId) ?? -1;
+      if (tileTilesetIndex > -1) {
+        return tileSet.tiles![tileTilesetIndex];
+      }
+    }
+    return null;
+  }
+
+  GameVector getTilePosition({required int tileIndex, required TileLayer layer, required TiledMap map}) {
+    final xTileCount = tileIndex % layer.width!;
+    final yTileCount = tileIndex ~/ layer.width!;
+    final xTilePosition = xTileCount * map.tileWidth!;
+    final yTilePosition = (yTileCount * map.tileHeight!).toDouble();
+    return GameVector(x: xTilePosition, y: yTilePosition);
   }
 }
