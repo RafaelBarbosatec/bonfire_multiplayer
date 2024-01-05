@@ -1,6 +1,6 @@
 import 'package:shared_events/shared_events.dart';
 
-import '../../components/map_gateway.dart';
+import '../components/map_gateway.dart';
 import '../../core/game_map.dart';
 import '../../util/game_map_object_properties.dart';
 import '../../util/game_ref.dart';

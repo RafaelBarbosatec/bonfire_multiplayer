@@ -61,15 +61,20 @@ class GameEventManager {
     playerStateSubscriber.remove(callback);
   }
 
+  int lastTimestamp = 0;
+
   void _initOnPlayerState() {
     websocket.onEvent<GameStateModel>(
       EventType.UPDATE_STATE.name,
       (state) {
-        for (var call in playerStateSubscriber) {
-          call(state.players);
-        }
-        for (var player in state.players) {
-          specificPlayerStateSubscriber[player.id]?.call(player);
+        if (state.timestamp > lastTimestamp) {
+          lastTimestamp = state.timestamp;
+          for (var call in playerStateSubscriber) {
+            call(state.players);
+          }
+          for (var player in state.players) {
+            specificPlayerStateSubscriber[player.id]?.call(player);
+          }
         }
       },
     );

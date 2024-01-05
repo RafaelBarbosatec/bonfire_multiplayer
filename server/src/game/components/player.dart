@@ -1,10 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/shared_events.dart';
 
-import '../core/game_map.dart';
-import '../core/game_player.dart';
-import '../core/game_sensor.dart';
-import '../infrastructure/websocket/polo_websocket.dart';
+import '../../core/game_map.dart';
+import '../../core/game_player.dart';
+import '../../core/game_sensor.dart';
+import '../../infrastructure/websocket/polo_websocket.dart';
 
 class Player extends GamePlayer with GameSensorContact {
   Player({

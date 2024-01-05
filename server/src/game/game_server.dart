@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
-import '../components/player.dart';
+import 'components/player.dart';
 import '../core/game.dart';
 import '../core/game_component.dart';
 import '../core/game_map.dart';
@@ -42,7 +42,7 @@ class GameServer extends Game {
   }
 
   @override
-  void onUpdateState(GameComponent comp) {
+  void onStateUpdate(GameComponent comp) {
     if (comp is GameMap) {
       for (final player in comp.players) {
         player.send(
