@@ -5,8 +5,8 @@ import '../../core/game_component.dart';
 import '../../core/game_map.dart';
 import '../../core/game_player.dart';
 import '../../core/game_sensor.dart';
-import '../game_server.dart';
 import '../../util/game_ref.dart';
+import '../game_server.dart';
 
 class MapGateway extends GameComponent
     with GameSensorContact, GameRef<GameServer> {

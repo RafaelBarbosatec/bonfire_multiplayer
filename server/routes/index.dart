@@ -1,8 +1,8 @@
 import 'package:dart_frog/dart_frog.dart';
 
-import '../src/game/components/player.dart';
 import '../src/core/game.dart';
 import '../src/core/game_map.dart';
+import '../src/game/components/player.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   // ignore: strict_raw_type

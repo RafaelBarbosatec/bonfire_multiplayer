@@ -21,13 +21,24 @@ class GamePage extends StatefulWidget {
   State<GamePage> createState() => _GamePageState();
 }
 
-class _GamePageState extends State<GamePage> {
+class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   late GameEventManager _eventManager;
   late BonfireGameInterface game;
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    super.initState();
+  }
 
   @override
   void dispose() {
     _eventManager.removeOnPlayerState(_onPlayerState);
+    _controller.dispose();
     super.dispose();
   }
 
@@ -40,27 +51,30 @@ class _GamePageState extends State<GamePage> {
         widget.event.state.position.toVector2(),
         widget.event.map,
       ),
-      child: BonfireWidget(
-        map: WorldMapByTiled(
-          TiledReader.network(
-            Uri.parse('http://$address:8080/${widget.event.map.path}'),
+      child: FadeTransition(
+        opacity: _controller,
+        child: BonfireWidget(
+          map: WorldMapByTiled(
+            TiledReader.network(
+              Uri.parse('http://$address:8080/${widget.event.map.path}'),
+            ),
           ),
-        ),
-        joystick: Joystick(
-          keyboardConfig: KeyboardConfig(
-            enableDiagonalInput: false,
+          joystick: Joystick(
+            keyboardConfig: KeyboardConfig(
+              enableDiagonalInput: false,
+            ),
+            directional: JoystickDirectional(
+              enableDiagonalInput: false,
+            ),
           ),
-          directional: JoystickDirectional(
-            enableDiagonalInput: false,
+          player: _getPlayer(widget.event.state),
+          components: _getComponents(widget.event, context),
+          cameraConfig: CameraConfig(
+            initialMapZoomFit: InitialMapZoomFitEnum.fitHeight,
+            moveOnlyMapArea: true,
           ),
+          onReady: _onReady,
         ),
-        player: _getPlayer(widget.event.state),
-        components: _getComponents(widget.event, context),
-        cameraConfig: CameraConfig(
-          initialMapZoomFit: InitialMapZoomFitEnum.fitHeight,
-          moveOnlyMapArea: true,
-        ),
-        onReady: _onReady,
       ),
     );
   }
@@ -102,6 +116,7 @@ class _GamePageState extends State<GamePage> {
       EventType.JOIN_MAP.name,
       _onAckJoint,
     );
+    Future.delayed(const Duration(milliseconds: 100), _controller.forward);
   }
 
   void _onPlayerState(Iterable<ComponentStateModel> serverPlayers) {
