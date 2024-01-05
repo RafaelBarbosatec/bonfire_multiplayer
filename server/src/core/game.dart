@@ -18,7 +18,7 @@ abstract class Game extends GameComponent {
     super.onUpdate(dt);
     if (_compRequestedUpdate.isNotEmpty) {
       for (final comp in _compRequestedUpdate) {
-        onUpdateState(comp);
+        onStateUpdate(comp);
       }
       _compRequestedUpdate.clear();
     }
@@ -26,10 +26,12 @@ abstract class Game extends GameComponent {
 
   @override
   void onRequestUpdate(GameComponent comp) {
-    _compRequestedUpdate.add(comp);
+    if (!_compRequestedUpdate.contains(comp)) {
+      _compRequestedUpdate.add(comp);
+    }
   }
 
-  void onUpdateState(GameComponent comp);
+  void onStateUpdate(GameComponent comp);
 
   Future<void> start() {
     if (_gameTimer == null) {

@@ -42,7 +42,7 @@ class GameServer extends Game {
   }
 
   @override
-  void onUpdateState(GameComponent comp) {
+  void onStateUpdate(GameComponent comp) {
     if (comp is GameMap) {
       for (final player in comp.players) {
         player.send(

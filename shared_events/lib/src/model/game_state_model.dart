@@ -4,8 +4,10 @@ import 'package:shared_events/shared_events.dart';
 class GameStateModel {
   final Iterable<ComponentStateModel> players;
   final Iterable<ComponentStateModel> npcs;
+  final int timestamp;
 
-  GameStateModel({required this.players, required this.npcs});
+  GameStateModel({required this.players, required this.npcs, int? timestamp})
+      : timestamp = timestamp ?? DateTime.now().millisecondsSinceEpoch;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
