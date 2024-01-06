@@ -60,18 +60,18 @@ Just open the `game_client` and execute `flutter run` in the terminal.
 - [x] RemotePlayer
 - [x] Map load from server
 - [x] Map navigation
-- [] Enemy NPC
-- [] Neutral NPC
-- [] Player Meele Attack
-- [] Enemy Meele Attack
-- [] Range Attack
-- [] Drop item
-- [] Inventory system
-- [] Equipments system
-- [] Quests system
-- [] Chat system
-- [] Paty system 
-- [] Friends system
+- [ ] Enemy NPC
+- [ ] Neutral NPC
+- [ ] Player Meele Attack
+- [ ] Enemy Meele Attack
+- [ ] Range Attack
+- [ ] Drop item
+- [ ] Inventory system
+- [ ] Equipments system
+- [ ] Quests system
+- [ ] Chat system
+- [ ] Paty system 
+- [ ] Friends system
 
 ***ServerSide***
 
