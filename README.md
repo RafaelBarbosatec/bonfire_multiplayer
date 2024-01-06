@@ -58,18 +58,35 @@ Just open the `game_client` and execute `flutter run` in the terminal.
 - [x] SocketConnection
 - [x] Player
 - [x] RemotePlayer
-[] Enemy NPC
-[] Neutral NPC
-[] Player Attack
-[] Enemy Attack
-
+- [x] Map load from server
+- [x] Map navigation
+- [] Enemy NPC
+- [] Neutral NPC
+- [] Player Meele Attack
+- [] Enemy Meele Attack
+- [] Range Attack
+- [] Drop item
+- [] Inventory system
+- [] Equipments system
+- [] Quests system
+- [] Chat system
+- [] Paty system 
+- [] Friends system
 
 ***ServerSide***
 
-[x] SocketConnection
-[x] Game loop
-[x] Map loader
-[x] Map navigation
-[] NPC Movements
-[] NPC Vision
-[] NPC Attack
+- [x] SocketConnection
+- [x] Game loop
+- [x] Map loader
+- [x] Map navigation
+- [] NPC Movements
+- [] NPC Vision
+- [] Meele Attack
+- [] Range Attack
+- [] Drop item
+- [] Inventory system
+- [] Equipments system
+- [] Quests system
+- [] Chat system
+- [] Paty system
+- [] Friends system
