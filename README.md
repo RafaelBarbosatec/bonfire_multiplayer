@@ -55,14 +55,14 @@ Just open the `game_client` and execute `flutter run` in the terminal.
 
 ***ClientSide***
 
-[x] SocketConnection
-[x] Player
-[x] RemotePlayer
+- [x] SocketConnection
+- [x] Player
+- [x] RemotePlayer
 [] Enemy NPC
 [] Neutral NPC
 [] Player Attack
 [] Enemy Attack
-[]
+
 
 ***ServerSide***
 
