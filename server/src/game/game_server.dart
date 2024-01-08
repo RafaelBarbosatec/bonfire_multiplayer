@@ -67,8 +67,8 @@ class GameServer extends Game {
 
     // Create initial position
     final position = GameVector(
-      x: (8 + Random().nextInt(3)) * tileSize,
-      y: 5 * tileSize,
+      x: (3 + Random().nextInt(3)) * tileSize,
+      y: 11 * tileSize,
     );
     // Adds Player
 

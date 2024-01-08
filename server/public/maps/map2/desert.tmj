@@ -73,12 +73,12 @@
                         {
                          "name":"x",
                          "type":"string",
-                         "value":"270"
+                         "value":"288"
                         }, 
                         {
                          "name":"y",
                          "type":"string",
-                         "value":"96"
+                         "value":"160"
                         }],
                  "rotation":0,
                  "visible":true,
