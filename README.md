@@ -39,6 +39,7 @@ Just open the `game_client` and execute `flutter run` in the terminal.
 | -------- | ------- |
 | bonfire  | `^3.1.1`    |
 | bonfire_bloc | `^0.0.2`     |
+| polo_client    | `^0.0.3`    |
 | flutter_bloc    | `^8.1.3`    |
 | provider    | `^6.1.1`    |
 
@@ -50,3 +51,42 @@ Just open the `game_client` and execute `flutter run` in the terminal.
 | polo_server    | `^0.0.3`    |
 | logger | `^2.0.2+1`     |
 
+## Roadmap:
+
+***ClientSide***
+
+- [x] SocketConnection
+- [x] Player
+- [x] RemotePlayer
+- [x] Map load from server
+- [x] Map navigation
+- [ ] Enemy NPC
+- [ ] Neutral NPC
+- [ ] Player Meele Attack
+- [ ] Enemy Meele Attack
+- [ ] Range Attack
+- [ ] Drop item
+- [ ] Inventory system
+- [ ] Equipments system
+- [ ] Quests system
+- [ ] Chat system
+- [ ] Paty system 
+- [ ] Friends system
+
+***ServerSide***
+
+- [x] SocketConnection
+- [x] Game loop
+- [x] Map loader
+- [x] Map navigation
+- [ ] NPC Movements
+- [ ] NPC Vision
+- [ ] Meele Attack
+- [ ] Range Attack
+- [ ] Drop item
+- [ ] Inventory system
+- [ ] Equipments system
+- [ ] Quests system
+- [ ] Chat system
+- [ ] Paty system
+- [ ] Friends system
