@@ -13,6 +13,7 @@ class GameStateModel {
     return <String, dynamic>{
       'players': players.map((x) => x.toMap()).toList(),
       'npcs': npcs.map((x) => x.toMap()).toList(),
+      'timestamp': timestamp,
     };
   }
 
@@ -28,6 +29,7 @@ class GameStateModel {
           (x) => ComponentStateModel.fromMap((x as Map).cast()),
         ),
       ),
+      timestamp: int.tryParse(map['timestamp'].toString()) ?? 0,
     );
   }
 }

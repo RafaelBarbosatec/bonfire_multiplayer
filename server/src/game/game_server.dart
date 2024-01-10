@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
-import 'components/player.dart';
 import '../core/game.dart';
 import '../core/game_component.dart';
 import '../core/game_map.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
+import 'components/player.dart';
 
 class GameServer extends Game {
   GameServer({required this.server, required this.maps}) {
@@ -67,8 +67,8 @@ class GameServer extends Game {
 
     // Create initial position
     final position = GameVector(
-      x: (8 + Random().nextInt(3)) * tileSize,
-      y: 5 * tileSize,
+      x: (3 + Random().nextInt(3)) * tileSize,
+      y: 11 * tileSize,
     );
     // Adds Player
 

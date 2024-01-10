@@ -34,7 +34,7 @@ class MyPlayer extends SimplePlayer
       _joystickDirectional = event.directional;
     }
 
-    // comments this part to not move component
+    // comments this part to not move the player
     // super.onJoystickChangeDirectional(event);
   }
 
@@ -71,6 +71,7 @@ class MyPlayer extends SimplePlayer
     if (state.direction != null) {
       moveFromDirection(state.direction!.toDirection());
     } else {
+      lastDirection = state.lastDirection.toDirection();
       stopMove(forceIdle: true);
     }
     super.onNewState(state);

@@ -1,5 +1,5 @@
-import '../core/game.dart';
-import '../core/game_component.dart';
+import '../game.dart';
+import '../game_component.dart';
 
 mixin GameRef<T extends Game> on GameComponent {
   T get game {

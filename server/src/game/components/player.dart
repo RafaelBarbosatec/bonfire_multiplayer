@@ -3,15 +3,17 @@ import 'package:shared_events/shared_events.dart';
 
 import '../../core/game_map.dart';
 import '../../core/game_player.dart';
-import '../../core/game_sensor.dart';
+import '../../core/mixins/contact_sensor.dart';
+import '../../core/mixins/movement.dart';
 import '../../infrastructure/websocket/polo_websocket.dart';
 
-class Player extends GamePlayer with GameSensorContact {
+class Player extends GamePlayer with ContactSensor, Movement {
   Player({
     required super.state,
     required this.client,
   }) {
     position = state.position;
+    speed = state.speed;
     _confMove();
     setupGameSensor(
       GameRectangle(
@@ -55,19 +57,8 @@ class Player extends GamePlayer with GameSensorContact {
   void _updatePosition(double dt) {
     if (state.direction == null) return;
     final lastPosition = position.clone();
-    final displacement = dt * state.speed;
 
-    switch (state.direction) {
-      case MoveDirectionEnum.left:
-        position.x -= displacement;
-      case MoveDirectionEnum.right:
-        position.x += displacement;
-      case MoveDirectionEnum.up:
-        position.y -= displacement;
-      case MoveDirectionEnum.down:
-        position.y += displacement;
-      case null:
-    }
+    moveFromDirection(dt, state.direction!);
 
     if (checkCollisionWithParent(this)) {
       position = lastPosition;

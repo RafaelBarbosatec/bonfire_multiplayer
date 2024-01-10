@@ -4,12 +4,11 @@ import '../../../main.dart';
 import '../../core/game_component.dart';
 import '../../core/game_map.dart';
 import '../../core/game_player.dart';
-import '../../core/game_sensor.dart';
+import '../../core/mixins/contact_sensor.dart';
+import '../../core/mixins/game_ref.dart';
 import '../game_server.dart';
-import '../../util/game_ref.dart';
 
-class MapGateway extends GameComponent
-    with GameSensorContact, GameRef<GameServer> {
+class MapGateway extends GameComponent with ContactSensor, GameRef<GameServer> {
   MapGateway({
     required super.position,
     required this.size,

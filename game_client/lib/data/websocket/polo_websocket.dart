@@ -16,7 +16,7 @@ class PoloWebsocket extends WebsocketProvider {
   PoloWebsocket({
     required this.address,
     this.port = 3000,
-    this.countReconnect = 5,
+    this.countReconnect = 10,
   });
 
   @override

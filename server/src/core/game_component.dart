@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/shared_events.dart';
 
-import 'game_sensor.dart';
+import 'mixins/contact_sensor.dart';
 
 abstract class GameComponent {
   GameVector position;
@@ -58,8 +58,8 @@ abstract class GameComponent {
     _compsToRemove.add(comp);
   }
 
-  bool checkCollisionWithParent(GameSensorContact comp) {
-    for (final sensor in components.whereType<GameSensorContact>()) {
+  bool checkCollisionWithParent(ContactSensor comp) {
+    for (final sensor in components.whereType<ContactSensor>()) {
       if (sensor != comp) {
         if (sensor.checkCollision(comp)) {
           return true;
