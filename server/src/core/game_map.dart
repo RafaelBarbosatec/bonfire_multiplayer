@@ -116,21 +116,35 @@ abstract class GameMap extends GameComponent {
     TileLayer layer,
   ) {
     final tile = getTileDetails(map.tileSets!, tileId);
+    final collisionObjects = tile?.objectGroup?.objects ?? [];
+    final isCollisionClass = tile?.typeOrClass == 'collision';
+    if (!isCollisionClass && collisionObjects.isEmpty) return;
+
+    final tileWidth = map.tileWidth ?? 0;
+    final tileHeight = map.tileHeight ?? 0;
+    final position = getTilePosition(
+      layer: layer,
+      map: map,
+      tileIndex: tileIndex,
+    );
 
     if (tile?.typeOrClass == 'collision') {
-      final tileWidth = map.tileWidth ?? 0;
-      final tileHeight = map.tileHeight ?? 0;
-      final position = getTilePosition(
-        layer: layer,
-        map: map,
-        tileIndex: tileIndex,
-      );
       _collisions.add(
         GameRectangle(
           position: position,
           size: GameVector(x: tileWidth.toDouble(), y: tileHeight.toDouble()),
         ),
       );
+    } else if (collisionObjects.isNotEmpty) {
+      for (final collision in collisionObjects) {
+        final collisionOffset = GameVector(x: collision.x ?? 0, y: collision.y ?? 0);
+        _collisions.add(
+          GameRectangle(
+            position: position + collisionOffset,
+            size: GameVector(x: collision.width ?? 0, y: collision.height ?? 0),
+          ),
+        );
+      }
     }
   }
 
