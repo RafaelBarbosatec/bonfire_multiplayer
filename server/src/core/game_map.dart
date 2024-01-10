@@ -15,7 +15,7 @@ import '../util/game_map_object_properties.dart';
 import 'game_component.dart';
 import 'game_npc.dart';
 import 'game_player.dart';
-import 'game_sensor.dart';
+import 'mixins/contact_sensor.dart';
 
 abstract class GameMap extends GameComponent {
   final String name;
@@ -46,7 +46,7 @@ abstract class GameMap extends GameComponent {
   void onObjectBuilder(GameMapObjectProperties object);
 
   @override
-  bool checkCollisionWithParent(GameSensorContact comp) {
+  bool checkCollisionWithParent(ContactSensor comp) {
     for (final collision in _collisions) {
       if (comp.getRectContact().overlaps(collision)) {
         return true;

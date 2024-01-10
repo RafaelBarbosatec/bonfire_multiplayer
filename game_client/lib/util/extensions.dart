@@ -25,9 +25,13 @@ extension JoystickMoveDirectionalExt on JoystickMoveDirectional {
       case JoystickMoveDirectional.MOVE_LEFT:
         return MoveDirectionEnum.left;
       case JoystickMoveDirectional.MOVE_UP_LEFT:
+        return MoveDirectionEnum.upLeft;
       case JoystickMoveDirectional.MOVE_UP_RIGHT:
+        return MoveDirectionEnum.upRight;
       case JoystickMoveDirectional.MOVE_DOWN_RIGHT:
+        return MoveDirectionEnum.downRight;
       case JoystickMoveDirectional.MOVE_DOWN_LEFT:
+        return MoveDirectionEnum.downLeft;
       case JoystickMoveDirectional.IDLE:
         return null;
     }
@@ -45,6 +49,14 @@ extension MoveDirectionEnumExt on MoveDirectionEnum {
         return Direction.down;
       case MoveDirectionEnum.left:
         return Direction.left;
+      case MoveDirectionEnum.upLeft:
+        return Direction.upLeft;
+      case MoveDirectionEnum.upRight:
+        return Direction.upRight;
+      case MoveDirectionEnum.downLeft:
+        return Direction.downLeft;
+      case MoveDirectionEnum.downRight:
+        return Direction.downRight;
     }
   }
 }

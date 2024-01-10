@@ -51,29 +51,32 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
         widget.event.state.position.toVector2(),
         widget.event.map,
       ),
-      child: FadeTransition(
-        opacity: _controller,
-        child: BonfireWidget(
-          map: WorldMapByTiled(
-            TiledReader.network(
-              Uri.parse('http://$address:8080/${widget.event.map.path}'),
+      child: Container(
+        color: Colors.black,
+        child: FadeTransition(
+          opacity: _controller,
+          child: BonfireWidget(
+            map: WorldMapByTiled(
+              TiledReader.network(
+                Uri.parse('http://$address:8080/${widget.event.map.path}'),
+              ),
             ),
-          ),
-          joystick: Joystick(
-            keyboardConfig: KeyboardConfig(
-              enableDiagonalInput: false,
+            joystick: Joystick(
+              keyboardConfig: KeyboardConfig(
+                enableDiagonalInput: false,
+              ),
+              directional: JoystickDirectional(
+                enableDiagonalInput: false,
+              ),
             ),
-            directional: JoystickDirectional(
-              enableDiagonalInput: false,
+            player: _getPlayer(widget.event.state),
+            components: _getComponents(widget.event, context),
+            cameraConfig: CameraConfig(
+              initialMapZoomFit: InitialMapZoomFitEnum.fitHeight,
+              moveOnlyMapArea: true,
             ),
+            onReady: _onReady,
           ),
-          player: _getPlayer(widget.event.state),
-          components: _getComponents(widget.event, context),
-          cameraConfig: CameraConfig(
-            initialMapZoomFit: InitialMapZoomFitEnum.fitHeight,
-            moveOnlyMapArea: true,
-          ),
-          onReady: _onReady,
         ),
       ),
     );

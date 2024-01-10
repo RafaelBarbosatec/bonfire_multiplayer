@@ -36,15 +36,16 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-            useMaterial3: true,
-            pageTransitionsTheme: PageTransitionsTheme(
-              builders: {
-                TargetPlatform.android: MyPageTransition(),
-                TargetPlatform.iOS: MyPageTransition(),
-                TargetPlatform.macOS: MyPageTransition(),
-              },
-            )),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          useMaterial3: true,
+          pageTransitionsTheme: PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: MyPageTransition(),
+              TargetPlatform.iOS: MyPageTransition(),
+              TargetPlatform.macOS: MyPageTransition(),
+            },
+          ),
+        ),
         routes: {
           ...HomeRoute.builder,
           ...GameRoute.builder,

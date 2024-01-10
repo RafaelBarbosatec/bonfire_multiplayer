@@ -39,5 +39,9 @@ enum MoveDirectionEnum {
   left,
   right,
   up,
-  down;
+  down,
+  upLeft,
+  upRight,
+  downLeft,
+  downRight,
 }

@@ -1,8 +1,8 @@
 import 'package:shared_events/shared_events.dart';
 
-import 'game_component.dart';
+import '../game_component.dart';
 
-mixin GameSensorContact on GameComponent {
+mixin ContactSensor on GameComponent {
   GameRectangle _sensorRectangle = GameRectangle.zero();
   // ignore: use_setters_to_change_properties
   void setupGameSensor(GameRectangle rect) {
@@ -17,7 +17,7 @@ mixin GameSensorContact on GameComponent {
         size: _sensorRectangle.size,
       );
 
-  bool checkCollision(GameSensorContact other) {
+  bool checkCollision(ContactSensor other) {
     if (getRectContact().overlaps(other.getRectContact())) {
       final stop = onContact(other);
       final stop2 = other.onContact(this);

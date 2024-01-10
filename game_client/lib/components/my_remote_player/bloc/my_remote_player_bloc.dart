@@ -16,7 +16,10 @@ class MyRemotePlayerBloc
   final String playerId;
   final Vector2 initPosition;
   MyRemotePlayerBloc(this.playerId, this.initPosition, this._eventManager)
-      : super(MyRemotePlayerState(position: initPosition)) {
+      : super(MyRemotePlayerState(
+          position: initPosition,
+          lastDirection: MoveDirectionEnum.down,
+        )) {
     on<UpdateStateEvent>(_onUpdateStateEvent);
     on<RemoveSbscribe>(_onRemoveSubscribe);
     _eventManager.onSpecificPlayerState(
@@ -35,6 +38,7 @@ class MyRemotePlayerBloc
       state.copyWith(
         direction: event.state.direction,
         position: event.state.position.toVector2(),
+        lastDirection: event.state.lastDirection,
       ),
     );
   }
