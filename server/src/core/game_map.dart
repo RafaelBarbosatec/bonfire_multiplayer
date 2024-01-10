@@ -137,8 +137,9 @@ abstract class GameMap extends GameComponent {
   TileSetItem? getTileDetails(List<TileSetDetail> tileSets, int tileId) {
     for (final tileSet in tileSets) {
       final tileTilesetIndex = tileSet.tiles?.indexWhere(
-        (tile) => (tile.id! + tileSet.firsTgId!) == tileId,
-      ) ?? -1;
+            (tile) => (tile.id! + tileSet.firsTgId!) == tileId,
+          ) ??
+          -1;
       if (tileTilesetIndex > -1) {
         return tileSet.tiles![tileTilesetIndex];
       }

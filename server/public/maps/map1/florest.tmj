@@ -21,6 +21,7 @@
             86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86],
          "height":15,
          "id":1,
+         "locked":true,
          "name":"ground",
          "opacity":1,
          "type":"tilelayer",
@@ -47,6 +48,7 @@
             121, 162, 163, 162, 163, 162, 163, 162, 163, 106, 107, 162, 163, 162, 163, 162, 163, 0, 55, 104],
          "height":15,
          "id":3,
+         "locked":true,
          "name":"decoration",
          "opacity":1,
          "type":"tilelayer",
@@ -86,6 +88,7 @@
          "class":"collision",
          "draworder":"topdown",
          "id":5,
+         "locked":true,
          "name":"collisions",
          "objects":[
                 {
@@ -235,12 +238,12 @@
                         {
                          "name":"x",
                          "type":"string",
-                         "value":"20"
+                         "value":"1"
                         }, 
                         {
                          "name":"y",
                          "type":"string",
-                         "value":"112"
+                         "value":"176"
                         }],
                  "rotation":0,
                  "visible":true,
