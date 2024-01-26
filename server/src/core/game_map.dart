@@ -137,7 +137,10 @@ abstract class GameMap extends GameComponent {
       );
     } else if (collisionObjects.isNotEmpty) {
       for (final collision in collisionObjects) {
-        final collisionOffset = GameVector(x: collision.x ?? 0, y: collision.y ?? 0);
+        final collisionOffset = GameVector(
+          x: collision.x ?? 0,
+          y: collision.y ?? 0,
+        );
         _collisions.add(
           GameRectangle(
             position: position + collisionOffset,

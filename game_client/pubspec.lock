@@ -29,10 +29,10 @@ packages:
     dependency: "direct main"
     description:
       name: bonfire
-      sha256: "6eab618c9c2c441de4005528fe8507a57c15bf95530d297d0954c9eba2d7486f"
+      sha256: c87ac0c0c0a5b47e7311dcb16230116a353b50979e7bfe54d20c76e6a19749de
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "3.3.0"
   bonfire_bloc:
     dependency: "direct main"
     description:
@@ -93,10 +93,10 @@ packages:
     dependency: transitive
     description:
       name: flame
-      sha256: "4418cf72c53059241a2e9ddf8e783a01ae84caec31d7f6d30a19122b2c602748"
+      sha256: "61c42b966a6b1f44ee093194e6701d45b14fdda1859c14fe68a39489454bfbd4"
       url: "https://pub.dev"
     source: hosted
-    version: "1.11.0"
+    version: "1.14.0"
   flutter:
     dependency: "direct main"
     description: flutter
