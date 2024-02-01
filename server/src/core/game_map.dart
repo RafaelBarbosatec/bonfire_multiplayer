@@ -46,13 +46,13 @@ abstract class GameMap extends GameComponent {
   void onObjectBuilder(GameMapObjectProperties object);
 
   @override
-  bool checkCollisionWithParent(ContactSensor comp) {
+  bool checkContactWithParent(ContactSensor comp) {
     for (final collision in _collisions) {
       if (comp.getRectContact().overlaps(collision)) {
         return true;
       }
     }
-    return super.checkCollisionWithParent(comp);
+    return super.checkContactWithParent(comp);
   }
 
   Future<void> load() async {

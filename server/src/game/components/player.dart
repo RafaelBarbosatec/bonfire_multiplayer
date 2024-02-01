@@ -1,13 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/shared_events.dart';
 
-import '../../core/game_map.dart';
 import '../../core/game_player.dart';
 import '../../core/mixins/contact_sensor.dart';
+import '../../core/mixins/map_ref.dart';
 import '../../core/mixins/movement.dart';
 import '../../infrastructure/websocket/polo_websocket.dart';
 
-class Player extends GamePlayer with ContactSensor, Movement {
+class Player extends GamePlayer with ContactSensor, Movement, MapRef {
   Player({
     required super.state,
     required this.client,
@@ -31,7 +31,7 @@ class Player extends GamePlayer with ContactSensor, Movement {
     client.onEvent<MoveEvent>(
       EventType.MOVE.name,
       (data) {
-        if (data.mapId == (parent as GameMap?)?.id) {
+        if (data.mapId == map.id) {
           state.direction = data.direction;
         }
       },
@@ -60,7 +60,7 @@ class Player extends GamePlayer with ContactSensor, Movement {
 
     moveFromDirection(dt, state.direction!);
 
-    if (checkCollisionWithParent(this)) {
+    if (checkContactWithParent(this)) {
       position = lastPosition;
       state.direction = null;
     }

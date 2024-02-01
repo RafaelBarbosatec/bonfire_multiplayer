@@ -58,7 +58,7 @@ abstract class GameComponent {
     _compsToRemove.add(comp);
   }
 
-  bool checkCollisionWithParent(ContactSensor comp) {
+  bool checkContactWithParent(ContactSensor comp) {
     for (final sensor in components.whereType<ContactSensor>()) {
       if (sensor != comp) {
         if (sensor.checkCollision(comp)) {
@@ -66,6 +66,6 @@ abstract class GameComponent {
         }
       }
     }
-    return parent?.checkCollisionWithParent(comp) ?? false;
+    return parent?.checkContactWithParent(comp) ?? false;
   }
 }
