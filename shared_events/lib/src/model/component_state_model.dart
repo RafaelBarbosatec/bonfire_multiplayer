@@ -6,6 +6,7 @@ class ComponentStateModel {
     required this.id,
     required this.name,
     required this.position,
+    required this.size,
     required this.life,
     this.speed = 80,
     MoveDirectionEnum? direction,
@@ -25,6 +26,7 @@ class ComponentStateModel {
   MoveDirectionEnum? _lastDirection;
   MoveDirectionEnum? _direction;
   GameVector position;
+  GameVector size;
   int life;
   final Map<String, dynamic> properties;
   late final GameVector initPosition;
@@ -44,6 +46,7 @@ class ComponentStateModel {
       'id': id,
       'name': name,
       'position': position.toMap(),
+      'size': size.toMap(),
       'life': life,
       'lastDirection': _lastDirection?.index,
       'direction': direction?.index,
@@ -58,6 +61,7 @@ class ComponentStateModel {
       id: map['id'] as String,
       name: map['name'] as String,
       position: GameVector.fromMap(map['position'] as Map<String, dynamic>),
+      size: GameVector.fromMap(map['size'] as Map<String, dynamic>),
       life: map['life'] as int,
       direction: map['direction'] != null
           ? MoveDirectionEnum.values[map['direction']]

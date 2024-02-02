@@ -1,20 +1,29 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:shared_events/src/util/game_vector.dart';
 
-class GameRectangle {
+class GameRect {
   final GameVector position;
   final GameVector size;
 
-  GameRectangle({required this.position, required this.size});
+  GameRect({GameVector? position, required this.size})
+      : position = position ?? GameVector.zero();
 
-  factory GameRectangle.zero() {
-    return GameRectangle(
+  factory GameRect.zero() {
+    return GameRect(
       position: GameVector.zero(),
       size: GameVector.zero(),
     );
   }
 
-  bool overlaps(GameRectangle other) {
+  GameVector get topLeft => position;
+
+  GameVector get topRight => GameVector(x: right, y: top);
+
+  GameVector get bottomRight => GameVector(x: right, y: bottom);
+
+  GameVector get bottomLeft => GameVector(x: left, y: bottom);
+
+  bool overlaps(GameRect other) {
     if (right <= other.left || other.right <= left) {
       return false;
     }
@@ -36,18 +45,18 @@ class GameRectangle {
     };
   }
 
-  factory GameRectangle.fromMap(Map<String, dynamic> map) {
-    return GameRectangle(
+  factory GameRect.fromMap(Map<String, dynamic> map) {
+    return GameRect(
       position: GameVector.fromMap(map['position'] as Map<String, dynamic>),
       size: GameVector.fromMap(map['size'] as Map<String, dynamic>),
     );
   }
 
-  GameRectangle copyWith({
+  GameRect copyWith({
     GameVector? position,
     GameVector? size,
   }) {
-    return GameRectangle(
+    return GameRect(
       position: position ?? this.position,
       size: size ?? this.size,
     );

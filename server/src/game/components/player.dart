@@ -2,23 +2,23 @@
 import 'package:shared_events/shared_events.dart';
 
 import '../../core/game_player.dart';
+import '../../core/geometry/rectangle.dart';
+import '../../core/mixins/block_movement_contact.dart';
 import '../../core/mixins/contact_sensor.dart';
 import '../../core/mixins/map_ref.dart';
-import '../../core/mixins/movement.dart';
 import '../../infrastructure/websocket/polo_websocket.dart';
 
-class Player extends GamePlayer with ContactSensor, Movement, MapRef {
+class Player extends GamePlayer
+    with ContactSensor, MapRef, BlockMovementOnContact {
   Player({
     required super.state,
     required this.client,
   }) {
-    position = state.position;
-    speed = state.speed;
     _confMove();
     setupGameSensor(
-      GameRectangle(
+      RectangleShape(
+        GameVector.all(16),
         position: GameVector(x: 8, y: 16),
-        size: GameVector.all(16),
       ),
     );
   }
@@ -45,7 +45,6 @@ class Player extends GamePlayer with ContactSensor, Movement, MapRef {
     if (state.direction != null) {
       sendedIdle = false;
       _updatePosition(dt);
-      requestUpdate();
     } else {
       if (!sendedIdle) {
         sendedIdle = true;
@@ -56,18 +55,17 @@ class Player extends GamePlayer with ContactSensor, Movement, MapRef {
 
   void _updatePosition(double dt) {
     if (state.direction == null) return;
-    final lastPosition = position.clone();
-
     moveFromDirection(dt, state.direction!);
-
-    if (checkContactWithParent(this)) {
-      position = lastPosition;
-      state.direction = null;
-    }
   }
 
   @override
   void send<T>(String event, T data) {
     client.send<T>(event, data);
+  }
+
+  @override
+  void onBlockMovement(GameVector lastPosition) {
+    state.direction = null;
+    super.onBlockMovement(lastPosition);
   }
 }

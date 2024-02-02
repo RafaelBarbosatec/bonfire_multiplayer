@@ -15,13 +15,16 @@ import '../util/game_map_object_properties.dart';
 import 'game_component.dart';
 import 'game_npc.dart';
 import 'game_player.dart';
+import 'geometry/base/extensions.dart';
+import 'geometry/base/shape.dart';
+import 'geometry/rectangle.dart';
 import 'mixins/contact_sensor.dart';
 
 abstract class GameMap extends GameComponent {
   final String name;
   final String path;
   final String id;
-  final List<GameRectangle> _collisions = [];
+  final List<Shape> _collisions = [];
 
   Iterable<GamePlayer> get players => components.whereType();
   Iterable<GameNpc> get npcs => components.whereType();
@@ -47,9 +50,13 @@ abstract class GameMap extends GameComponent {
 
   @override
   bool checkContactWithParent(ContactSensor comp) {
-    for (final collision in _collisions) {
-      if (comp.getRectContact().overlaps(collision)) {
-        return true;
+    final shape = comp.getShapeContact();
+    if (shape != null) {
+      for (final collision in _collisions) {
+        if (shape.isCollision(collision)) {
+          comp.onContact(this);
+          return true;
+        }
       }
     }
     return super.checkContactWithParent(comp);
@@ -79,9 +86,9 @@ abstract class GameMap extends GameComponent {
         if (layer.layerClass == 'collision') {
           for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
             _collisions.add(
-              GameRectangle(
+              RectangleShape(
+                GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
                 position: GameVector(x: obj.x ?? 0, y: obj.y ?? 0),
-                size: GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
               ),
             );
           }
@@ -89,9 +96,9 @@ abstract class GameMap extends GameComponent {
           for (final obj in (layer as ObjectLayer).objects ?? <Objects>[]) {
             if (obj.typeOrClass == 'collision') {
               _collisions.add(
-                GameRectangle(
+                RectangleShape(
+                  GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
                   position: GameVector(x: obj.x ?? 0, y: obj.y ?? 0),
-                  size: GameVector(x: obj.width ?? 0, y: obj.height ?? 0),
                 ),
               );
             } else {
@@ -130,9 +137,9 @@ abstract class GameMap extends GameComponent {
 
     if (tile?.typeOrClass == 'collision') {
       _collisions.add(
-        GameRectangle(
+        RectangleShape(
+          GameVector(x: tileWidth.toDouble(), y: tileHeight.toDouble()),
           position: position,
-          size: GameVector(x: tileWidth.toDouble(), y: tileHeight.toDouble()),
         ),
       );
     } else if (collisionObjects.isNotEmpty) {
@@ -142,9 +149,9 @@ abstract class GameMap extends GameComponent {
           y: collision.y ?? 0,
         );
         _collisions.add(
-          GameRectangle(
+          RectangleShape(
+            GameVector(x: collision.width ?? 0, y: collision.height ?? 0),
             position: position + collisionOffset,
-            size: GameVector(x: collision.width ?? 0, y: collision.height ?? 0),
           ),
         );
       }

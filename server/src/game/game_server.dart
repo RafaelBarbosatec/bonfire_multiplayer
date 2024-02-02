@@ -77,6 +77,7 @@ class GameServer extends Game {
         id: client.id,
         name: message.name,
         position: position,
+        size: GameVector.all(16),
         life: 100,
         properties: {
           'skin': message.skin,

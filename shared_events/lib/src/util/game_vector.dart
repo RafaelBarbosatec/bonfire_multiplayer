@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, hash_and_equals
+import 'dart:math' as math;
 
 class GameVector {
   double x;
@@ -90,6 +91,24 @@ class GameVector {
     return GameVector(x: x, y: y);
   }
 
+  GameVector copyWith({double? x, double? y}) {
+    return GameVector(x: x ?? this.x, y: y ?? this.y);
+  }
+
   @override
   String toString() => 'GameVector(x: $x, y: $y)';
+
+  GameVector translated(double x, double y) {
+    return GameVector(x: this.x + x, y: this.y + y);
+  }
+
+  double distanceTo(GameVector arg) {
+    return math.sqrt(distanceToSquared(arg));
+  }
+
+  double distanceToSquared(GameVector arg) {
+    final dx = x - arg.x;
+    final dy = y - arg.y;
+    return dx * dx + dy * dy;
+  }
 }

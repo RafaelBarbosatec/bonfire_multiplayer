@@ -24,5 +24,5 @@ class MyPlayerState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [position, direction,lastDirection];
+  List<Object?> get props => [position, direction, lastDirection];
 }

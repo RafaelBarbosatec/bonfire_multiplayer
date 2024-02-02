@@ -36,13 +36,17 @@ void main() {
     });
 
     test('getTilePosition index 0', () {
-      expect(gameMap.getTilePosition(tileIndex: 0, layer: layer, map: map),
-          GameVector(x: 0, y: 0),);
+      expect(
+        gameMap.getTilePosition(tileIndex: 0, layer: layer, map: map),
+        GameVector(x: 0, y: 0),
+      );
     });
 
     test('getTilePosition index 4', () {
-      expect(gameMap.getTilePosition(tileIndex: 4, layer: layer, map: map),
-          GameVector(x: 16, y: 16),);
+      expect(
+        gameMap.getTilePosition(tileIndex: 4, layer: layer, map: map),
+        GameVector(x: 16, y: 16),
+      );
     });
   });
 }

@@ -1,21 +1,10 @@
-import 'package:shared_events/shared_events.dart';
+import 'game_npc.dart';
 
-import 'game_component.dart';
-
-abstract class GamePlayer extends GameComponent {
+abstract class GamePlayer extends GameNpc {
   GamePlayer({
-    required this.state,
+    required super.state,
     super.components,
-    super.position,
   });
-
-  @override
-  set position(GameVector position) {
-    state.position = position;
-    super.position = position;
-  }
-
-  final ComponentStateModel state;
 
   void send<T>(String event, T data);
 }
