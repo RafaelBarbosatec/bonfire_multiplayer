@@ -6,11 +6,13 @@ import '../../main.dart';
 import '../core/game.dart';
 import '../core/game_component.dart';
 import '../core/game_map.dart';
+import '../core/game_player.dart';
 import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
 import 'components/player.dart';
 
 class GameServer extends Game {
+  static const tileSize = 16.0;
   GameServer({required this.server, required this.maps}) {
     _registerTypes();
   }
@@ -63,8 +65,6 @@ class GameServer extends Game {
       return;
     }
 
-    const tileSize = 16.0;
-
     // Create initial position
     final position = GameVector(
       x: (3 + Random().nextInt(3)) * tileSize,
@@ -86,29 +86,38 @@ class GameServer extends Game {
       client: client,
     );
 
-    const initialMap = 0;
+    final initialMap = maps[0];
 
-    maps[initialMap].add(player);
+    initialMap.add(player);
 
     // send ACK to client that request join.
     client.send(
       EventType.JOIN_MAP.name,
       JoinMapEvent(
         state: player.state,
-        players: maps[initialMap].playersState,
-        npcs: maps[initialMap].npcsState,
-        map: maps[initialMap].toModel(),
+        players: initialMap.playersState,
+        npcs: initialMap.npcsState,
+        map: initialMap.toModel(),
       ),
     );
   }
 
-  void changeMap(Player player, String newMap) {
+  void changeMap(GamePlayer player, String newMapId) {
     try {
-      final map = maps.firstWhere((element) => element.name == newMap);
+      final map = maps.firstWhere((element) => element.id == newMapId);
       player.removeFromParent();
       map.add(player);
+      player.send(
+        EventType.JOIN_MAP.name,
+        JoinMapEvent(
+          state: player.state,
+          players: map.playersState,
+          npcs: map.npcsState,
+          map: map.toModel(),
+        ),
+      );
     } catch (e) {
-      logger.e('Not found map: $newMap');
+      logger.e('Not found map: $newMapId');
     }
   }
 

@@ -20,10 +20,8 @@ class FlorestMap extends GameMap with GameRef<GameServer> {
         MapGateway(
           position: object.position,
           size: object.size,
-          map: game.maps.firstWhere(
-            (m) => m.id == object.properties['mapId'].toString(),
-          ),
-          playerPosition: GameVector(
+          mapTagetId: object.properties['mapId'].toString(),
+          targetPlayerPosition: GameVector(
             x: double.parse(object.properties['x'].toString()),
             y: double.parse(object.properties['y'].toString()),
           ),
