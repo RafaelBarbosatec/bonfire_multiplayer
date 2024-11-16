@@ -57,18 +57,22 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
           opacity: _controller,
           child: BonfireWidget(
             map: WorldMapByTiled(
-              TiledReader.network(
+              WorldMapReader.fromNetwork(
                 Uri.parse('http://$address:8080/${widget.event.map.path}'),
               ),
             ),
-            joystick: Joystick(
-              keyboardConfig: KeyboardConfig(
-                enableDiagonalInput: false,
+            playerControllers: [
+              Joystick(
+                directional: JoystickDirectional(
+                  enableDiagonalInput: false,
+                ),
               ),
-              directional: JoystickDirectional(
-                enableDiagonalInput: false,
-              ),
-            ),
+              Keyboard(
+                config: KeyboardConfig(
+                  enableDiagonalInput: false,
+                ),
+              )
+            ],
             player: _getPlayer(widget.event.state),
             components: _getComponents(widget.event, context),
             cameraConfig: CameraConfig(
