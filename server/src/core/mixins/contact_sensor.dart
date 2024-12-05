@@ -18,20 +18,21 @@ mixin ContactSensor on PositionedGameComponent {
     final otherSHape = other.getShapeContact();
     if (otherSHape == null) return false;
     if (myShape.isCollision(otherSHape)) {
-      final stop = checkIfNotifyContact(other);
-      final stop2 = other.checkIfNotifyContact(this);
+      final stop = onContact(other);
+      final stop2 = other.onContact(this);
       if (stop && stop2) {
-        onContact(other);
-        other.onContact(this);
+        onDidContact(other);
+        other.onDidContact(this);
         return true;
       }
     }
     return false;
   }
 
-  bool checkIfNotifyContact(GameComponent comp) {
+  // return true if you can happen contact
+  bool onContact(GameComponent comp) {
     return true;
   }
 
-  void onContact(GameComponent comp) {}
+  void onDidContact(GameComponent comp) {}
 }

@@ -54,7 +54,7 @@ abstract class GameMap extends GameComponent {
     if (shape != null) {
       for (final collision in _collisions) {
         if (shape.isCollision(collision)) {
-          comp.onContact(this);
+          comp.onDidContact(this);
           return true;
         }
       }

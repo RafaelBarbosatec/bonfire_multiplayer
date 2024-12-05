@@ -14,7 +14,6 @@ import 'package:shared_events/shared_events.dart';
 
 class GamePage extends StatefulWidget {
   final JoinMapEvent event;
-  static const tileSize = 16.0;
   const GamePage({super.key, required this.event});
 
   @override
@@ -121,7 +120,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     );
     _eventManager.onEvent<JoinMapEvent>(
       EventType.JOIN_MAP.name,
-      _onAckJoint,
+      _onJoinMap,
     );
     Future.delayed(const Duration(milliseconds: 100), _controller.forward);
   }
@@ -168,7 +167,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     );
   }
 
-  void _onAckJoint(JoinMapEvent event) {
+  void _onJoinMap(JoinMapEvent event) {
     GameRoute.open(context, event);
   }
 }

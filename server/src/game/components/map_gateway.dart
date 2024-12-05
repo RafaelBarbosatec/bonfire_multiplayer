@@ -2,7 +2,6 @@ import 'package:shared_events/shared_events.dart';
 
 import '../../../main.dart';
 import '../../core/game_component.dart';
-import '../../core/game_map.dart';
 import '../../core/game_player.dart';
 import '../../core/geometry/rectangle.dart';
 import '../../core/mixins/contact_sensor.dart';
@@ -15,8 +14,8 @@ class MapGateway extends PositionedGameComponent
   MapGateway({
     required super.position,
     required super.size,
-    required this.map,
-    required this.playerPosition,
+    required this.mapTagetId,
+    required this.targetPlayerPosition,
   }) {
     setupGameSensor(
       RectangleShape(
@@ -24,29 +23,20 @@ class MapGateway extends PositionedGameComponent
       ),
     );
   }
-  final GameMap map;
-  final GameVector playerPosition;
+  final String mapTagetId;
+  final GameVector targetPlayerPosition;
 
   @override
-  bool checkIfNotifyContact(GameComponent comp) {
+  bool onContact(GameComponent comp) {
     if (comp is GamePlayer) {
       logger.i(
-        'Player(${comp.state.id}) change map {${comp.parent} to {$map}}',
+        'Player(${comp.state.id}) change map {${comp.parent} to {$mapTagetId}}',
       );
       comp
-        ..position = playerPosition.clone()
+        ..position = targetPlayerPosition.clone()
         ..state.direction = null
         ..removeFromParent();
-      map.add(comp);
-      comp.send(
-        EventType.JOIN_MAP.name,
-        JoinMapEvent(
-          state: comp.state,
-          players: map.playersState,
-          npcs: map.npcsState,
-          map: map.toModel(),
-        ),
-      );
+      game?.changeMap(comp, mapTagetId);
     }
     return false;
   }
