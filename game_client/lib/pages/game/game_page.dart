@@ -75,7 +75,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
             player: _getPlayer(widget.event.state),
             components: _getComponents(widget.event, context),
             cameraConfig: CameraConfig(
-              initialMapZoomFit: InitialMapZoomFitEnum.fitHeight,
+              initialMapZoomFit: InitialMapZoomFitEnum.fitWidth,
               moveOnlyMapArea: true,
             ),
             onReady: _onReady,

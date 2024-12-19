@@ -12,10 +12,10 @@ import '../infrastructure/websocket/websocket_provider.dart';
 import 'components/player.dart';
 
 class GameServer extends Game {
-  static const tileSize = 16.0;
   GameServer({required this.server, required this.maps}) {
     _registerTypes();
   }
+  static const tileSize = 16.0;
   final List<GameMap> maps;
   bool mapLoaded = false;
   List<PoloClient> clients = [];
