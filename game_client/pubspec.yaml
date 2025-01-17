@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
 
 
-  bonfire: ^3.12.1
+  bonfire: ^3.13.2
   bonfire_bloc: ^0.0.2
   polo_client: ^0.0.3
   flutter_bloc: ^8.1.3

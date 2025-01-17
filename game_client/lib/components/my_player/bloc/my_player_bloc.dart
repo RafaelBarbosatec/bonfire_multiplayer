@@ -14,8 +14,8 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
   final GameEventManager _eventManager;
   final String id;
   final Vector2 initPosition;
-  final MapModel map;
-  MyPlayerBloc(this._eventManager, this.id, this.initPosition, this.map)
+  final String mapId;
+  MyPlayerBloc(this._eventManager, this.id, this.initPosition, this.mapId)
       : super(MyPlayerState(
           position: initPosition,
           direction: MoveDirectionEnum.down,
@@ -23,7 +23,6 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
         )) {
     on<UpdateMoveStateEvent>(_onUpdateMoveStateEvent);
     on<UpdatePlayerPositionEvent>(_onUpdatePlayerPositionEvent);
-    on<DisposeEvent>(_onDisposeEvent);
 
     _eventManager.onSpecificPlayerState(
       id,
@@ -41,7 +40,7 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
         position: event.position.toGamePosition(),
         time: DateTime.now().toIso8601String(),
         direction: event.direction,
-        mapId: map.id,
+        mapId: mapId,
       ),
     );
   }
@@ -65,12 +64,5 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
         lastDirection: event.lastDirection,
       ),
     );
-  }
-
-  FutureOr<void> _onDisposeEvent(
-    DisposeEvent event,
-    Emitter<MyPlayerState> emit,
-  ) {
-    _eventManager.removeOnSpecificPlayerState(id);
   }
 }

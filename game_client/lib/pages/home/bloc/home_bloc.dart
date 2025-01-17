@@ -43,7 +43,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     ConnectedEvent event,
     Emitter<HomeState> emit,
   ) {
-    _eventManager.onEvent<JoinMapEvent>(EventType.JOIN_MAP.name, (event) {
+    _eventManager.onJoinMapEvent((event) {
       add(EnterGameEvent(ackEvent: event));
     });
     emit(state.copyWith(connected: true));

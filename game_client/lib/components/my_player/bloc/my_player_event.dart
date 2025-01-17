@@ -22,4 +22,3 @@ class UpdatePlayerPositionEvent extends MyPlayerEvent {
   });
 }
 
-class DisposeEvent extends MyPlayerEvent {}

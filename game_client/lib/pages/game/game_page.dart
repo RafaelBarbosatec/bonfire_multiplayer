@@ -1,10 +1,9 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dart';
 import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
+import 'package:bonfire_multiplayer/components/my_remote_enemy/my_remote_enemy.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/main.dart';
-import 'package:bonfire_multiplayer/pages/game/game_route.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
@@ -22,11 +21,14 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   late GameEventManager _eventManager;
-  late BonfireGameInterface game;
+  BonfireGameInterface? game;
   late AnimationController _controller;
+  late JoinMapEvent joinMapEvent;
 
   @override
   void initState() {
+    _eventManager = context.read();
+    joinMapEvent = widget.event;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -37,49 +39,44 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   @override
   void dispose() {
     _eventManager.removeOnPlayerState(_onPlayerState);
+    _eventManager.removeOnPlayerState(_onEnemyState);
+    _eventManager.onJoinMapEvent(null);
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => MyPlayerBloc(
-        context.read(),
-        widget.event.state.id,
-        widget.event.state.position.toVector2(),
-        widget.event.map,
-      ),
-      child: Container(
-        color: Colors.black,
-        child: FadeTransition(
-          opacity: _controller,
-          child: BonfireWidget(
-            map: WorldMapByTiled(
-              WorldMapReader.fromNetwork(
-                Uri.parse('http://$address:8080/${widget.event.map.path}'),
-              ),
+    return Container(
+      key: Key(joinMapEvent.map.path),
+      color: Colors.black,
+      child: FadeTransition(
+        opacity: _controller,
+        child: BonfireWidget(
+          map: WorldMapByTiled(
+            WorldMapReader.fromNetwork(
+              Uri.parse('http://$address:8080/${joinMapEvent.map.path}'),
             ),
-            playerControllers: [
-              Joystick(
-                directional: JoystickDirectional(
-                  enableDiagonalInput: false,
-                ),
-              ),
-              Keyboard(
-                config: KeyboardConfig(
-                  enableDiagonalInput: false,
-                ),
-              )
-            ],
-            player: _getPlayer(widget.event.state),
-            components: _getComponents(widget.event, context),
-            cameraConfig: CameraConfig(
-              initialMapZoomFit: InitialMapZoomFitEnum.fitWidth,
-              moveOnlyMapArea: true,
-            ),
-            onReady: _onReady,
           ),
+          playerControllers: [
+            Joystick(
+              directional: JoystickDirectional(
+                enableDiagonalInput: false,
+              ),
+            ),
+            Keyboard(
+              config: KeyboardConfig(
+                enableDiagonalInput: false,
+              ),
+            )
+          ],
+          player: _getPlayer(joinMapEvent.state),
+          components: _getComponents(joinMapEvent, context),
+          cameraConfig: CameraConfig(
+            initialMapZoomFit: InitialMapZoomFitEnum.fitWidth,
+            moveOnlyMapArea: true,
+          ),
+          onReady: _onReady,
         ),
       ),
     );
@@ -88,11 +85,9 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   // Adds player in the game with ack informations
   Player _getPlayer(ComponentStateModel state) {
     return MyPlayer(
-      position: state.position.toVector2(),
-      skin: PlayerSkin.fromName(state.properties['skin']),
-      initDirection: state.lastDirection?.toDirection(),
-      name: state.name,
-      speed: state.speed,
+      state: state,
+      eventManager: _eventManager,
+      mapId: joinMapEvent.map.id,
     );
   }
 
@@ -104,38 +99,40 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   }
 
   int lastServerRemotes = 0;
+  int lastNpcServerRemotes = 0;
 
   // When the game is ready init listeners:
   // PLAYER_LEAVE: When some player leave remove it of game.
   // PLAYER_JOIN: When some player enter adds it in the game.
   void _onReady(BonfireGameInterface game) {
     this.game = game;
-    _eventManager = context.read();
-    _eventManager.onDisconnect(() {
-      HomeRoute.open(context);
-    });
+    _eventManager.onDisconnect(_onDisconnect);
 
     _eventManager.onPlayerState(
       _onPlayerState,
     );
-    _eventManager.onEvent<JoinMapEvent>(
-      EventType.JOIN_MAP.name,
-      _onJoinMap,
+
+    _eventManager.onEnemyState(
+      _onEnemyState,
     );
+
+    _eventManager.onJoinMapEvent(_onJoinMap);
+    _onPlayerState(joinMapEvent.players);
+    _onEnemyState(joinMapEvent.npcs);
     Future.delayed(const Duration(milliseconds: 100), _controller.forward);
   }
 
   void _onPlayerState(Iterable<ComponentStateModel> serverPlayers) {
-    if (lastServerRemotes != serverPlayers.length) {
-      final remotePlayers = game.query<MyRemotePlayer>();
+    if (lastServerRemotes != serverPlayers.length && game != null) {
+      final remotePlayers = game?.query<MyRemotePlayer>() ?? [];
       // adds RemotePlayer if no exist in the game but exist in server
       for (var serverPlayer in serverPlayers) {
-        if (serverPlayer.id != widget.event.state.id) {
+        if (serverPlayer.id != joinMapEvent.state.id) {
           final contain = remotePlayers.any(
             (element) => element.id == serverPlayer.id,
           );
           if (!contain) {
-            game.add(
+            game?.add(
               _createRemotePlayer(serverPlayer),
             );
           }
@@ -155,19 +152,77 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     }
   }
 
+  void _onEnemyState(Iterable<ComponentStateModel> serverEnemies) {
+    if (lastNpcServerRemotes != serverEnemies.length && game != null) {
+      lastNpcServerRemotes = serverEnemies.length;
+      final remotePlayers = game?.query<MyRemoteEnemy>() ?? [];
+      // adds RemotePlayer if no exist in the game but exist in server
+      for (var serverPlayer in serverEnemies) {
+        if (serverPlayer.id != joinMapEvent.state.id) {
+          final contain = remotePlayers.any(
+            (element) => element.id == serverPlayer.id,
+          );
+          if (!contain) {
+            game?.add(
+              _createRemoteEnemy(serverPlayer),
+            );
+          }
+        }
+      }
+
+      // remove RemotePlayer if no exist in server
+      for (var player in remotePlayers) {
+        final contain = serverEnemies.any(
+          (element) => element.id == player.id,
+        );
+        if (!contain) {
+          player.removeFromParent();
+        }
+      }
+    }
+  }
+
   GameComponent _createRemotePlayer(ComponentStateModel state) {
     return MyRemotePlayer(
       position: state.position.toVector2(),
       initDirection: state.lastDirection?.toDirection(),
       skin: PlayerSkin.fromName(state.properties['skin']),
-      eventManager: context.read(),
+      eventManager: _eventManager,
       id: state.id,
       name: state.name,
       speed: state.speed,
     );
   }
 
-  void _onJoinMap(JoinMapEvent event) {
-    GameRoute.open(context, event);
+  GameComponent _createRemoteEnemy(ComponentStateModel state) {
+    return MyRemoteEnemy(
+      position: state.position.toVector2(),
+      initDirection: state.lastDirection?.toDirection(),
+      skin: PlayerSkin.fromName(state.properties['skin']),
+      eventManager: _eventManager,
+      id: state.id,
+      name: state.name,
+      speed: state.speed,
+    );
+  }
+
+  Future<void> _onJoinMap(JoinMapEvent event) async {
+    game = null;
+    lastNpcServerRemotes = 0;
+    lastServerRemotes = 0;
+    _controller.value = 0.0;
+    await Future.delayed(Duration.zero);
+    if (mounted) {
+      setState(() {
+        joinMapEvent = event;
+      });
+    }
+  }
+
+  Future<void> _onDisconnect() async {
+    await Future.delayed(Duration.zero);
+    if (mounted) {
+      HomeRoute.open(context);
+    }
   }
 }

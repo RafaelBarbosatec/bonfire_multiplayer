@@ -10,6 +10,11 @@ class GameEventManager {
   final List<void Function(Iterable<ComponentStateModel> data)>
       playerStateSubscriber = [];
 
+  final List<void Function(Iterable<ComponentStateModel> data)>
+      enemyStateSubscriber = [];
+
+  void Function(JoinMapEvent event)? _onJoinMapEvent;
+
   GameEventManager({required this.websocket});
 
   Future<void> connect({
@@ -30,9 +35,9 @@ class GameEventManager {
     websocket.send(event, data);
   }
 
-  void onEvent<T>(String event, void Function(T data) callback) {
-    websocket.onEvent<T>(event, callback);
-  }
+  // void onEvent<T>(String event, void Function(T data) callback) {
+  //   websocket.onEvent<T>(event, callback);
+  // }
 
   void onDisconnect(void Function() onDisconnect) {
     websocket.onDisconnect(onDisconnect);
@@ -51,6 +56,12 @@ class GameEventManager {
     playerStateSubscriber.add(callback);
   }
 
+  void onEnemyState(
+    void Function(Iterable<ComponentStateModel> data) callback,
+  ) {
+    enemyStateSubscriber.add(callback);
+  }
+
   void removeOnSpecificPlayerState(String id) {
     specificPlayerStateSubscriber.remove(id);
   }
@@ -59,6 +70,16 @@ class GameEventManager {
     void Function(List<ComponentStateModel> data) callback,
   ) {
     playerStateSubscriber.remove(callback);
+  }
+
+  void removeOnEnemyState(
+    void Function(List<ComponentStateModel> data) callback,
+  ) {
+    enemyStateSubscriber.remove(callback);
+  }
+
+  void onJoinMapEvent(void Function(JoinMapEvent event)? callback) {
+    _onJoinMapEvent = callback;
   }
 
   int lastTimestamp = 0;
@@ -75,7 +96,17 @@ class GameEventManager {
           for (var player in state.players) {
             specificPlayerStateSubscriber[player.id]?.call(player);
           }
+
+          for (var call in enemyStateSubscriber) {
+            call(state.npcs);
+          }
         }
+      },
+    );
+    websocket.onEvent<JoinMapEvent>(
+      EventType.JOIN_MAP.name,
+      (data) {
+        _onJoinMapEvent?.call(data);
       },
     );
   }

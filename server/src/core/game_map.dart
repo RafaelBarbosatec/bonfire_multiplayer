@@ -11,9 +11,9 @@ import 'package:tiledjsonreader/map/tiled_map.dart';
 import 'package:tiledjsonreader/tile_set/tile_set_item.dart';
 import 'package:tiledjsonreader/tiledjsonreader.dart';
 
+import '../game/components/enemy.dart';
 import '../util/game_map_object_properties.dart';
 import 'game_component.dart';
-import 'game_npc.dart';
 import 'game_player.dart';
 import 'geometry/base/extensions.dart';
 import 'geometry/base/shape.dart';
@@ -27,7 +27,7 @@ abstract class GameMap extends GameComponent {
   final List<Shape> _collisions = [];
 
   Iterable<GamePlayer> get players => components.whereType();
-  Iterable<GameNpc> get npcs => components.whereType();
+  Iterable<Enemy> get npcs => components.whereType();
 
   Iterable<ComponentStateModel> get playersState => players.map((e) => e.state);
   Iterable<ComponentStateModel> get npcsState => npcs.map((e) => e.state);
