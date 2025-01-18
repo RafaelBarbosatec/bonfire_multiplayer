@@ -4,11 +4,14 @@ import '../positioned_game_component.dart';
 
 mixin Movement on PositionedGameComponent {
   static const diaginalReduction = 0.7853981633974483;
+
+  MoveDirectionEnum? direction;
   double speed = 0;
 
   void moveFromDirection(double dt, MoveDirectionEnum direction) {
     final newPosition = getNewPosition(dt, direction);
     if (newPosition != position) {
+      this.direction = direction;
       onMove(newPosition);
     }
   }
@@ -50,6 +53,11 @@ mixin Movement on PositionedGameComponent {
   // ignore: use_setters_to_change_properties
   void onMove(GameVector newPosition) {
     position = newPosition;
+    requestUpdate();
+  }
+
+  void stopMove() {
+    direction = null;
     requestUpdate();
   }
 }

@@ -6,6 +6,8 @@ class GameEventManager {
 
   final Map<String, void Function(ComponentStateModel data)>
       specificPlayerStateSubscriber = {};
+  final Map<String, void Function(ComponentStateModel data)>
+      specificEnemyStateSubscriber = {};
 
   final List<void Function(Iterable<ComponentStateModel> data)>
       playerStateSubscriber = [];
@@ -50,6 +52,13 @@ class GameEventManager {
     specificPlayerStateSubscriber[id] = callback;
   }
 
+  void onSpecificEnemyState(
+    String id,
+    void Function(ComponentStateModel data) callback,
+  ) {
+    specificEnemyStateSubscriber[id] = callback;
+  }
+
   void onPlayerState(
     void Function(Iterable<ComponentStateModel> data) callback,
   ) {
@@ -64,6 +73,10 @@ class GameEventManager {
 
   void removeOnSpecificPlayerState(String id) {
     specificPlayerStateSubscriber.remove(id);
+  }
+
+  void removeOnSpecificEnemyState(String id) {
+    specificEnemyStateSubscriber.remove(id);
   }
 
   void removeOnPlayerState(
@@ -99,6 +112,10 @@ class GameEventManager {
 
           for (var call in enemyStateSubscriber) {
             call(state.npcs);
+          }
+
+          for (var npc in state.npcs) {
+            specificEnemyStateSubscriber[npc.id]?.call(npc);
           }
         }
       },

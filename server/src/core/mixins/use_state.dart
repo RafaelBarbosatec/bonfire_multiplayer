@@ -1,9 +1,8 @@
 import 'package:shared_events/shared_events.dart';
 
-import '../positioned_game_component.dart';
 import 'movement.dart';
 
-mixin UseState on PositionedGameComponent {
+mixin UseState on Movement {
   late ComponentStateModel _state;
 
   ComponentStateModel get state => _state;
@@ -12,9 +11,7 @@ mixin UseState on PositionedGameComponent {
     _state = state;
     position = _state.position;
     size = _state.size;
-    if (this is Movement) {
-      (this as Movement).speed = _state.speed;
-    }
+    speed = _state.speed;
   }
 
   @override
@@ -27,5 +24,11 @@ mixin UseState on PositionedGameComponent {
   set size(GameVector size) {
     state.size = size;
     super.size = size;
+  }
+
+  @override
+  set direction(MoveDirectionEnum? direction) {
+    state.direction = direction;
+    super.direction = direction;
   }
 }

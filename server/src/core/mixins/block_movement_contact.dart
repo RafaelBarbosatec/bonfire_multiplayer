@@ -19,5 +19,6 @@ mixin BlockMovementOnContact on Movement {
   // ignore: use_setters_to_change_properties
   void onBlockMovement(GameVector lastPosition) {
     position = lastPosition;
+    stopMove();
   }
 }

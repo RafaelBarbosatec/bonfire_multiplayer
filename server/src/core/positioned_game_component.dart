@@ -6,6 +6,7 @@ import 'game_component.dart';
 abstract class PositionedGameComponent extends GameComponent {
   GameVector position;
   GameVector size;
+ 
 
   PositionedGameComponent({
     super.components,

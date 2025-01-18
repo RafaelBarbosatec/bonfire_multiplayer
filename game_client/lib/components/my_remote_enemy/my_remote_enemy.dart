@@ -1,17 +1,18 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_bloc/bonfire_bloc.dart';
-import 'package:bonfire_multiplayer/components/my_remote_player/bloc/my_remote_player_bloc.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
 
+import 'bloc/my_remote_enemy_bloc.dart';
+
 class MyRemoteEnemy extends SimpleEnemy
     with
         BlockMovementCollision,
         WithNameBottom,
-        BonfireBlocListenable<MyRemotePlayerBloc, MyRemotePlayerState> {
+        BonfireBlocListenable<MyRemoteEnemyBloc, MyRemoteEnemyState> {
   final String id;
   MyRemoteEnemy({
     required super.position,
@@ -27,7 +28,8 @@ class MyRemoteEnemy extends SimpleEnemy
           initDirection: initDirection ?? Direction.down,
         ) {
     this.name = name;
-    bloc = MyRemotePlayerBloc(
+
+    bloc = MyRemoteEnemyBloc(
       id,
       position,
       eventManager,
@@ -56,7 +58,7 @@ class MyRemoteEnemy extends SimpleEnemy
   }
 
   @override
-  void onNewState(MyRemotePlayerState state) {
+  void onNewState(MyRemoteEnemyState state) {
     // if distance greater than 5 pixel do interpolation of position
     if (position.distanceTo(state.position) > 5) {
       add(
@@ -77,7 +79,7 @@ class MyRemoteEnemy extends SimpleEnemy
 
   @override
   void onRemove() {
-    bloc.add(RemoveSbscribe());
+    bloc.add(RemoveSubscribe());
     super.onRemove();
   }
 

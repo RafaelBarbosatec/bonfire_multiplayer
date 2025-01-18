@@ -27,12 +27,14 @@ class Player extends GamePlayer
 
   String get id => state.id;
 
+  MoveDirectionEnum? moveDirection;
+
   void _confMove() {
     client.onEvent<MoveEvent>(
       EventType.MOVE.name,
       (data) {
         if (data.mapId == map.id) {
-          state.direction = data.direction;
+          moveDirection = data.direction;
         }
       },
     );
@@ -42,20 +44,22 @@ class Player extends GamePlayer
 
   @override
   void onUpdate(double dt) {
-    if (state.direction != null) {
+    if (moveDirection != null) {
       sendedIdle = false;
       _updatePosition(dt);
     } else {
       if (!sendedIdle) {
         sendedIdle = true;
-        requestUpdate();
+        stopMove();
       }
     }
   }
 
   void _updatePosition(double dt) {
-    if (state.direction == null) return;
-    moveFromDirection(dt, state.direction!);
+    if (moveDirection == null) {
+      return;
+    }
+    moveFromDirection(dt, moveDirection!);
   }
 
   @override
@@ -65,7 +69,7 @@ class Player extends GamePlayer
 
   @override
   void onBlockMovement(GameVector lastPosition) {
-    state.direction = null;
+    moveDirection = null;
     super.onBlockMovement(lastPosition);
   }
 }

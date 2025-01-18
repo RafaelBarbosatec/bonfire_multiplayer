@@ -10,12 +10,12 @@ mixin RandomMovement on BlockMovementOnContact {
     _directionEnum ??= MoveDirectionEnum
         .values[Random().nextInt(MoveDirectionEnum.values.length)];
     moveFromDirection(dt, _directionEnum!);
-    requestUpdate();
   }
 
   @override
   void onBlockMovement(GameVector lastPosition) {
     _directionEnum = null;
+    print('onBlockMovement');
     super.onBlockMovement(lastPosition);
   }
 }

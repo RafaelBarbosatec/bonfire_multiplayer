@@ -46,6 +46,9 @@ class GameServer extends Game {
   @override
   void onStateUpdate(GameComponent comp) {
     if (comp is GameMap) {
+      if (comp.players.isEmpty) {
+        return;
+      }
       for (final player in comp.players) {
         player.send(
           EventType.UPDATE_STATE.name,
