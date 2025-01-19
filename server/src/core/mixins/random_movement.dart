@@ -2,20 +2,33 @@ import 'dart:math';
 
 import 'package:shared_events/shared_events.dart';
 
+import '../util/game_timer.dart';
 import 'block_movement_contact.dart';
 
 mixin RandomMovement on BlockMovementOnContact {
   MoveDirectionEnum? _directionEnum;
-  double _timeSinceLastDirectionChange = 0;
   GameVector _initPosition = GameVector.zero();
+
+  GameTimer _timer = GameTimer(duration: 2);
+  double _maxDistance = 50;
+
+  void setupRandomMovement({
+    double? durationIdle,
+    double maxDistance = 50,
+  }) {
+    if (durationIdle != null) {
+      _timer = GameTimer(duration: durationIdle);
+    }
+    _maxDistance = maxDistance;
+  }
+
   void randomMove(double dt) {
     if (_directionEnum == null) {
-      _timeSinceLastDirectionChange += dt;
-      if (_timeSinceLastDirectionChange >= 2) {
+      if (_timer.update(dt)) {
         _initPosition = position.clone();
-        _directionEnum = MoveDirectionEnum
-            .values[Random().nextInt(MoveDirectionEnum.values.length)];
-        _timeSinceLastDirectionChange = 0;
+        final randomInt = Random().nextInt(MoveDirectionEnum.values.length);
+        _directionEnum = MoveDirectionEnum.values[randomInt];
+        _timer.reset();
       }
       return;
     }
@@ -23,7 +36,7 @@ mixin RandomMovement on BlockMovementOnContact {
     if (_directionEnum != null) {
       moveFromDirection(dt, _directionEnum!);
     }
-    if (_initPosition.distanceTo(position) > 50) {
+    if (_initPosition.distanceTo(position) > _maxDistance) {
       _directionEnum = null;
       stopMove();
       return;
