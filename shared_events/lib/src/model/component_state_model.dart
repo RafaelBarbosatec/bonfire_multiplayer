@@ -51,7 +51,7 @@ class ComponentStateModel {
       'lastDirection': _lastDirection?.index,
       'direction': direction?.index,
       'action': action,
-      'speed': action,
+      'speed': speed,
       'properties': properties,
     };
   }

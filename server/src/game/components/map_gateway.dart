@@ -34,10 +34,11 @@ class MapGateway extends PositionedGameComponent
       );
       comp
         ..position = targetPlayerPosition.clone()
-        ..state.direction = null
+        ..stopMove()
         ..removeFromParent();
       game?.changeMap(comp, mapTagetId);
+      return false;
     }
-    return false;
+    return true;
   }
 }

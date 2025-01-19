@@ -12,6 +12,7 @@ mixin UseState on Movement {
     position = _state.position;
     size = _state.size;
     speed = _state.speed;
+    direction = _state.direction;
   }
 
   @override

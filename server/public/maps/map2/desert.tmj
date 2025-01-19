@@ -59,7 +59,6 @@
          "class":"collision",
          "draworder":"topdown",
          "id":6,
-         "locked":true,
          "name":"collisions",
          "objects":[
                 {
@@ -182,6 +181,17 @@
                  "width":16,
                  "x":-0.363636363636364,
                  "y":128.363636363636
+                }, 
+                {
+                 "height":15.2682058542077,
+                 "id":14,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":110.364,
+                 "x":213.210907402195,
+                 "y":-14.3889579791725
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -251,7 +261,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":14,
+ "nextobjectid":15,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.1",
