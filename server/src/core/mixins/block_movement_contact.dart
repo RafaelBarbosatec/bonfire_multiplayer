@@ -9,7 +9,7 @@ mixin BlockMovementOnContact on Movement {
     final lastPosition = position.clone();
     position = newPosition;
     if (this is ContactSensor) {
-      if (checkContactWithParent(this as ContactSensor)) {
+      if (checkContactWithParents(this as ContactSensor)) {
         onBlockMovement(lastPosition);
       }
     }

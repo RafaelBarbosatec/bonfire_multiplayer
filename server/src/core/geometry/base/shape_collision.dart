@@ -74,7 +74,9 @@ class ShapeCollision {
       a.rightBottom,
       b.rect.leftTop,
       b.rect.rightBottom,
-    )) return false;
+    )) {
+      return false;
+    }
 
     if (polygonPoint(b, a.position)) {
       return true;

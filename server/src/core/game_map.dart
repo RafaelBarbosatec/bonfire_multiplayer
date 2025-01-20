@@ -17,6 +17,7 @@ import 'game_component.dart';
 import 'game_player.dart';
 import 'geometry/base/extensions.dart';
 import 'geometry/base/shape.dart';
+import 'geometry/circle.dart';
 import 'geometry/rectangle.dart';
 import 'mixins/contact_sensor.dart';
 
@@ -49,7 +50,7 @@ abstract class GameMap extends GameComponent {
   void onObjectBuilder(GameMapObjectProperties object);
 
   @override
-  bool checkContactWithParent(ContactSensor comp) {
+  bool checkContactWithParents(ContactSensor comp) {
     final shape = comp.getShapeContact();
     if (shape != null) {
       for (final collision in _collisions) {
@@ -59,7 +60,7 @@ abstract class GameMap extends GameComponent {
         }
       }
     }
-    return super.checkContactWithParent(comp);
+    return super.checkContactWithParents(comp);
   }
 
   Future<void> load() async {
@@ -148,12 +149,26 @@ abstract class GameMap extends GameComponent {
           x: collision.x ?? 0,
           y: collision.y ?? 0,
         );
-        _collisions.add(
-          RectangleShape(
-            GameVector(x: collision.width ?? 0, y: collision.height ?? 0),
-            position: position + collisionOffset,
-          ),
-        );
+
+        final isElipse = collision.ellipse ?? false;
+
+        if (isElipse) {
+          final width = collision.width ?? 0;
+          final height = collision.height ?? 0;
+          _collisions.add(
+            CircleShape(
+              (width > height ? width : height) / 2,
+              position: position + collisionOffset,
+            ),
+          );
+        } else {
+          _collisions.add(
+            RectangleShape(
+              GameVector(x: collision.width ?? 0, y: collision.height ?? 0),
+              position: position + collisionOffset,
+            ),
+          );
+        }
       }
     }
   }

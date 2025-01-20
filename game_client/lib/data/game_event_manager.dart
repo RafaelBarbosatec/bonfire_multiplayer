@@ -37,10 +37,6 @@ class GameEventManager {
     websocket.send(event, data);
   }
 
-  // void onEvent<T>(String event, void Function(T data) callback) {
-  //   websocket.onEvent<T>(event, callback);
-  // }
-
   void onDisconnect(void Function() onDisconnect) {
     websocket.onDisconnect(onDisconnect);
   }

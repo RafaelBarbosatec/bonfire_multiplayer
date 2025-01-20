@@ -52,7 +52,7 @@ abstract class GameComponent {
     _compsToRemove.add(comp);
   }
 
-  bool checkContactWithParent(ContactSensor comp) {
+  bool checkContactWithParents(ContactSensor comp) {
     for (final sensor in components.whereType<ContactSensor>()) {
       if (sensor != comp) {
         if (sensor.checkContact(comp)) {
@@ -60,6 +60,6 @@ abstract class GameComponent {
         }
       }
     }
-    return parent?.checkContactWithParent(comp) ?? false;
+    return parent?.checkContactWithParents(comp) ?? false;
   }
 }
