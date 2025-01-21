@@ -1,8 +1,10 @@
 import 'package:bonfire_multiplayer/data/websocket/websocket_provider.dart';
+import 'package:bonfire_multiplayer/util/event_queue.dart';
 import 'package:shared_events/shared_events.dart';
 
 class GameEventManager {
   final WebsocketProvider websocket;
+  late EventQueue<GameStateModel> eventQueue;
 
   final Map<String, void Function(ComponentStateModel data)>
       specificPlayerStateSubscriber = {};
@@ -17,7 +19,9 @@ class GameEventManager {
 
   void Function(JoinMapEvent event)? _onJoinMapEvent;
 
-  GameEventManager({required this.websocket});
+  GameEventManager({required this.websocket}) {
+    eventQueue = EventQueue<GameStateModel>(delay: 100, listen: _listenQueue);
+  }
 
   Future<void> connect({
     void Function()? onConnect,
@@ -91,29 +95,30 @@ class GameEventManager {
     _onJoinMapEvent = callback;
   }
 
-  int lastTimestamp = 0;
+  void _listenQueue(GameStateModel state) {
+    for (var call in playerStateSubscriber) {
+      call(state.players);
+    }
+    for (var player in state.players) {
+      specificPlayerStateSubscriber[player.id]?.call(player);
+    }
+
+    for (var call in enemyStateSubscriber) {
+      call(state.npcs);
+    }
+
+    for (var npc in state.npcs) {
+      specificEnemyStateSubscriber[npc.id]?.call(npc);
+    }
+  }
 
   void _initOnPlayerState() {
     websocket.onEvent<GameStateModel>(
       EventType.UPDATE_STATE.name,
       (state) {
-        if (state.timestamp > lastTimestamp) {
-          lastTimestamp = state.timestamp;
-          for (var call in playerStateSubscriber) {
-            call(state.players);
-          }
-          for (var player in state.players) {
-            specificPlayerStateSubscriber[player.id]?.call(player);
-          }
-
-          for (var call in enemyStateSubscriber) {
-            call(state.npcs);
-          }
-
-          for (var npc in state.npcs) {
-            specificEnemyStateSubscriber[npc.id]?.call(npc);
-          }
-        }
+        eventQueue.add(
+          Frame(state, state.timestamp),
+        );
       },
     );
     websocket.onEvent<JoinMapEvent>(

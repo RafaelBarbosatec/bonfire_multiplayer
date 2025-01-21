@@ -1,4 +1,5 @@
 import 'package:bonfire/bonfire.dart';
+import 'package:bonfire_multiplayer/bootstrap_injector.dart';
 import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_enemy/my_remote_enemy.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
@@ -8,7 +9,6 @@ import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_events/shared_events.dart';
 
 class GamePage extends StatefulWidget {
@@ -27,7 +27,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    _eventManager = context.read();
+    _eventManager = inject();
     joinMapEvent = widget.event;
     _controller = AnimationController(
       vsync: this,
@@ -70,7 +70,11 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
               ),
             )
           ],
-          player: _getPlayer(joinMapEvent.state),
+          player: MyPlayer(
+            state: joinMapEvent.state,
+            eventManager: _eventManager,
+            mapId: joinMapEvent.map.id,
+          ),
           components: _getComponents(joinMapEvent, context),
           cameraConfig: CameraConfig(
             initialMapZoomFit: InitialMapZoomFitEnum.fitWidth,
@@ -79,15 +83,6 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
           onReady: _onReady,
         ),
       ),
-    );
-  }
-
-  // Adds player in the game with ack informations
-  Player _getPlayer(ComponentStateModel state) {
-    return MyPlayer(
-      state: state,
-      eventManager: _eventManager,
-      mapId: joinMapEvent.map.id,
     );
   }
 

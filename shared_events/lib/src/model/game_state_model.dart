@@ -7,7 +7,7 @@ class GameStateModel {
   final int timestamp;
 
   GameStateModel({required this.players, required this.npcs, int? timestamp})
-      : timestamp = timestamp ?? DateTime.now().millisecondsSinceEpoch;
+      : timestamp = timestamp ?? DateTime.now().microsecondsSinceEpoch;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{

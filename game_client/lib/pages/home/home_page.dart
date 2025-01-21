@@ -1,4 +1,5 @@
 import 'package:bonfire/bonfire.dart';
+import 'package:bonfire_multiplayer/bootstrap_injector.dart';
 import 'package:bonfire_multiplayer/pages/game/game_route.dart';
 import 'package:bonfire_multiplayer/pages/home/bloc/home_bloc.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
@@ -17,13 +18,13 @@ class _HomePageState extends State<HomePage> {
   late HomeBloc _bloc;
   @override
   void initState() {
+    _bloc = inject();
     _controller = TextEditingController();
     Future.delayed(Duration.zero, init);
     super.initState();
   }
 
   void init() {
-    _bloc = context.read<HomeBloc>();
     _bloc.add(ConnectEvent());
   }
 
@@ -37,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeBloc, HomeState>(
+      bloc: _bloc,
       listener: (context, state) {
         if (state.ackEvent != null) {
           GameRoute.open(context, state.ackEvent!);
@@ -87,6 +89,18 @@ class _HomePageState extends State<HomePage> {
                       color: state.connected ? Colors.green : Colors.yellow,
                     ),
                   ),
+                  if (state.error) ...[
+                    const Text(
+                      'Error',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        _bloc.add(ConnectEvent());
+                      },
+                      child: const Text('Try again'),
+                    )
+                  ]
                 ],
               ),
             ),
