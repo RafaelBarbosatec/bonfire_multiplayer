@@ -9,7 +9,9 @@ import 'package:get_it/get_it.dart';
 final getIt = GetIt.instance;
 
 class BootstrapInjector {
-  static String address = '127.0.0.1';
+  // static String address = '127.0.0.1';
+  static String address = '192.168.0.21';
+
   static Future<void> run() async {
     getIt.registerFactory<WebsocketProvider>(
       () => PoloWebsocket(address: address),
