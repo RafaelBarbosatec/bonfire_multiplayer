@@ -46,7 +46,7 @@ class EventQueue<T> {
       this.delay = Duration(milliseconds: delay);
     } else {
       this.delay = Duration(
-        microseconds: timeSync.roundTripTime * 2,
+        microseconds: timeSync.roundTripTime < 50 ? timeSync.roundTripTime : 50,
       );
     }
 
