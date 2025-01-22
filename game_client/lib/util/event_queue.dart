@@ -28,7 +28,7 @@ class Frame<T> extends Timeline<T> {
 }
 
 class EventQueue<T> {
-  late Duration delay;
+  late Duration? delay;
   late Queue<Timeline<T>> _timeLine;
 
   final ValueChanged<T> listen;
@@ -38,29 +38,23 @@ class EventQueue<T> {
   bool _running = false;
 
   EventQueue({
-    int? delay,
+    this.delay,
     required this.timeSync,
     required this.listen,
   }) {
-    if (delay != null) {
-      this.delay = Duration(milliseconds: delay);
-    } else {
-      this.delay = Duration(
-        microseconds:
-            timeSync.roundTripTime < 100 ? timeSync.roundTripTime : 100,
-      );
-    }
-
     _timeLine = Queue<Timeline<T>>();
   }
 
+  Duration? _delayTimeSync;
+
   void add(Frame<T> value) {
+    _delayTimeSync ??= Duration(
+      microseconds: (timeSync.roundTripTime / 2).toInt(),
+    );
     final newTimeStamp = timeSync.serverTimestampToLocal(value.timestamp);
 
     final frame = value.updateTime(
-      newTimeStamp
-          .add(Duration(microseconds: timeSync.roundTripTime))
-          .microsecondsSinceEpoch,
+      newTimeStamp.add(delay ?? _delayTimeSync!).microsecondsSinceEpoch,
     );
 
     if (_timeLine.isNotEmpty) {

@@ -4,10 +4,6 @@ import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/my_page_transition.dart';
 import 'package:flutter/material.dart';
 
-// String address = '192.168.0.12';
-String address = '127.0.0.1';
-// String address = '10.0.2.2';
-
 void main() {
   BootstrapInjector.run();
   runApp(const MyApp());

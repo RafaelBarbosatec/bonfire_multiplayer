@@ -4,7 +4,6 @@ import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_enemy/my_remote_enemy.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
-import 'package:bonfire_multiplayer/main.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
@@ -55,7 +54,8 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
         child: BonfireWidget(
           map: WorldMapByTiled(
             WorldMapReader.fromNetwork(
-              Uri.parse('http://$address:8080/${joinMapEvent.map.path}'),
+              Uri.parse(
+                  'http://${BootstrapInjector.address}:8080/${joinMapEvent.map.path}',),
             ),
           ),
           playerControllers: [
