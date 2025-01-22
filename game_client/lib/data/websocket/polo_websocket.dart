@@ -95,9 +95,7 @@ class PoloWebsocket extends WebsocketProvider {
       }
       init(onConnect: onConnect, onDisconnect: onDisconnect);
     } else {
-      if (kDebugMode) {
-        print('Failure to try connecting.');
-      }
+      throw Exception('Exceeded retry connection attempts');
     }
   }
 }

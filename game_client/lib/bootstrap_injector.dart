@@ -17,6 +17,7 @@ class BootstrapInjector {
     getIt.registerLazySingleton(
       () => GameEventManager(
         websocket: inject(),
+        timeSync: inject(),
       ),
     );
 

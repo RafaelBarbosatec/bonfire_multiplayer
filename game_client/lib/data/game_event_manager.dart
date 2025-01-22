@@ -1,5 +1,6 @@
 import 'package:bonfire_multiplayer/data/websocket/websocket_provider.dart';
 import 'package:bonfire_multiplayer/util/event_queue.dart';
+import 'package:bonfire_multiplayer/util/time_sync.dart';
 import 'package:shared_events/shared_events.dart';
 
 class GameEventManager {
@@ -19,8 +20,12 @@ class GameEventManager {
 
   void Function(JoinMapEvent event)? _onJoinMapEvent;
 
-  GameEventManager({required this.websocket}) {
-    eventQueue = EventQueue<GameStateModel>(delay: 100, listen: _listenQueue);
+  GameEventManager({required this.websocket, required TimeSync timeSync}) {
+    eventQueue = EventQueue<GameStateModel>(
+   
+      timeSync: timeSync,
+      listen: _listenQueue,
+    );
   }
 
   Future<void> connect({

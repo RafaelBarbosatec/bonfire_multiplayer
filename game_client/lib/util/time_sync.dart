@@ -59,6 +59,18 @@ class TimeSync {
     return utcTime.subtract(_serverOffset);
   }
 
+  // Converte um timestamp do servidor para tempo local
+  DateTime serverTimestampToLocal(int serverTimestamp) {
+    final serverTime = DateTime.fromMicrosecondsSinceEpoch(serverTimestamp);
+    return serverTimeToLocal(serverTime);
+  }
+
+  // Converte tempo local para timestamp do servidor
+  DateTime localTimeToServerTimestamp(int localTimestamp) {
+    final localTime = DateTime.fromMicrosecondsSinceEpoch(localTimestamp);
+    return localTimeToServer(localTime);
+  }
+
   int get roundTripTime => _roundTripTime;
 
   DateTime get serverTime => localTimeToServer(DateTime.now());
