@@ -69,6 +69,7 @@ class MyRemoteEnemy extends SimpleEnemy
       );
     }
     if (state.direction != null) {
+      setZeroVelocity();
       moveFromDirection(state.direction!.toDirection());
     } else {
       lastDirection = state.lastDirection.toDirection();

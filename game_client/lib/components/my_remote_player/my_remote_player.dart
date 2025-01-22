@@ -68,6 +68,7 @@ class MyRemotePlayer extends SimplePlayer
       );
     }
     if (state.direction != null) {
+      setZeroVelocity();
       moveFromDirection(state.direction!.toDirection());
     } else {
       lastDirection = state.lastDirection.toDirection();

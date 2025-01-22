@@ -78,7 +78,7 @@ class MyPlayer extends SimplePlayer
       );
     }
     if (state.direction != null) {
-      velocity = Vector2.zero();
+      setZeroVelocity();
       moveFromDirection(state.direction!.toDirection());
     } else {
       lastDirection = state.lastDirection.toDirection();
