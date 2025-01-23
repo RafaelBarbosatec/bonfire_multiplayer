@@ -49,7 +49,7 @@ class EventQueue<T> {
 
   void add(Frame<T> value) {
     _delayTimeSync ??= Duration(
-      microseconds: (timeSync.roundTripTime).toInt(),
+      microseconds: (timeSync.roundTripTime / 2).toInt(),
     );
 
     final newTimeStamp = timeSync.serverTimestampToLocal(value.timestamp);
