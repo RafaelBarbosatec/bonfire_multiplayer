@@ -103,6 +103,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> _syncServerTime() async {
     await _timeSync.synchronize(_ntpRepository.getNtpTime);
     print(_timeSync.roundTripTime);
+    final now = DateTime.now();
+    print('now: $now');
     print(_timeSync.serverTime);
+    
   }
 }

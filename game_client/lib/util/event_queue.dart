@@ -49,8 +49,9 @@ class EventQueue<T> {
 
   void add(Frame<T> value) {
     _delayTimeSync ??= Duration(
-      microseconds: (timeSync.roundTripTime / 2).toInt(),
+      microseconds: (timeSync.roundTripTime).toInt(),
     );
+
     final newTimeStamp = timeSync.serverTimestampToLocal(value.timestamp);
 
     final frame = value.updateTime(
@@ -70,10 +71,15 @@ class EventQueue<T> {
         _timeLine.add(frame);
       }
     } else {
-      final diff = frame.time.difference(DateTime.now()).inMicroseconds;
-      if (diff > 0) {
-        _timeLine.add(Delay<T>(diff));
+      final now = DateTime.now();
+      if (frame.time.isAfter(now)) {
+        final diff = frame.time.difference(now).inMicroseconds;
+
+        if (diff > 0) {
+          _timeLine.add(Delay<T>(diff));
+        }
       }
+
       _timeLine.add(frame);
     }
 
