@@ -6,7 +6,6 @@ import '../util/game_timer.dart';
 import 'block_movement_contact.dart';
 
 mixin RandomMovement on BlockMovementOnContact {
-  MoveDirectionEnum? _directionEnum;
   GameVector _initPosition = GameVector.zero();
 
   GameTimer _timer = GameTimer(duration: 2);
@@ -22,22 +21,23 @@ mixin RandomMovement on BlockMovementOnContact {
     _maxDistance = maxDistance;
   }
 
+  MoveDirectionEnum? newDirection;
+
   void randomMove(double dt) {
-    if (_directionEnum == null) {
+    if (direction == null) {
+      newDirection = null;
       if (_timer.update(dt)) {
         _initPosition = position.clone();
         final randomInt = Random().nextInt(MoveDirectionEnum.values.length);
-        _directionEnum = MoveDirectionEnum.values[randomInt];
+        newDirection = MoveDirectionEnum.values[randomInt];
         _timer.reset();
       }
-      return;
     }
 
-    if (_directionEnum != null) {
-      moveFromDirection(dt, _directionEnum!);
+    if (newDirection != null) {
+      moveFromDirection(dt, newDirection!);
     }
     if (_initPosition.distanceTo(position) > _maxDistance) {
-      _directionEnum = null;
       stopMove();
       return;
     }
@@ -45,7 +45,7 @@ mixin RandomMovement on BlockMovementOnContact {
 
   @override
   void onBlockMovement(GameVector lastPosition) {
-    _directionEnum = null;
+    stopMove();
     super.onBlockMovement(lastPosition);
   }
 }
