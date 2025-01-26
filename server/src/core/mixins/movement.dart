@@ -11,7 +11,10 @@ mixin Movement on PositionedGameComponent {
   void moveFromDirection(double dt, MoveDirectionEnum direction) {
     final newPosition = getNewPosition(dt, direction);
     if (newPosition != position) {
-      this.direction = direction;
+      if (direction != this.direction) {
+        this.direction = direction;
+        requestUpdate();
+      }
       onMove(newPosition);
     }
   }
@@ -53,7 +56,6 @@ mixin Movement on PositionedGameComponent {
   // ignore: use_setters_to_change_properties
   void onMove(GameVector newPosition) {
     position = newPosition;
-    requestUpdate();
   }
 
   void stopMove() {

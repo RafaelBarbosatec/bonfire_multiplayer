@@ -13,7 +13,6 @@ mixin BlockMovementOnContact on Movement {
         onBlockMovement(lastPosition);
       }
     }
-    requestUpdate();
   }
 
   // ignore: use_setters_to_change_properties

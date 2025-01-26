@@ -12,20 +12,19 @@ part 'my_player_state.dart';
 
 class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
   final GameEventManager _eventManager;
-  final String id;
-  final Vector2 initPosition;
+  final ComponentStateModel initialState;
   final String mapId;
-  MyPlayerBloc(this._eventManager, this.id, this.initPosition, this.mapId)
+  MyPlayerBloc(this._eventManager, this.initialState, this.mapId)
       : super(MyPlayerState(
-          position: initPosition,
-          direction: MoveDirectionEnum.down,
-          lastDirection: MoveDirectionEnum.down,
+          position: initialState.position.toVector2(),
+          direction: initialState.direction,
+          lastDirection: initialState.lastDirection ?? MoveDirectionEnum.down,
         )) {
     on<UpdateMoveStateEvent>(_onUpdateMoveStateEvent);
     on<UpdatePlayerPositionEvent>(_onUpdatePlayerPositionEvent);
 
     _eventManager.onSpecificPlayerState(
-      id,
+      initialState.id,
       _onPlayerState,
     );
   }

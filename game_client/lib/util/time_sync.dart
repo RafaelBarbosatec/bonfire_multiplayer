@@ -1,64 +1,38 @@
-class _SyncSample {
-  final Duration offset;
-  final int roundTrip;
-
-  _SyncSample(this.offset, this.roundTrip);
-}
-
 class TimeSync {
-  Duration _serverOffset = Duration.zero;
+  Duration _serverDifference = Duration.zero;
   int _roundTripTime = 0;
-  static const int SYNC_SAMPLES = 5;
 
   Future<void> synchronize(Future<DateTime> Function() getServerTime) async {
-    List<_SyncSample> samples = [];
-    for (int i = 0; i < SYNC_SAMPLES; i++) {
-      final t0 = DateTime.now();
+    try {
+      final DateTime requestTime = DateTime.now();
       final serverTime = await getServerTime();
-      final t1 = DateTime.now();
+      final DateTime responseTime = DateTime.now();
+  
+      final Duration roundTripTime = responseTime.difference(requestTime);
+      _roundTripTime = roundTripTime.inMicroseconds;
+      final DateTime adjustedServerTime = serverTime.add(roundTripTime ~/ 2);
 
-      final roundTrip = t1.difference(t0).inMilliseconds;
-      final oneWayDelay = roundTrip ~/ 2;
-
-      // Adjust server time by adding one-way delay
-      final adjustedServerTime = serverTime.add(
-        Duration(milliseconds: oneWayDelay),
-      );
-      final offset = adjustedServerTime.difference(t1);
-
-      samples.add(_SyncSample(offset, roundTrip));
-      await Future.delayed(const Duration(milliseconds: 100));
+      _serverDifference = adjustedServerTime.difference(responseTime);
+      _log('diff: $_serverDifference');
+      _log('roundTripTime: $roundTripTime');
+    } catch (e) {
+      throw Exception('Failed to connect to the server: $e');
     }
-
-    // Sort by round-trip time and take best 60%
-    samples.sort((a, b) => a.roundTrip.compareTo(b.roundTrip));
-    samples = samples.sublist(0, (SYNC_SAMPLES * 0.6).ceil());
-
-    // Calculate average offset
-    final avgOffset = Duration(
-        microseconds: samples
-                .map((s) => s.offset.inMicroseconds)
-                .reduce((a, b) => a + b) ~/
-            samples.length);
-
-    _serverOffset = avgOffset;
-    _roundTripTime = (samples.map((s) => s.roundTrip).reduce((a, b) => a + b) ~/
-        samples.length);
   }
 
   // Converte um timestamp do servidor para tempo local
   DateTime serverTimeToLocal(DateTime serverTime) {
 // Primeiro ajusta o offset de sincronização
-    final synchronizedTime = serverTime.add(_serverOffset);
+    final synchronizedTime = serverTime.subtract(_serverDifference);
 // // Depois converte para o fuso horário local
-    return synchronizedTime.toLocal();
+    return synchronizedTime;
   }
 
   // Converte tempo local para tempo do servidor
   DateTime localTimeToServer(DateTime localTime) {
-    final utcTime = localTime.toUtc();
+    final utcTime = localTime;
 // Depois remove o offset de sincronização
-    return utcTime.subtract(_serverOffset);
+    return utcTime.add(_serverDifference);
   }
 
   // Converte um timestamp do servidor para tempo local
@@ -76,4 +50,8 @@ class TimeSync {
   int get roundTripTime => _roundTripTime;
 
   DateTime get serverTime => localTimeToServer(DateTime.now());
+
+  void _log(String msg){
+    print('(TimeSync) -> $msg');
+  }
 }

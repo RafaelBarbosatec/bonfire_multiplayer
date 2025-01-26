@@ -31,10 +31,10 @@ class MyPlayer extends SimplePlayer
     speed = state.speed;
     bloc = MyPlayerBloc(
       eventManager,
-      state.id,
-      state.position.toVector2(),
+      state,
       mapId,
     );
+    
   }
 
   @override
