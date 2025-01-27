@@ -6,7 +6,6 @@ import 'game_component.dart';
 abstract class PositionedGameComponent extends GameComponent {
   GameVector position;
   GameVector size;
- 
 
   PositionedGameComponent({
     super.components,
@@ -14,4 +13,9 @@ abstract class PositionedGameComponent extends GameComponent {
     GameVector? size,
   })  : position = position ?? GameVector.zero(),
         size = size ?? GameVector.zero();
+
+  GameVector get center => GameVector(
+        x:position.x + size.x / 2,
+        y:position.y + size.y / 2,
+      );
 }

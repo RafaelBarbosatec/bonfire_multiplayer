@@ -43,5 +43,56 @@ enum MoveDirectionEnum {
   upLeft,
   upRight,
   downLeft,
-  downRight,
+  downRight;
+
+  factory MoveDirectionEnum.fromVector(GameVector vector,
+      {bool isDiagonal = true}) {
+    if (vector.x == 0 && vector.y == 0) {
+      return MoveDirectionEnum.down;
+    }
+    if (vector.x == 0 && vector.y < 0) {
+      return MoveDirectionEnum.up;
+    }
+    if (vector.x == 0 && vector.y > 0) {
+      return MoveDirectionEnum.down;
+    }
+    if (vector.x < 0 && vector.y == 0) {
+      return MoveDirectionEnum.left;
+    }
+    if (vector.x > 0 && vector.y == 0) {
+      return MoveDirectionEnum.right;
+    }
+
+    if (vector.x > 0 && vector.y < 0) {
+      if (isDiagonal) {
+        return MoveDirectionEnum.upRight;
+      } else {
+        return MoveDirectionEnum.right;
+      }
+    }
+
+    if (vector.x < 0 && vector.y < 0) {
+      if (isDiagonal) {
+        return MoveDirectionEnum.upLeft;
+      } else {
+        return MoveDirectionEnum.left;
+      }
+    }
+
+    if (vector.x < 0 && vector.y > 0) {
+      if (isDiagonal) {
+        return MoveDirectionEnum.downLeft;
+      } else {
+        return MoveDirectionEnum.left;
+      }
+    }
+    if (vector.x > 0 && vector.y > 0) {
+      if (isDiagonal) {
+        return MoveDirectionEnum.downRight;
+      } else {
+        return MoveDirectionEnum.right;
+      }
+    }
+    throw Exception('Invalid vector');
+  }
 }

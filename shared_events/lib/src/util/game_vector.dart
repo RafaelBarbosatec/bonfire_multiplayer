@@ -111,4 +111,25 @@ class GameVector {
     final dy = y - arg.y;
     return dx * dx + dy * dy;
   }
+
+  /// Normalize this vector.
+  void normalize() {
+    final length = math.sqrt(x * x + y * y);
+    if (length != 0) {
+      x /= length;
+      y /= length;
+    }
+  }
+
+  /// Return a normalized copy of this vector.
+  GameVector normalized() {
+    final length = math.sqrt(x * x + y * y);
+    if (length == 0) {
+      return GameVector.zero();
+    }
+    return GameVector(x: x / length, y: y / length);
+  }
+
+  /// Get the length (magnitude) of the vector.
+  double get length => math.sqrt(x * x + y * y);
 }

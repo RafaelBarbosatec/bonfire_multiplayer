@@ -30,7 +30,7 @@ mixin RandomMovement on BlockMovementOnContact {
         _initPosition = position.clone();
         final randomInt = Random().nextInt(MoveDirectionEnum.values.length);
         newDirection = MoveDirectionEnum.values[randomInt];
-        _timer.reset();
+       _timer.reset();
       }
     }
 

@@ -15,4 +15,15 @@ class SegmentShape extends Shape {
                 y: start.y,
               ),
         );
+
+  @override
+  set position(GameVector value) {
+    if (value != super.position) {
+      start.x += (super.position.x - value.x);
+      start.y = (super.position.y - value.y);
+      end.x = (super.position.x - value.x);
+      end.y = (super.position.y - value.y);
+      super.position = value;
+    }
+  }
 }

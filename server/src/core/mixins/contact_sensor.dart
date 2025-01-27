@@ -29,6 +29,12 @@ mixin ContactSensor on PositionedGameComponent {
     return false;
   }
 
+  bool checkShapeContact(Shape otherSHape) {
+    final myShape = getShapeContact();
+    if (myShape == null) return false;
+    return myShape.isCollision(otherSHape);
+  }
+
   // return true if you can happen contact
   bool onContact(GameComponent comp) {
     return true;

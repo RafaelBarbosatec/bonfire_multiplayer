@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'geometry/base/shape.dart';
 import 'mixins/contact_sensor.dart';
 
 abstract class GameComponent {
@@ -61,5 +62,17 @@ abstract class GameComponent {
       }
     }
     return parent?.checkContactWithParents(comp) ?? false;
+  }
+
+  List<ContactSensor> getShapeContacts(Shape shape) {
+    List<ContactSensor> contacts = [];
+    for (final sensor in components.whereType<ContactSensor>()) {
+      if (sensor.checkShapeContact(shape)) {
+        contacts.add(sensor);
+      }
+    }
+    final contactParents = parent?.getShapeContacts(shape) ?? [];
+    contacts.addAll(contactParents);
+    return contacts;
   }
 }
