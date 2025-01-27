@@ -5,6 +5,7 @@ import 'package:shared_events/shared_events.dart';
 import '../circle.dart';
 import '../polygon.dart';
 import '../rectangle.dart';
+import '../segment.dart';
 import 'shape.dart';
 
 /// Class responsible to verify collision of the Shapes.
@@ -18,6 +19,9 @@ class ShapeCollision {
         return rectToCircle(a, b);
       } else if (b is PolygonShape) {
         return rectToPolygon(a, b);
+      }
+      if (b is SegmentShape) {
+        return segmentToRectangle(b, a);
       } else {
         return false;
       }
@@ -28,6 +32,21 @@ class ShapeCollision {
         return circleToCircle(a, b);
       } else if (b is PolygonShape) {
         return circleToPolygon(a, b);
+      } else if (b is SegmentShape) {
+        return segmentToCircle(b, a);
+      } else {
+        return false;
+      }
+    } else if (a is SegmentShape) {
+      if (b is SegmentShape) {
+        return segmentToSegment(a, b);
+      } else if (b is RectangleShape) {
+        return segmentToRectangle(a, b);
+      } else if (b is CircleShape) {
+        return segmentToCircle(a, b);
+      }
+      if (b is PolygonShape) {
+        return segmentToPolygon(a, b);
       } else {
         return false;
       }
@@ -38,6 +57,8 @@ class ShapeCollision {
         return circleToPolygon(b, a);
       } else if (b is PolygonShape && a is PolygonShape) {
         return polygonToPolygon(a, b);
+      } else if (b is SegmentShape && a is PolygonShape) {
+        return segmentToPolygon(b, a);
       } else {
         return false;
       }
@@ -273,6 +294,96 @@ class ShapeCollision {
       }
     }
     return collision;
+  }
+
+  static bool segmentToSegment(
+    SegmentShape a,
+    SegmentShape b,
+  ) {
+    final p = a.start;
+    final q = b.start;
+    final r = GameVector(x: a.end.x - a.start.x, y: a.end.y - a.start.y);
+    final s = GameVector(x: b.end.x - b.start.x, y: b.end.y - b.start.y);
+
+    final rxs = cross(r, s);
+    final qmp = GameVector(x: q.x - p.x, y: q.y - p.y);
+
+    if (rxs.abs() < 1e-10) return false;
+
+    final t = cross(qmp, s) / rxs;
+    final u = cross(qmp, r) / rxs;
+
+    return (t >= 0) && (t <= 1) && (u >= 0) && (u <= 1);
+  }
+
+  static double cross(GameVector p1, GameVector p2) {
+    return p1.x * p2.y - p1.y * p2.x;
+  }
+
+  static bool segmentToRectangle(SegmentShape a, RectangleShape b) {
+    // Check if either endpoint is inside rectangle
+    if (isPointInRectangle(a.start, b) || isPointInRectangle(a.end, b)) {
+      return true;
+    }
+
+    // Check intersection with all 4 sides of rectangle
+    final rectSegments = [
+      SegmentShape(b.leftTop, b.rightTop),
+      SegmentShape(b.rightTop, b.rightBottom),
+      SegmentShape(b.rightBottom, b.leftBottom),
+      SegmentShape(b.leftBottom, b.leftTop)
+    ];
+
+    return rectSegments.any((segment) => segmentToSegment(a, segment));
+  }
+
+  static bool isPointInRectangle(GameVector p, RectangleShape rect) {
+    return p.x >= rect.left &&
+        p.x <= rect.right &&
+        p.y >= rect.top &&
+        p.y <= rect.bottom;
+  }
+
+  static bool segmentToCircle(SegmentShape a, CircleShape b) {
+    final closest = _getClosestPointOnSegment(a, b.center);
+    final distance =
+        sqrt(pow(closest.x - b.center.x, 2) + pow(closest.y - b.center.y, 2));
+    return distance <= b.radius;
+  }
+
+  static GameVector _getClosestPointOnSegment(SegmentShape a, GameVector p) {
+    final v = GameVector(x: a.end.x - a.start.x, y: a.end.y - a.start.y);
+    final w = GameVector(x: p.x - a.start.x, y: p.y - a.start.y);
+
+    final c1 = dot(w, v);
+    if (c1 <= 0) return a.start;
+
+    final c2 = dot(v, v);
+    if (c2 <= c1) return a.end;
+
+    final b = c1 / c2;
+    return GameVector(x: a.start.x + b * v.x, y: a.start.y + b * v.y);
+  }
+
+  static double dot(GameVector p1, GameVector p2) {
+    return p1.x * p2.x + p1.y * p2.y;
+  }
+
+  static bool segmentToPolygon(SegmentShape a, PolygonShape b) {
+    // Check if either endpoint is inside polygon
+    if (polygonPoint(b, a.start) || polygonPoint(b, a.end)) {
+      return true;
+    }
+
+    // Check intersection with all polygon edges
+    for (int i = 0; i < b.points.length; i++) {
+      final nextIndex = (i + 1) % b.points.length;
+      final polygonSegment = SegmentShape(b.points[i], b.points[nextIndex]);
+      if (segmentToSegment(a, polygonSegment)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

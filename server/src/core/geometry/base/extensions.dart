@@ -3,6 +3,7 @@ import 'package:shared_events/shared_events.dart';
 import '../circle.dart';
 import '../polygon.dart';
 import '../rectangle.dart';
+import '../segment.dart';
 import 'shape.dart';
 import 'shape_collision.dart';
 
@@ -23,6 +24,11 @@ extension ShapeExt on Shape {
         ),
       CircleShape => CircleShape(
           (this as CircleShape).radius,
+          position: this.position + position,
+        ),
+      SegmentShape => SegmentShape(
+          (this as SegmentShape).start,
+          (this as SegmentShape).end,
           position: this.position + position,
         ),
       _ => this
