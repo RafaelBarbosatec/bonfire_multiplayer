@@ -24,7 +24,7 @@ mixin RandomMovement on BlockMovementOnContact {
   MoveDirectionEnum? newDirection;
 
   void randomMove(double dt) {
-    if (direction == null) {
+    if (direction == null || newDirection == null) {
       newDirection = null;
       if (_timer.update(dt)) {
         _initPosition = position.clone();
