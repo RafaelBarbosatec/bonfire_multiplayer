@@ -61,7 +61,7 @@ Just open the `game_client` and execute `flutter run` in the terminal.
 - [x] Map load from server
 - [x] Map navigation
 - [x] Enemy NPC
-- [ ] Neutral NPC
+- [x] Neutral NPC
 - [ ] Player Meele Attack
 - [ ] Enemy Meele Attack
 - [ ] Range Attack
@@ -80,7 +80,7 @@ Just open the `game_client` and execute `flutter run` in the terminal.
 - [x] Map loader
 - [x] Map navigation
 - [x] NPC Movements
-- [ ] NPC Vision
+- [x] NPC Vision
 - [ ] Meele Attack
 - [ ] Range Attack
 - [ ] Drop item
