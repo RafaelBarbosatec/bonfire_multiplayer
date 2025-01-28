@@ -6,65 +6,10 @@ import '../circle.dart';
 import '../polygon.dart';
 import '../rectangle.dart';
 import '../segment.dart';
-import 'shape.dart';
 
 /// Class responsible to verify collision of the Shapes.
 /// Code based from: https://github.com/hahafather007/collision_check
 class ShapeCollision {
-  static bool isCollision(Shape a, Shape b) {
-    if (a is RectangleShape) {
-      if (b is RectangleShape) {
-        return rectToRect(a, b);
-      } else if (b is CircleShape) {
-        return rectToCircle(a, b);
-      } else if (b is PolygonShape) {
-        return rectToPolygon(a, b);
-      }
-      if (b is SegmentShape) {
-        return segmentToRectangle(b, a);
-      } else {
-        return false;
-      }
-    } else if (a is CircleShape) {
-      if (b is RectangleShape) {
-        return rectToCircle(b, a);
-      } else if (b is CircleShape) {
-        return circleToCircle(a, b);
-      } else if (b is PolygonShape) {
-        return circleToPolygon(a, b);
-      } else if (b is SegmentShape) {
-        return segmentToCircle(b, a);
-      } else {
-        return false;
-      }
-    } else if (a is SegmentShape) {
-      if (b is SegmentShape) {
-        return segmentToSegment(a, b);
-      } else if (b is RectangleShape) {
-        return segmentToRectangle(a, b);
-      } else if (b is CircleShape) {
-        return segmentToCircle(a, b);
-      }
-      if (b is PolygonShape) {
-        return segmentToPolygon(a, b);
-      } else {
-        return false;
-      }
-    } else {
-      if (b is RectangleShape && a is PolygonShape) {
-        return rectToPolygon(b, a);
-      } else if (b is CircleShape && a is PolygonShape) {
-        return circleToPolygon(b, a);
-      } else if (b is PolygonShape && a is PolygonShape) {
-        return polygonToPolygon(a, b);
-      } else if (b is SegmentShape && a is PolygonShape) {
-        return segmentToPolygon(b, a);
-      } else {
-        return false;
-      }
-    }
-  }
-
   static bool rectToRect(RectangleShape a, RectangleShape b) {
     return a.rect.overlaps(b.rect);
   }
@@ -320,7 +265,7 @@ class ShapeCollision {
     return p1.x * p2.y - p1.y * p2.x;
   }
 
-  static bool segmentToRectangle(SegmentShape a, RectangleShape b) {
+  static bool rectToSegment(RectangleShape b, SegmentShape a) {
     // Check if either endpoint is inside rectangle
     if (isPointInRectangle(a.start, b) || isPointInRectangle(a.end, b)) {
       return true;

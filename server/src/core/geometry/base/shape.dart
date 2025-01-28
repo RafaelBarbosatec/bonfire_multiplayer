@@ -1,14 +1,33 @@
 import 'package:shared_events/shared_events.dart';
 
-abstract class Shape {
-  Shape(GameVector? position) : _position = position ?? GameVector.zero();
-  GameVector _position;
+import '../circle.dart';
+import '../polygon.dart';
+import '../rectangle.dart';
+import '../segment.dart';
 
-  // ignore: unnecessary_getters_setters
-  set position(GameVector value) {
-    _position = value;
+abstract class Shape {
+  Shape(GameVector? position) : position = position ?? GameVector.zero();
+  GameVector position;
+
+  bool collidesWith(Shape other) {
+    switch (other.runtimeType) {
+      case CircleShape:
+        return collideWithCircle(other as CircleShape);
+      case PolygonShape:
+        return collideWithPolygon(other as PolygonShape);
+      case RectangleShape:
+        return collideWithRectangle(other as RectangleShape);
+      case SegmentShape:
+        return collideWithSegment(other as SegmentShape);
+      default:
+        throw UnimplementedError();
+    }
   }
 
-  // ignore: unnecessary_getters_setters
-  GameVector get position => _position;
+  bool collideWithCircle(CircleShape circle);
+  bool collideWithRectangle(RectangleShape rectangle);
+  bool collideWithPolygon(PolygonShape polygon);
+  bool collideWithSegment(SegmentShape segment);
+
+  Shape translated(GameVector position);
 }

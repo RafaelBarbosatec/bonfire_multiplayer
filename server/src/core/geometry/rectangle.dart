@@ -1,6 +1,10 @@
 import 'package:shared_events/shared_events.dart';
 
 import 'base/shape.dart';
+import 'base/shape_collision.dart';
+import 'circle.dart';
+import 'polygon.dart';
+import 'segment.dart';
 
 class RectangleShape extends Shape {
   RectangleShape(GameVector size, {GameVector? position})
@@ -48,5 +52,33 @@ class RectangleShape extends Shape {
   @override
   String toString() {
     return 'RectangleShape(position:$position, size:$size)';
+  }
+
+  @override
+  bool collideWithCircle(CircleShape circle) {
+    return ShapeCollision.rectToCircle(this, circle);
+  }
+
+  @override
+  bool collideWithPolygon(PolygonShape polygon) {
+    return ShapeCollision.rectToPolygon(this, polygon);
+  }
+
+  @override
+  bool collideWithRectangle(RectangleShape rectangle) {
+    return ShapeCollision.rectToRect(this, rectangle);
+  }
+
+  @override
+  bool collideWithSegment(SegmentShape segment) {
+    return ShapeCollision.rectToSegment(this, segment);
+  }
+
+  @override
+  RectangleShape translated(GameVector position) {
+    return RectangleShape(
+      size,
+      position: this.position + position,
+    );
   }
 }

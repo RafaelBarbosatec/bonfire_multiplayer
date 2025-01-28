@@ -1,5 +1,4 @@
 import '../game_component.dart';
-import '../geometry/base/extensions.dart';
 import '../geometry/base/shape.dart';
 import '../positioned_game_component.dart';
 
@@ -17,7 +16,7 @@ mixin ContactSensor on PositionedGameComponent {
     if (myShape == null) return false;
     final otherSHape = other.getShapeContact();
     if (otherSHape == null) return false;
-    if (myShape.isCollision(otherSHape)) {
+    if (myShape.collidesWith(otherSHape)) {
       final stop = onContact(other);
       final stop2 = other.onContact(this);
       if (stop && stop2) {
@@ -32,7 +31,7 @@ mixin ContactSensor on PositionedGameComponent {
   bool checkShapeContact(Shape otherSHape) {
     final myShape = getShapeContact();
     if (myShape == null) return false;
-    return myShape.isCollision(otherSHape);
+    return myShape.collidesWith(otherSHape);
   }
 
   // return true if you can happen contact

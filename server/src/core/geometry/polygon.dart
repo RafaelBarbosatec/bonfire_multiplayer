@@ -1,7 +1,10 @@
 import 'package:shared_events/shared_events.dart';
 
 import 'base/shape.dart';
+import 'base/shape_collision.dart';
+import 'circle.dart';
 import 'rectangle.dart';
+import 'segment.dart';
 
 class PolygonShape extends Shape {
   PolygonShape(this.relativePoints, {GameVector? position})
@@ -76,5 +79,33 @@ class PolygonShape extends Shape {
 
       rect.position = GameVector(x: value.x + _minX, y: value.y + _minY);
     }
+  }
+
+  @override
+  bool collideWithCircle(CircleShape circle) {
+    return ShapeCollision.circleToPolygon(circle, this);
+  }
+
+  @override
+  bool collideWithPolygon(PolygonShape polygon) {
+    return ShapeCollision.polygonToPolygon(this, polygon);
+  }
+
+  @override
+  bool collideWithRectangle(RectangleShape rectangle) {
+    return ShapeCollision.rectToPolygon(rectangle, this);
+  }
+
+  @override
+  bool collideWithSegment(SegmentShape segment) {
+    return ShapeCollision.segmentToPolygon(segment, this);
+  }
+
+  @override
+  PolygonShape translated(GameVector position) {
+    return PolygonShape(
+      relativePoints,
+      position: this.position + position,
+    );
   }
 }

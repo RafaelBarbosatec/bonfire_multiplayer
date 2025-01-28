@@ -15,7 +15,6 @@ import '../game/components/my_enemy.dart';
 import '../util/game_map_object_properties.dart';
 import 'game_component.dart';
 import 'game_player.dart';
-import 'geometry/base/extensions.dart';
 import 'geometry/base/shape.dart';
 import 'geometry/circle.dart';
 import 'geometry/rectangle.dart';
@@ -54,7 +53,7 @@ abstract class GameMap extends GameComponent {
     final shape = comp.getShapeContact();
     if (shape != null) {
       for (final collision in _collisions) {
-        if (shape.isCollision(collision)) {
+        if (shape.collidesWith(collision)) {
           comp.onDidContact(this);
           return true;
         }
