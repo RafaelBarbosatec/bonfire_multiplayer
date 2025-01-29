@@ -17,7 +17,7 @@ class PoloWebsocket extends WebsocketProvider<PoloClient> {
   bool initialized = false;
 
   static final PoloWebsocket _singleton = PoloWebsocket._internal(
-    '127.0.0.1',
+    '0.0.0.0',
     3000,
   );
 
