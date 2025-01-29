@@ -18,7 +18,7 @@ class PoloWebsocket extends WebsocketProvider<PoloClient> {
 
   static final PoloWebsocket _singleton = PoloWebsocket._internal(
     '0.0.0.0',
-    4000,
+    3000,
   );
 
   @override
