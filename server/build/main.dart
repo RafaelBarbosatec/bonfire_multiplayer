@@ -37,8 +37,7 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
       ),
     ),
     ip,
-    port,
-    shared: true,
+    8080,
   );
 }
 
