@@ -20,7 +20,7 @@ class PoloWebsocket extends WebsocketProvider<PoloClient> {
 
   static final PoloWebsocket _singleton = PoloWebsocket._internal(
     '0.0.0.0',
-    int.tryParse(Platform.environment['POST'].toString()) ?? 4000,
+    int.tryParse(Platform.environment['PORT'].toString()) ?? 4000,
   );
 
   @override
