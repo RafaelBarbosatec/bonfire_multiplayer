@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:polo_server/polo_server.dart';
 
 import 'websocket_provider.dart';
@@ -18,7 +20,7 @@ class PoloWebsocket extends WebsocketProvider<PoloClient> {
 
   static final PoloWebsocket _singleton = PoloWebsocket._internal(
     '0.0.0.0',
-    3000,
+    int.tryParse(Platform.environment['POST'].toString()) ?? 4000,
   );
 
   @override
