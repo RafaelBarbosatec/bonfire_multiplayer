@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 
 import '../main.dart' as entrypoint;
+import '../routes/ws.dart' as ws;
 import '../routes/players.dart' as players;
 import '../routes/ntp.dart' as ntp;
 import '../routes/maps.dart' as maps;
@@ -35,7 +36,7 @@ Handler buildRootHandler() {
 Handler buildHandler() {
   final pipeline = const Pipeline();
   final router = Router()
-    ..all('/players', (context) => players.onRequest(context,))..all('/ntp', (context) => ntp.onRequest(context,))..all('/maps', (context) => maps.onRequest(context,))..all('/', (context) => index.onRequest(context,));
+    ..all('/ws', (context) => ws.onRequest(context,))..all('/players', (context) => players.onRequest(context,))..all('/ntp', (context) => ntp.onRequest(context,))..all('/maps', (context) => maps.onRequest(context,))..all('/', (context) => index.onRequest(context,));
   return pipeline.addHandler(router);
 }
 

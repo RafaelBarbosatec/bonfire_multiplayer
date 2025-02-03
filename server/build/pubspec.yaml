@@ -16,6 +16,7 @@ dependencies:
     git:
       url: https://github.com/RafaelBarbosatec/tiled_json_reader.git
       ref: without-flutter
+  dart_frog_web_socket: ^1.0.0
 
 dev_dependencies:
   mocktail: ^1.0.0

@@ -17,27 +17,28 @@ GameServer? game;
 final LoggerProvider logger = LoggerLogger();
 
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
-  final server = await PoloWebsocket().init(
-    onClientConnect: onClientConnect,
-    onClientDisconnect: onClientDisconnect,
-  );
-  game ??= GameServer(
-    server: server,
-    maps: [
-      FlorestMap(),
-      DesertMap(),
-    ],
-  );
-  await game!.start();
+  // final server = await PoloWebsocket().init(
+  //   onClientConnect: onClientConnect,
+  //   onClientDisconnect: onClientDisconnect,
+  // );
+  // game ??= GameServer(
+  //   server: server,
+  //   maps: [
+  //     FlorestMap(),
+  //     DesertMap(),
+  //   ],
+  // );
+  // await game!.start();
 
   return serve(
-    handler.use(
-      provider<Game>(
-        (context) => game!,
-      ),
-    ),
+    handler,
+    // handler.use(
+    //   provider<Game>(
+    //     (context) => game!,
+    //   ),
+    // ),
     ip,
-    8080,
+    port,
   );
 }
 
