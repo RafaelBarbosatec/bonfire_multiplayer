@@ -54,7 +54,7 @@ class BonfireSocket extends BonfireTypeAdaptertProvider
 
 class BSocketClient {
   final String id;
-  final WebSocketChannel channel;
+  final WebSocketChannel _channel;
   final void Function(BSocketClient client) onDisconnect;
   final BonfireTypeAdaptertProvider _typeAdapterProvider;
   final BonfireSocketActions socket;
@@ -63,12 +63,13 @@ class BSocketClient {
 
   BSocketClient({
     required this.id,
-    required this.channel,
+    required WebSocketChannel channel,
     required this.onDisconnect,
     required BonfireTypeAdaptertProvider typeAdapterProvider,
     required this.socket,
-  }) : _typeAdapterProvider = typeAdapterProvider {
-    channel.stream.listen(
+  })  : _channel = channel,
+        _typeAdapterProvider = typeAdapterProvider {
+    _channel.stream.listen(
       _onChannelListen,
       onDone: () => onDisconnect(this),
     );
@@ -82,13 +83,13 @@ class BSocketClient {
         event: event,
         data: adapter.toMap(message),
       );
-      channel.sink.add(e.toJson());
+      _channel.sink.add(e.toJson());
     } else {
       final e = BEvent(
         event: event,
         data: message,
       );
-      channel.sink.add(e.toJson());
+      _channel.sink.add(e.toJson());
     }
   }
 
