@@ -17,6 +17,29 @@ GameServer? game;
 final LoggerProvider logger = LoggerLogger();
 
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
+  // final socket = BonfireSocket(onClientConnect: (client) {
+  //   client.on<TestEvent>(
+  //     'oi',
+  //     (event) {
+  //       print(event);
+  //       print(event.toMap());
+  //     },
+  //   );
+
+  //   client.on(
+  //     'ola',
+  //     (event) {
+  //       print(event.runtimeType);
+  //       print('ola: $event');
+  //     },
+  //   );
+  // });
+  // socket.registerType<TestEvent>(
+  //   BTypeAdapter<TestEvent>(
+  //     toMap: (type) => type.toMap(),
+  //     fromMap: (map) => TestEvent.fromMap(map),
+  //   ),
+  // );
   final server = await PoloWebsocket().init(
     onClientConnect: onClientConnect,
     onClientDisconnect: onClientDisconnect,
