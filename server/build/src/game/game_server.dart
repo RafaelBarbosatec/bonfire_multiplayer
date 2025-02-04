@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:bonfire_socket_server/bonfire_socket_server.dart';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
@@ -7,7 +8,6 @@ import '../core/game.dart';
 import '../core/game_component.dart';
 import '../core/game_map.dart';
 import '../core/game_player.dart';
-import '../infrastructure/websocket/polo_websocket.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
 import 'components/player.dart';
 
@@ -18,20 +18,20 @@ class GameServer extends Game {
   static const tileSize = 16.0;
   final List<GameMap> maps;
   bool mapLoaded = false;
-  List<PoloClient> clients = [];
+  List<BSocketClient> clients = [];
 
-  final WebsocketProvider<PoloClient> server;
+  final WebsocketProvider<BSocketClient> server;
 
-  void enterClient(PoloClient client) {
+  void enterClient(BSocketClient client) {
     clients.add(client);
     logger.i('Client(${client.id}) Connected!');
-    client.onEvent<JoinEvent>(EventType.JOIN.name, (message) {
+    client.on<JoinEvent>(EventType.JOIN.name, (message) {
       logger.i('JoinEvent: ${message.toMap()}');
       _joinPlayerInTheGame(client, message);
     });
   }
 
-  void leaveClient(PoloClient client) {
+  void leaveClient(BSocketClient client) {
     clients.remove(client);
     for (final map in maps) {
       map.components
@@ -61,7 +61,7 @@ class GameServer extends Game {
     }
   }
 
-  void _joinPlayerInTheGame(PoloClient client, JoinEvent message) {
+  void _joinPlayerInTheGame(BSocketClient client, JoinEvent message) {
     if (components
         .whereType<Player>()
         .any((element) => element.id == client.id)) {

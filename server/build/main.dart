@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:bonfire_socket_server/bonfire_socket_server.dart';
 import 'package:dart_frog/dart_frog.dart';
 
 import 'src/core/game.dart';
@@ -10,42 +11,49 @@ import 'src/game/maps/desert.dart';
 import 'src/game/maps/florest.dart';
 import 'src/infrastructure/logger/logger_logger.dart';
 import 'src/infrastructure/logger/logger_provider.dart';
-import 'src/infrastructure/websocket/polo_websocket.dart';
+import 'src/infrastructure/websocket/bonfire_websocket.dart';
 import 'src/infrastructure/websocket/websocket_provider.dart';
 
 GameServer? game;
 final LoggerProvider logger = LoggerLogger();
 
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
-  // final server = await PoloWebsocket().init(
-  //   onClientConnect: onClientConnect,
-  //   onClientDisconnect: onClientDisconnect,
-  // );
-  // game ??= GameServer(
-  //   server: server,
-  //   maps: [
-  //     FlorestMap(),
-  //     DesertMap(),
-  //   ],
-  // );
-  // await game!.start();
+  final bonfireSocket = BonfireWebsocket();
+  final server = await bonfireSocket.init(
+    onClientConnect: onClientConnect,
+    onClientDisconnect: onClientDisconnect,
+  );
+  game ??= GameServer(
+    server: server,
+    maps: [
+      FlorestMap(),
+      DesertMap(),
+    ],
+  );
+  
+  await game!.start();
 
   return serve(
-    handler,
-    // handler.use(
-    //   provider<Game>(
-    //     (context) => game!,
-    //   ),
-    // ),
+    handler
+        .use(
+          provider<Game>(
+            (context) => game!,
+          ),
+        )
+        .use(
+          provider<BonfireSocket>(
+            (context) => bonfireSocket.socket,
+          ),
+        ),
     ip,
     port,
   );
 }
 
-void onClientConnect(PoloClient client, WebsocketProvider websocket) {
+void onClientConnect(BSocketClient client, WebsocketProvider websocket) {
   game?.enterClient(client);
 }
 
-void onClientDisconnect(PoloClient client) {
+void onClientDisconnect(BSocketClient client) {
   game?.leaveClient(client);
 }
