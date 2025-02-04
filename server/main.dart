@@ -11,37 +11,15 @@ import 'src/game/maps/desert.dart';
 import 'src/game/maps/florest.dart';
 import 'src/infrastructure/logger/logger_logger.dart';
 import 'src/infrastructure/logger/logger_provider.dart';
-import 'src/infrastructure/websocket/polo_websocket.dart';
+import 'src/infrastructure/websocket/bonfire_websocket.dart';
 import 'src/infrastructure/websocket/websocket_provider.dart';
 
 GameServer? game;
 final LoggerProvider logger = LoggerLogger();
 
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
-  final socket = BonfireSocket(
-    onClientConnect: (client) {
-      client.on('oi', (e) {
-        print('oi: $e');
-        client.send('ola', 'ola');
-      });
-    },
-  );
-
-  //   client.on(
-  //     'ola',
-  //     (event) {
-  //       print(event.runtimeType);
-  //       print('ola: $event');
-  //     },
-  //   );
-  // });
-  // socket.registerType<TestEvent>(
-  //   BTypeAdapter<TestEvent>(
-  //     toMap: (type) => type.toMap(),
-  //     fromMap: (map) => TestEvent.fromMap(map),
-  //   ),
-  // );
-  final server = await PoloWebsocket().init(
+  final bonfireSocket = BonfireWebsocket();
+  final server = await bonfireSocket.init(
     onClientConnect: onClientConnect,
     onClientDisconnect: onClientDisconnect,
   );
@@ -52,6 +30,7 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
       DesertMap(),
     ],
   );
+  
   await game!.start();
 
   return serve(
@@ -63,7 +42,7 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
         )
         .use(
           provider<BonfireSocket>(
-            (context) => socket,
+            (context) => bonfireSocket.socket,
           ),
         ),
     ip,
@@ -71,10 +50,10 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   );
 }
 
-void onClientConnect(PoloClient client, WebsocketProvider websocket) {
+void onClientConnect(BSocketClient client, WebsocketProvider websocket) {
   game?.enterClient(client);
 }
 
-void onClientDisconnect(PoloClient client) {
+void onClientDisconnect(BSocketClient client) {
   game?.leaveClient(client);
 }

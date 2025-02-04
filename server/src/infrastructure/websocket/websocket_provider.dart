@@ -13,10 +13,9 @@ abstract class WebsocketProvider<C> {
     required OnClientDisconnect<C> onClientDisconnect,
   });
 
-  void send<T>(String event, T data);
   void sendToClient<T>(C client, String event, T data);
   void sendToRoom<T>(String room, String event, T data);
-  void broadcastFrom<T>(C client, String event, T data);
+  void broadcast<T>(String event, T data);
   void registerType<T>(TypeAdapter<T> type);
 }
 

@@ -36,13 +36,11 @@ class BonfireSocket
     );
     _clients.add(client);
     onClientConnect?.call(client);
-    print('BonfireSocket: Client connected: ${client.id}');
   }
 
   void _onClientDisconnect(BSocketClient client) {
     _clients.remove(client);
     onClientDisconnect?.call(client);
-    print('BonfireSocket: Client disconnected: ${client.id}');
   }
 
   @override

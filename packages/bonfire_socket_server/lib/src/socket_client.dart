@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:bonfire_socket_server/src/socket_actions.dart';
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 import 'package:dart_frog_web_socket/dart_frog_web_socket.dart';
@@ -63,11 +61,6 @@ class BSocketClient {
     final map = BEvent.fromMap(
       serializerProvider.serializer.deserialize(message as List<int>),
     );
-    try {
-      final dataJson = jsonDecode(map.data as String);
-      _onSubscribers[map.event]?.call(dataJson);
-    } catch (e) {
-      _onSubscribers[map.event]?.call(map.data);
-    }
+    _onSubscribers[map.event]?.call(map.data);
   }
 }
