@@ -13,13 +13,14 @@ dependencies:
 
   bonfire: ^3.13.3
   bonfire_bloc: ^0.0.2
-  polo_client: ^0.0.3
   flutter_bloc: ^8.1.3
   shared_events:
     path: "../shared_events"
   equatable: ^2.0.5
   http: ^1.2.2
   get_it: ^8.0.3
+  bonfire_socket_client:
+    path: "../packages/bonfire_socket_client"
 
 dev_dependencies:
   flutter_test:

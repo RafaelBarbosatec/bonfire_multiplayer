@@ -1,5 +1,6 @@
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 import 'package:web_socket_client/web_socket_client.dart';
+export 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 
 class BonfireSocketClient
     with BonfireTypeAdapterProvider, EventSerializerProvider {
@@ -29,7 +30,7 @@ class BonfireSocketClient
     this.serializer = serializer ?? EventSerializerDefault();
   }
 
-  Future<void> conect({
+  Future<void> connect({
     Function? onConnected,
     Function(String? reason)? onDisconnected,
   }) async {

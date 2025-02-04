@@ -1,6 +1,6 @@
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/data/repositories/ntp_repository.dart';
-import 'package:bonfire_multiplayer/data/websocket/polo_websocket.dart';
+import 'package:bonfire_multiplayer/data/websocket/bonfire_websocket.dart';
 import 'package:bonfire_multiplayer/data/websocket/websocket_provider.dart';
 import 'package:bonfire_multiplayer/pages/home/bloc/home_bloc.dart';
 import 'package:bonfire_multiplayer/util/time_sync.dart';
@@ -15,7 +15,9 @@ class BootstrapInjector {
 
   static Future<void> run() async {
     getIt.registerFactory<WebsocketProvider>(
-      () => PoloWebsocket(address: address),
+      () => BonfireWebsocket(
+        address: Uri(scheme: 'ws', host: address, port: 8080, path: '/ws'),
+      ),
     );
     getIt.registerLazySingleton(
       () => GameEventManager(

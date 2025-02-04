@@ -4,7 +4,7 @@ void main() {
   // Connect to the remote WebSocket endpoint.
   final uri = Uri.parse('ws://localhost:8080/ws');
   final socket = BonfireSocketClient(uri: uri);
-  socket.conect(
+  socket.connect(
     onConnected: () {
       print('Connected');
       // Send a message to the server.

@@ -39,7 +39,7 @@ Just open the `game_client` and execute `flutter run` in the terminal.
 | -------- | ------- |
 | bonfire  | `^3.1.1`    |
 | bonfire_bloc | `^0.0.2`     |
-| polo_client    | `^0.0.3`    |
+| bonfire_socket_client    | `local`    |
 | flutter_bloc    | `^8.1.3`    |
 | provider    | `^6.1.1`    |
 
@@ -48,7 +48,7 @@ Just open the `game_client` and execute `flutter run` in the terminal.
 | Package    | Version |
 | -------- | ------- |
 | dart_frog  | `^1.0.0`    |
-| polo_server    | `^0.0.3`    |
+| bonfire_socket_server    | `local`    |
 | logger | `^2.0.2+1`     |
 
 ## Roadmap:
