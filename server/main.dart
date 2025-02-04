@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:bonfire_socket_server/bonfire_socket_server.dart';
 import 'package:dart_frog/dart_frog.dart';
 
 import 'src/core/game.dart';
@@ -17,14 +18,14 @@ GameServer? game;
 final LoggerProvider logger = LoggerLogger();
 
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
-  // final socket = BonfireSocket(onClientConnect: (client) {
-  //   client.on<TestEvent>(
-  //     'oi',
-  //     (event) {
-  //       print(event);
-  //       print(event.toMap());
-  //     },
-  //   );
+  final socket = BonfireSocket(
+    onClientConnect: (client) {
+      client.on('oi', (e) {
+        print('oi: $e');
+        client.send('ola', 'ola');
+      });
+    },
+  );
 
   //   client.on(
   //     'ola',
@@ -54,11 +55,17 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   await game!.start();
 
   return serve(
-    handler.use(
-      provider<Game>(
-        (context) => game!,
-      ),
-    ),
+    handler
+        .use(
+          provider<Game>(
+            (context) => game!,
+          ),
+        )
+        .use(
+          provider<BonfireSocket>(
+            (context) => socket,
+          ),
+        ),
     ip,
     port,
   );
