@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:bonfire_socket_server/bonfire_socket_server.dart';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
@@ -18,11 +17,11 @@ class GameServer extends Game {
   static const tileSize = 16.0;
   final List<GameMap> maps;
   bool mapLoaded = false;
-  List<BSocketClient> clients = [];
+  List<WebsocketClient> clients = [];
 
-  final WebsocketProvider<BSocketClient> server;
+  final WebsocketProvider server;
 
-  void enterClient(BSocketClient client) {
+  void enterClient(WebsocketClient client) {
     clients.add(client);
     logger.i('Client(${client.id}) Connected!');
     client.on<JoinEvent>(EventType.JOIN.name, (message) {
@@ -31,7 +30,7 @@ class GameServer extends Game {
     });
   }
 
-  void leaveClient(BSocketClient client) {
+  void leaveClient(WebsocketClient client) {
     clients.remove(client);
     for (final map in maps) {
       map.components
@@ -61,7 +60,7 @@ class GameServer extends Game {
     }
   }
 
-  void _joinPlayerInTheGame(BSocketClient client, JoinEvent message) {
+  void _joinPlayerInTheGame(WebsocketClient client, JoinEvent message) {
     if (components
         .whereType<Player>()
         .any((element) => element.id == client.id)) {
@@ -105,11 +104,17 @@ class GameServer extends Game {
     );
   }
 
-  void changeMap(GamePlayer player, String newMapId) {
+  void changeMap(GamePlayer player, String newMapId, GameVector position) {
     try {
       final map = maps.firstWhere((element) => element.id == newMapId);
-      player.removeFromParent();
+
+      player
+        ..position = position
+        ..stopMove()
+        ..removeFromParent();
+
       map.add(player);
+
       player.send(
         EventType.JOIN_MAP.name,
         JoinMapEvent(

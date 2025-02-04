@@ -1,29 +1,32 @@
 import 'package:bonfire_socket_server/bonfire_socket_server.dart';
 
+import 'bonfire_websocket_client.dart';
 import 'websocket_provider.dart';
 
-class BonfireWebsocket extends WebsocketProvider<BSocketClient> {
+class BonfireWebsocket extends WebsocketProvider {
   late BonfireSocket _socket;
 
   BonfireSocket get socket => _socket;
 
   @override
-  Future<WebsocketProvider<BSocketClient>> init({
-    required OnClientConnect<BSocketClient> onClientConnect,
-    required OnClientDisconnect<BSocketClient> onClientDisconnect,
+  Future<WebsocketProvider> init({
+    required OnClientConnect onClientConnect,
+    required OnClientDisconnect onClientDisconnect,
   }) async {
     _socket = BonfireSocket(
       onClientConnect: (client) {
-        onClientConnect(client, this);
+        onClientConnect(BonfireWebsocketClient(client: client), this);
       },
-      onClientDisconnect: onClientDisconnect,
+      onClientDisconnect: (client) {
+        onClientDisconnect(BonfireWebsocketClient(client: client));
+      },
     );
     return this;
   }
 
   @override
-  void sendToClient<T>(BSocketClient client, String event, T data) {
-    _socket.sendTo<T>(client, event, data);
+  void sendToClient<T>(WebsocketClient client, String event, T data) {
+    _socket.sendTo<T>((client as BonfireWebsocketClient).client, event, data);
   }
 
   @override

@@ -1,19 +1,19 @@
-typedef OnClientConnect<T> = void Function(
-  T client,
-  WebsocketProvider<T> server,
+typedef OnClientConnect = void Function(
+  WebsocketClient client,
+  WebsocketProvider server,
 );
 
-typedef OnClientDisconnect<T> = void Function(
-  T client,
+typedef OnClientDisconnect = void Function(
+  WebsocketClient client,
 );
 
-abstract class WebsocketProvider<C> {
-  Future<WebsocketProvider<C>> init({
-    required OnClientConnect<C> onClientConnect,
-    required OnClientDisconnect<C> onClientDisconnect,
+abstract class WebsocketProvider {
+  Future<WebsocketProvider> init({
+    required OnClientConnect onClientConnect,
+    required OnClientDisconnect onClientDisconnect,
   });
 
-  void sendToClient<T>(C client, String event, T data);
+  void sendToClient<T>(WebsocketClient client, String event, T data);
   void sendToRoom<T>(String room, String event, T data);
   void broadcast<T>(String event, T data);
   void registerType<T>(TypeAdapter<T> type);
@@ -25,4 +25,10 @@ class TypeAdapter<T> {
   final Map<String, dynamic> Function(T type) toMap;
 
   final T Function(Map<String, dynamic> map) fromMap;
+}
+
+abstract class WebsocketClient {
+  String get id;
+  void on<T>(String event, void Function(T event) callback);
+  void send<T>(String event, T data);
 }

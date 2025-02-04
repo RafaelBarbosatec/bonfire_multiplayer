@@ -50,10 +50,10 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   );
 }
 
-void onClientConnect(BSocketClient client, WebsocketProvider websocket) {
+void onClientConnect(WebsocketClient client, WebsocketProvider websocket) {
   game?.enterClient(client);
 }
 
-void onClientDisconnect(BSocketClient client) {
+void onClientDisconnect(WebsocketClient client) {
   game?.leaveClient(client);
 }

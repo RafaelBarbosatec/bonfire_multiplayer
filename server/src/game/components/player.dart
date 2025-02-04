@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:bonfire_socket_server/bonfire_socket_server.dart';
 import 'package:shared_events/shared_events.dart';
 
 import '../../core/game_player.dart';
@@ -7,6 +6,7 @@ import '../../core/geometry/rectangle.dart';
 import '../../core/mixins/block_movement_contact.dart';
 import '../../core/mixins/contact_sensor.dart';
 import '../../core/mixins/map_ref.dart';
+import '../../infrastructure/websocket/websocket_provider.dart';
 
 class Player extends GamePlayer
     with ContactSensor, MapRef, BlockMovementOnContact {
@@ -23,7 +23,7 @@ class Player extends GamePlayer
     );
   }
 
-  final BSocketClient client;
+  final WebsocketClient client;
 
   String get id => state.id;
 
