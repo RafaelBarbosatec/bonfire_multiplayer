@@ -2,59 +2,57 @@ import 'package:bonfire_socket_server/src/socket_actions.dart';
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 import 'package:dart_frog_web_socket/dart_frog_web_socket.dart';
 
-class BSocketClient {
+// ignore: public_member_api_docs
+class BSocketClient extends EventPacker {
+  /// Creates a new instance of [BSocketClient].
   BSocketClient({
     required this.id,
     required WebSocketChannel channel,
     required this.onDisconnect,
-    required BonfireTypeAdapterProvider typeAdapterProvider,
     required this.socket,
-    required this.serializerProvider,
-  })  : _channel = channel,
-        _typeAdapterProvider = typeAdapterProvider {
+    required BonfireTypeAdapterProvider typeAdapterProvider,
+    required EventSerializerProvider serializerProvider,
+  }) : _channel = channel {
+    this.serializerProvider = serializerProvider;
+    this.typeAdapterProvider = typeAdapterProvider;
     _channel.stream.listen(
       _onChannelListen,
       onDone: () => onDisconnect(this),
     );
   }
+
+  /// The unique identifier for the client.
   final String id;
+
   final WebSocketChannel _channel;
+
+  /// Callback function that is called when the client disconnects.
   final void Function(BSocketClient client) onDisconnect;
-  final BonfireTypeAdapterProvider _typeAdapterProvider;
+
+  /// The socket actions associated with this client.
   final BonfireSocketActions socket;
-  final EventSerializerProvider serializerProvider;
 
   final Map<String, void Function(dynamic)> _onSubscribers = {};
 
+  /// Sends a message to the client.
   void send<T>(String event, T message) {
-    final typeString = T.toString();
-    dynamic eventdata = message;
-    if (_typeAdapterProvider.types.containsKey(typeString)) {
-      final adapter =
-          _typeAdapterProvider.types[typeString]! as BTypeAdapter<T>;
-
-      eventdata = adapter.toMap(message);
-    }
-    final e = BEvent(
-      event: event,
-      data: eventdata,
-    );
-    final data = serializerProvider.serializer.serialize(e.toMap());
-    _channel.sink.add(data);
+    _channel.sink.add(packEvent<T>(event, message));
   }
 
+  /// Registers a callback for a specific event.
   void on<T>(String event, void Function(T event) callback) {
-    final typeString = T.toString();
-    _onSubscribers[event] = (map) {
-      if (_typeAdapterProvider.types.containsKey(typeString)) {
-        final adapter =
-            _typeAdapterProvider.types[typeString]! as BTypeAdapter<T>;
+    _onSubscribers[event] = (map) => unpackEvent<T>(map);
+    // final typeString = T.toString();
+    // _onSubscribers[event] = (map) {
+    //   if (_typeAdapterProvider.types.containsKey(typeString)) {
+    //     final adapter =
+    //         _typeAdapterProvider.types[typeString]! as BTypeAdapter<T>;
 
-        callback(adapter.fromMap((map as Map).cast()));
-      } else {
-        callback(map as T);
-      }
-    };
+    //     callback(adapter.fromMap((map as Map).cast()));
+    //   } else {
+    //     callback(map as T);
+    //   }
+    // };
   }
 
   void _onChannelListen(dynamic message) {
