@@ -17,6 +17,7 @@ class MyPlayer extends SimplePlayer
         BonfireBlocListenable<MyPlayerBloc, MyPlayerState> {
   JoystickMoveDirectional? _joystickDirectional;
   bool sendedIdle = false;
+  async.Timer? timer;
 
   MyPlayer({
     required ComponentStateModel state,
@@ -43,7 +44,7 @@ class MyPlayer extends SimplePlayer
     if (isMounted) {
       _joystickDirectional = event.directional;
     }
-    
+
     super.onJoystickChangeDirectional(event);
     timer?.cancel();
   }
@@ -68,12 +69,8 @@ class MyPlayer extends SimplePlayer
     }
   }
 
-  async.Timer? timer;
-
   @override
   void onNewState(MyPlayerState state) {
-    print(state.position.distanceTo(position));
-
     if (state.direction == null) {
       timer = async.Timer(
         Duration(milliseconds: 500),
