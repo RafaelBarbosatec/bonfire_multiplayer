@@ -1,5 +1,6 @@
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 import 'package:web_socket_client/web_socket_client.dart';
+
 export 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 
 class BonfireSocketClient
@@ -15,6 +16,7 @@ class BonfireSocketClient
   final bool debug;
 
   final Map<String, void Function(dynamic)> _onSubscribers = {};
+  late EventPacker _packer;
 
   BonfireSocketClient({
     required this.uri,
@@ -28,6 +30,10 @@ class BonfireSocketClient
     this.debug = false,
   }) {
     this.serializer = serializer ?? EventSerializerDefault();
+    _packer = EventPacker(
+      serializerProvider: this,
+      typeAdapterProvider: this,
+    );
   }
 
   Future<void> connect({
@@ -57,39 +63,18 @@ class BonfireSocketClient
   }
 
   void _onMessageslListen(dynamic message) {
-    final map = BEvent.fromMap(
-      serializer.deserialize(message as List<int>),
-    );
-    _onSubscribers[map.event]?.call(map.data);
+    final event = _packer.unpackEvent(message);
+    _onSubscribers[event.event]?.call(event.data);
     if (debug) {
-      print('BonfireSocketClient: ${map.toMap()}');
+      print('BonfireSocketClient: ${event.toMap()}');
     }
   }
 
   void send<T>(String event, T message) {
-    final typeString = T.toString();
-    dynamic eventdata = message;
-    if (types.containsKey(typeString)) {
-      final adapter = types[typeString]! as BTypeAdapter<T>;
-      eventdata = adapter.toMap(message);
-    }
-    final e = BEvent(
-      event: event,
-      data: eventdata,
-    );
-    final data = serializer.serialize(e.toMap());
-    _socket.send(data);
+    _socket.send(_packer.packEvent<T>(event, message));
   }
 
   void on<T>(String event, void Function(T event) callback) {
-    final typeString = T.toString();
-    _onSubscribers[event] = (map) {
-      if (types.containsKey(typeString)) {
-        final adapter = types[typeString]! as BTypeAdapter<T>;
-        callback(adapter.fromMap((map as Map).cast()));
-      } else {
-        callback(map as T);
-      }
-    };
+    _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map));
   }
 }

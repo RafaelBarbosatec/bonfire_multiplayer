@@ -2,9 +2,14 @@
 
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 
-abstract class EventPacker {
-  late EventSerializerProvider serializerProvider;
-  late BonfireTypeAdapterProvider typeAdapterProvider;
+class EventPacker {
+  final EventSerializerProvider serializerProvider;
+  final BonfireTypeAdapterProvider typeAdapterProvider;
+
+  EventPacker({
+    required this.serializerProvider,
+    required this.typeAdapterProvider,
+  });
 
   EventSerializer get serializer => serializerProvider.serializer;
   Map<String, BTypeAdapter<dynamic>> get types => typeAdapterProvider.types;
@@ -24,7 +29,7 @@ abstract class EventPacker {
     return serializer.serialize(e.toMap());
   }
 
-  T unpackEvent<T>(dynamic data) {
+  T unpackData<T>(dynamic data) {
     final typeString = T.toString();
     if (types.containsKey(typeString)) {
       final adapter = types[typeString]! as BTypeAdapter<T>;
@@ -32,5 +37,11 @@ abstract class EventPacker {
     } else {
       return data as T;
     }
+  }
+
+  BEvent unpackEvent(List<int> data) {
+    return BEvent.fromMap(
+      serializer.deserialize(data),
+    );
   }
 }
