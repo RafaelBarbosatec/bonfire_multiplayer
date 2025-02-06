@@ -80,6 +80,12 @@ class MyPlayer extends SimplePlayer
     // } else if (state.position.distanceTo(position) > width) {
     //   _updatePosition(state.position);
     // }
+
+    // if distance greater than 5 pixel do interpolation of position
+    if (position.distanceTo(state.position) > 5) {
+      _updatePosition(state.position);
+    }
+
     if (state.direction != null) {
       setZeroVelocity();
       moveFromDirection(state.direction!.toDirection());
@@ -104,7 +110,7 @@ class MyPlayer extends SimplePlayer
     add(
       MoveEffect.to(
         position,
-        EffectController(duration: 0.1),
+        EffectController(duration: 0.05),
       ),
     );
   }

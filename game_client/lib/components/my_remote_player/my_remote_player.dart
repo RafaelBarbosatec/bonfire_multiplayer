@@ -60,12 +60,7 @@ class MyRemotePlayer extends SimplePlayer
   void onNewState(MyRemotePlayerState state) {
     // if distance greater than 5 pixel do interpolation of position
     if (position.distanceTo(state.position) > 5) {
-      add(
-        MoveEffect.to(
-          state.position,
-          EffectController(duration: 0.05),
-        ),
-      );
+      _updatePosition(state.position);
     }
     if (state.direction != null) {
       setZeroVelocity();
@@ -73,8 +68,18 @@ class MyRemotePlayer extends SimplePlayer
     } else {
       lastDirection = state.lastDirection.toDirection();
       stopMove();
+      _updatePosition(state.position);
     }
     super.onNewState(state);
+  }
+
+  void _updatePosition(Vector2 position) {
+    add(
+      MoveEffect.to(
+        position,
+        EffectController(duration: 0.05),
+      ),
+    );
   }
 
   @override
