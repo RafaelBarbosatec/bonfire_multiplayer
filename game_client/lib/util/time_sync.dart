@@ -4,6 +4,7 @@ class TimeSync {
 
   Future<void> synchronize(Future<DateTime> Function() getServerTime) async {
     try {
+      await getServerTime();
       final DateTime requestTime = DateTime.now();
       final serverTime = await getServerTime();
       final DateTime responseTime = DateTime.now();

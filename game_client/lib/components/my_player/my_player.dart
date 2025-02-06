@@ -1,3 +1,5 @@
+import 'dart:async' as async;
+
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_bloc/bonfire_bloc.dart';
 import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dart';
@@ -34,7 +36,6 @@ class MyPlayer extends SimplePlayer
       state,
       mapId,
     );
-    
   }
 
   @override
@@ -42,9 +43,9 @@ class MyPlayer extends SimplePlayer
     if (isMounted) {
       _joystickDirectional = event.directional;
     }
-
-    // comments this part to not move the player
-    // super.onJoystickChangeDirectional(event);
+    
+    super.onJoystickChangeDirectional(event);
+    timer?.cancel();
   }
 
   @override
@@ -67,23 +68,27 @@ class MyPlayer extends SimplePlayer
     }
   }
 
+  async.Timer? timer;
+
   @override
   void onNewState(MyPlayerState state) {
-    if (state.position.distanceTo(position) > 4) {
-      add(
-        MoveEffect.to(
-          state.position,
-          EffectController(duration: 0.05),
-        ),
+    print(state.position.distanceTo(position));
+
+    if (state.direction == null) {
+      timer = async.Timer(
+        Duration(milliseconds: 500),
+        () => _updatePosition(state.position),
       );
+    } else if (state.position.distanceTo(position) > width) {
+      _updatePosition(state.position);
     }
-    if (state.direction != null) {
-      setZeroVelocity();
-      moveFromDirection(state.direction!.toDirection());
-    } else {
-      lastDirection = state.lastDirection.toDirection();
-      stopMove(forceIdle: true);
-    }
+    // if (state.direction != null) {
+    //   setZeroVelocity();
+    //   moveFromDirection(state.direction!.toDirection());
+    // } else {
+    //   lastDirection = state.lastDirection.toDirection();
+    //   stopMove(forceIdle: true);
+    // }
     super.onNewState(state);
   }
 
@@ -94,5 +99,20 @@ class MyPlayer extends SimplePlayer
         direction: _joystickDirectional?.toMoveDirection(),
       ),
     );
+  }
+
+  void _updatePosition(Vector2 position) {
+    add(
+      MoveEffect.to(
+        position,
+        EffectController(duration: 0.1),
+      ),
+    );
+  }
+
+  @override
+  void onRemove() {
+    bloc.close();
+    super.onRemove();
   }
 }
