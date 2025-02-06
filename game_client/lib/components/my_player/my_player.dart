@@ -41,51 +41,53 @@ class MyPlayer extends SimplePlayer
 
   @override
   void onJoystickChangeDirectional(JoystickDirectionalEvent event) {
-    if (isMounted) {
+    if (isMounted && _joystickDirectional != event.directional) {
       _joystickDirectional = event.directional;
-    }
-
-    super.onJoystickChangeDirectional(event);
-    timer?.cancel();
-  }
-
-  @override
-  void update(double dt) {
-    // sent move state
-    _sendMoveState();
-    super.update(dt);
-  }
-
-  void _sendMoveState() {
-    // send move state if not stoped
-    if (_joystickDirectional == JoystickMoveDirectional.IDLE) {
-      if (!sendedIdle) {
-        sendedIdle = true;
-        _sendMove();
-      }
-    } else if (_joystickDirectional != null) {
-      sendedIdle = false;
       _sendMove();
     }
+
+    // super.onJoystickChangeDirectional(event);
+    // timer?.cancel();
   }
+
+  // @override
+  // void update(double dt) {
+  //   // sent move state
+  //   _sendMoveState();
+  //   super.update(dt);
+  // }
+
+  // void _sendMoveState() {
+  //   // send move state if not stoped
+  //   if (_joystickDirectional == JoystickMoveDirectional.IDLE) {
+  //     if (!sendedIdle) {
+  //       sendedIdle = true;
+  //       _sendMove();
+  //     }
+  //   } else if (_joystickDirectional != null) {
+  //     sendedIdle = false;
+  //     _sendMove();
+  //   }
+  // }
 
   @override
   void onNewState(MyPlayerState state) {
-    if (state.direction == null) {
-      timer = async.Timer(
-        Duration(milliseconds: 500),
-        () => _updatePosition(state.position),
-      );
-    } else if (state.position.distanceTo(position) > width) {
+    // if (state.direction == null) {
+    //   timer = async.Timer(
+    //     Duration(milliseconds: 500),
+    //     () => _updatePosition(state.position),
+    //   );
+    // } else if (state.position.distanceTo(position) > width) {
+    //   _updatePosition(state.position);
+    // }
+    if (state.direction != null) {
+      setZeroVelocity();
+      moveFromDirection(state.direction!.toDirection());
+    } else {
+      lastDirection = state.lastDirection.toDirection();
+      stopMove(forceIdle: true);
       _updatePosition(state.position);
     }
-    // if (state.direction != null) {
-    //   setZeroVelocity();
-    //   moveFromDirection(state.direction!.toDirection());
-    // } else {
-    //   lastDirection = state.lastDirection.toDirection();
-    //   stopMove(forceIdle: true);
-    // }
     super.onNewState(state);
   }
 
