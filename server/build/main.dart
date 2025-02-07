@@ -16,15 +16,16 @@ import 'src/infrastructure/websocket/websocket_provider.dart';
 
 GameServer? game;
 final LoggerProvider logger = LoggerLogger();
+BonfireWebsocket? server;
 
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
-  final bonfireSocket = BonfireWebsocket();
-  final server = await bonfireSocket.init(
+
+  server ??= await  BonfireWebsocket()..init(
     onClientConnect: onClientConnect,
     onClientDisconnect: onClientDisconnect,
   );
   game ??= GameServer(
-    server: server,
+    server: server!,
     maps: [
       FlorestMap(),
       DesertMap(),
@@ -42,7 +43,7 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
         )
         .use(
           provider<BonfireSocket>(
-            (context) => bonfireSocket.socket,
+            (context) => server!.socket,
           ),
         ),
     ip,
@@ -50,10 +51,10 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   );
 }
 
-void onClientConnect(BSocketClient client, WebsocketProvider websocket) {
+void onClientConnect(WebsocketClient client, WebsocketProvider websocket) {
   game?.enterClient(client);
 }
 
-void onClientDisconnect(BSocketClient client) {
+void onClientDisconnect(WebsocketClient client) {
   game?.leaveClient(client);
 }

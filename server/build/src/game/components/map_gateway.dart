@@ -32,11 +32,11 @@ class MapGateway extends PositionedGameComponent
       logger.i(
         'Player(${comp.state.id}) change map {${comp.parent} to {$mapTagetId}}',
       );
-      comp
-        ..position = targetPlayerPosition.clone()
-        ..stopMove()
-        ..removeFromParent();
-      game?.changeMap(comp, mapTagetId);
+      game?.changeMap(
+        comp,
+        mapTagetId,
+        targetPlayerPosition.clone(),
+      );
       return false;
     }
     return true;

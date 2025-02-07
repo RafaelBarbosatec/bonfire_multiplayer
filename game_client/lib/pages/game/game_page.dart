@@ -55,7 +55,8 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
           map: WorldMapByTiled(
             WorldMapReader.fromNetwork(
               Uri.parse(
-                  'http://${BootstrapInjector.address}:8080/${joinMapEvent.map.path}',),
+                '${BootstrapInjector.enviroment.restAddress}/${joinMapEvent.map.path}',
+              ),
             ),
           ),
           playerControllers: [

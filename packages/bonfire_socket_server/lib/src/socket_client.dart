@@ -45,7 +45,7 @@ class BSocketClient {
 
   /// Registers a callback for a specific event.
   void on<T>(String event, void Function(T event) callback) {
-    _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map));
+     _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map));
   }
 
   void _onChannelListen(dynamic message) {

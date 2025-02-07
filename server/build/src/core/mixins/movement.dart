@@ -1,11 +1,13 @@
 import 'package:shared_events/shared_events.dart';
 
 import '../positioned_game_component.dart';
+import '../util/game_timer.dart';
 
 mixin Movement on PositionedGameComponent {
   static const diaginalReduction = 0.7853981633974483;
 
   MoveDirectionEnum? direction;
+  GameTimer _timer = GameTimer(duration: 1, loop: true);
   double speed = 0;
 
   void moveFromDirection(double dt, MoveDirectionEnum direction) {
@@ -59,7 +61,17 @@ mixin Movement on PositionedGameComponent {
   }
 
   void stopMove() {
-    direction = null;
-    requestUpdate();
+    if (direction != null) {
+      direction = null;
+      requestUpdate();
+    }
+  }
+
+  @override
+  void onUpdate(double dt) {
+    super.onUpdate(dt);
+    if (direction != null && _timer.update(dt)) {
+      requestUpdate();
+    }
   }
 }

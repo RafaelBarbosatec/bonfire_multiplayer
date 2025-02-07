@@ -18,6 +18,7 @@ class MyPlayer extends SimplePlayer
   JoystickMoveDirectional? _joystickDirectional;
   bool sendedIdle = false;
   async.Timer? timer;
+  static const double _positionThreshold = 32.0; // 1 tile distance
 
   MyPlayer({
     required ComponentStateModel state,
@@ -46,53 +47,23 @@ class MyPlayer extends SimplePlayer
       _sendMove();
     }
 
-    // super.onJoystickChangeDirectional(event);
-    // timer?.cancel();
+    super.onJoystickChangeDirectional(event);
   }
-
-  // @override
-  // void update(double dt) {
-  //   // sent move state
-  //   _sendMoveState();
-  //   super.update(dt);
-  // }
-
-  // void _sendMoveState() {
-  //   // send move state if not stoped
-  //   if (_joystickDirectional == JoystickMoveDirectional.IDLE) {
-  //     if (!sendedIdle) {
-  //       sendedIdle = true;
-  //       _sendMove();
-  //     }
-  //   } else if (_joystickDirectional != null) {
-  //     sendedIdle = false;
-  //     _sendMove();
-  //   }
-  // }
 
   @override
   void onNewState(MyPlayerState state) {
-    // if (state.direction == null) {
-    //   timer = async.Timer(
-    //     Duration(milliseconds: 500),
-    //     () => _updatePosition(state.position),
-    //   );
-    // } else if (state.position.distanceTo(position) > width) {
-    //   _updatePosition(state.position);
-    // }
+    final _serverPosition = state.position;
 
-    // if distance greater than 5 pixel do interpolation of position
-    if (position.distanceTo(state.position) > 5) {
-      _updatePosition(state.position);
+    // Check if local position deviated too much from server position
+    if (position.distanceTo(_serverPosition) > _positionThreshold) {
+      _smoothCorrectPosition(_serverPosition);
     }
 
     if (state.direction != null) {
-      setZeroVelocity();
       moveFromDirection(state.direction!.toDirection());
     } else {
       lastDirection = state.lastDirection.toDirection();
       stopMove(forceIdle: true);
-      _updatePosition(state.position);
     }
     super.onNewState(state);
   }
@@ -106,11 +77,12 @@ class MyPlayer extends SimplePlayer
     );
   }
 
-  void _updatePosition(Vector2 position) {
+  void _smoothCorrectPosition(Vector2 serverPosition) {
+    // Correct position over 200ms for smooth transition
     add(
       MoveEffect.to(
-        position,
-        EffectController(duration: 0.05),
+        serverPosition,
+        EffectController(duration: 0.2),
       ),
     );
   }

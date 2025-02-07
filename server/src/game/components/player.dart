@@ -14,7 +14,7 @@ class Player extends GamePlayer
     required super.state,
     required this.client,
   }) {
-    _confMove();
+    _listenMove();
     setupGameSensor(
       RectangleShape(
         GameVector.all(16),
@@ -29,7 +29,7 @@ class Player extends GamePlayer
 
   MoveDirectionEnum? moveDirection;
 
-  void _confMove() {
+  void _listenMove() {
     client.on<MoveEvent>(
       EventType.MOVE.name,
       (data) {
@@ -40,26 +40,14 @@ class Player extends GamePlayer
     );
   }
 
-  bool sendedIdle = false;
-
   @override
   void onUpdate(double dt) {
     if (moveDirection != null) {
-      sendedIdle = false;
-      _updatePosition(dt);
+      moveFromDirection(dt, moveDirection!);
     } else {
-      if (!sendedIdle) {
-        sendedIdle = true;
-        stopMove();
-      }
+      stopMove();
     }
-  }
-
-  void _updatePosition(double dt) {
-    if (moveDirection == null) {
-      return;
-    }
-    moveFromDirection(dt, moveDirection!);
+    super.onUpdate(dt);
   }
 
   @override
