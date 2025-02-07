@@ -56,8 +56,8 @@ class Player extends GamePlayer
   }
 
   @override
-  void onBlockMovement(GameVector lastPosition) {
+  void stopMove() {
     moveDirection = null;
-    super.onBlockMovement(lastPosition);
+    super.stopMove();
   }
 }

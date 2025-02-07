@@ -18,7 +18,7 @@ class MyPlayer extends SimplePlayer
   JoystickMoveDirectional? _joystickDirectional;
   bool sendedIdle = false;
   async.Timer? timer;
-  static const double _positionThreshold = 32.0; // 1 tile distance
+  static const double _positionThreshold = 16.0; // 1/2 tile distance
 
   MyPlayer({
     required ComponentStateModel state,
@@ -46,7 +46,8 @@ class MyPlayer extends SimplePlayer
       _joystickDirectional = event.directional;
       _sendMove();
     }
-
+    timer?.cancel();
+    timer = null;
     super.onJoystickChangeDirectional(event);
   }
 
@@ -54,16 +55,16 @@ class MyPlayer extends SimplePlayer
   void onNewState(MyPlayerState state) {
     final _serverPosition = state.position;
 
-    // Check if local position deviated too much from server position
-    if (position.distanceTo(_serverPosition) > _positionThreshold) {
-      _smoothCorrectPosition(_serverPosition);
-    }
-
-    if (state.direction != null) {
-      moveFromDirection(state.direction!.toDirection());
-    } else {
-      lastDirection = state.lastDirection.toDirection();
-      stopMove(forceIdle: true);
+    if (state.direction == null) {
+      timer = async.Timer(
+        Duration(milliseconds: 100),
+        () {
+          // Check if local position deviated too much from server position
+          if (position.distanceTo(_serverPosition) > _positionThreshold) {
+            _smoothCorrectPosition(_serverPosition);
+          }
+        },
+      );
     }
     super.onNewState(state);
   }
@@ -91,5 +92,17 @@ class MyPlayer extends SimplePlayer
   void onRemove() {
     bloc.close();
     super.onRemove();
+  }
+
+  @override
+  Future<void> onLoad() {
+    // adds Rectangle collision
+    add(
+      RectangleHitbox(
+        size: size / 2,
+        position: Vector2(size.x / 4, size.y / 2),
+      ),
+    );
+    return super.onLoad();
   }
 }

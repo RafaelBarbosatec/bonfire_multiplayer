@@ -67,7 +67,7 @@ class MyRemotePlayer extends SimplePlayer
       moveFromDirection(state.direction!.toDirection());
     } else {
       lastDirection = state.lastDirection.toDirection();
-      stopMove();
+      stopMove(forceIdle: true);
       _updatePosition(state.position);
     }
     super.onNewState(state);
