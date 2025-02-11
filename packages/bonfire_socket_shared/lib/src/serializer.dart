@@ -1,18 +1,23 @@
+// ignore_for_file: public_member_api_docs
+
 import 'dart:convert';
+import 'dart:typed_data';
 
 abstract class EventSerializer {
-  List<int> serialize(Map<String, dynamic> map);
-  Map<String, dynamic> deserialize(List<int> data);
+  Uint8List serialize(Map<String, dynamic> map);
+  Map<String, dynamic> deserialize(Uint8List data);
 }
 
 class EventSerializerDefault implements EventSerializer {
   @override
-  List<int> serialize(Map<String, dynamic> map) {
-    return utf8.encode(jsonEncode(map));
+  Uint8List serialize(Map<String, dynamic> map) {
+    final json = jsonEncode(map);
+    return utf8.encode(json);
   }
 
   @override
-  Map<String, dynamic> deserialize(List<int> data) {
-    return jsonDecode(utf8.decode(data)) as Map<String, dynamic>;
+  Map<String, dynamic> deserialize(Uint8List data) {
+    final bytes = utf8.decode(data);
+    return jsonDecode(bytes) as Map<String, dynamic>;
   }
 }

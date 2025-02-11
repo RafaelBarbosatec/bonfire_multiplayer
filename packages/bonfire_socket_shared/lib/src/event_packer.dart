@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs
 
+import 'dart:typed_data';
+
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 
 class EventPacker {
@@ -39,7 +41,7 @@ class EventPacker {
     }
   }
 
-  BEvent unpackEvent(List<int> data) {
+  BEvent unpackEvent(Uint8List data) {
     return BEvent.fromMap(
       serializer.deserialize(data),
     );
