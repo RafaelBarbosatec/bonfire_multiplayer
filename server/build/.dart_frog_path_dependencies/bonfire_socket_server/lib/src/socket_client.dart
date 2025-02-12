@@ -4,8 +4,6 @@ import 'package:dart_frog_web_socket/dart_frog_web_socket.dart';
 
 // ignore: public_member_api_docs
 class BSocketClient {
-  late EventPacker _packer;
-
   /// Creates a new instance of [BSocketClient].
   BSocketClient({
     required this.id,
@@ -24,6 +22,7 @@ class BSocketClient {
       onDone: () => onDisconnect(this),
     );
   }
+  late EventPacker _packer;
 
   /// The unique identifier for the client.
   final String id;
@@ -36,20 +35,34 @@ class BSocketClient {
   /// The socket actions associated with this client.
   final BonfireSocketActions socket;
 
-  final Map<String, void Function(dynamic)> _onSubscribers = {};
+  final Map<String, void Function(BEvent)> _onSubscribers = {};
 
   /// Sends a message to the client.
   void send<T>(String event, T message) {
-    _channel.sink.add(_packer.packEvent<T>(event, message));
+    final e = BEvent(
+      event: event,
+      time: DateTime.now().microsecondsSinceEpoch,
+      data: _packer.packData<T>(message),
+    );
+    _channel.sink.add(_packer.packEvent(e));
   }
 
   /// Registers a callback for a specific event.
   void on<T>(String event, void Function(T event) callback) {
-     _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map));
+    _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map.data));
   }
 
   void _onChannelListen(dynamic message) {
-    final event = _packer.unpackEvent(message);
-    _onSubscribers[event.event]?.call(event.data);
+    final event = _packer.unpackEvent(message.toString());
+    if (event.event == BSyncTimeEvent.eventName) {
+      _sendSyncTime();
+      return;
+    }
+    _onSubscribers[event.event]?.call(event);
+  }
+
+  void _sendSyncTime() {
+    final event = BSyncTimeEvent();
+    _channel.sink.add(_packer.packEvent(event));
   }
 }
