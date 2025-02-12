@@ -21,7 +21,7 @@ class EventPacker {
   /// Packs an event with the given [event] name and [data].
   ///
   /// Returns the packed event as a base64 encoded string.
-  String packEvent<T>(BEvent event) {
+  String packEvent(BEvent event) {
     return base64Encode(
       serializer.serialize(event.toMap()),
     );

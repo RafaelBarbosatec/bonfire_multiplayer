@@ -33,6 +33,7 @@ class MyRemotePlayer extends SimplePlayer
       position,
       eventManager,
     );
+    movementOnlyVisible = false;
   }
 
   @override

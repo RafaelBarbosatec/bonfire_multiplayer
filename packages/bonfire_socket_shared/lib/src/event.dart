@@ -16,7 +16,11 @@ class BEvent {
   ///
   /// The [event] parameter specifies the type of event.
   /// The [data] parameter contains the data associated with the event.
-  BEvent({required this.event, required this.data});
+  BEvent({
+    required this.event,
+    required this.time,
+    required this.data,
+  });
 
   /// Creates a new BEvent instance from a map.
   ///
@@ -34,6 +38,7 @@ class BEvent {
   factory BEvent.fromMap(Map<String, dynamic> map) {
     return BEvent(
       event: map['e'].toString(),
+      time: map['t'] as int,
       data: map['d'],
     );
   }
@@ -51,6 +56,9 @@ class BEvent {
   /// coordinates for a 'player_move' event.
   final dynamic data;
 
+  /// The time the event occurred.
+  final int time;
+
   /// Converts the BEvent instance to a map.
   ///
   /// This method is used to serialize the BEvent object into a map
@@ -60,6 +68,7 @@ class BEvent {
   Map<String, dynamic> toMap() {
     return {
       'e': event,
+      't': time,
       'd': data,
     };
   }

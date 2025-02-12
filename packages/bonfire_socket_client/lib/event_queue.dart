@@ -1,23 +1,23 @@
+// ignore_for_file: public_member_api_docs, inference_failure_on_instance_creation
+
 import 'dart:collection';
 
-import 'package:bonfire_multiplayer/util/time_sync.dart';
-import 'package:flutter/widgets.dart';
+import 'package:bonfire_socket_client/time_sync.dart';
 
 abstract class Timeline<T> {}
 
 class Delay<T> extends Timeline<T> {
-  final int timestamp;
   Delay(this.timestamp);
+  final int timestamp;
 }
 
 class Frame<T> extends Timeline<T> {
-  final T value;
-  final int timestamp;
-  late DateTime time;
-
   Frame(this.value, this.timestamp) {
     time = DateTime.fromMicrosecondsSinceEpoch(timestamp);
   }
+  final T value;
+  final int timestamp;
+  late DateTime time;
 
   Frame<T> updateTime(int timestamp) {
     return Frame<T>(
@@ -28,22 +28,21 @@ class Frame<T> extends Timeline<T> {
 }
 
 class EventQueue<T> {
+  EventQueue({
+    required this.timeSync,
+    required this.listen,
+    this.delay,
+  }) {
+    _timeLine = Queue<Timeline<T>>();
+  }
   late Duration? delay;
   late Queue<Timeline<T>> _timeLine;
 
-  final ValueChanged<T> listen;
+  final void Function(T value) listen;
 
   final TimeSync timeSync;
 
   bool _running = false;
-
-  EventQueue({
-    this.delay,
-    required this.timeSync,
-    required this.listen,
-  }) {
-    _timeLine = Queue<Timeline<T>>();
-  }
 
   Duration? _delayTimeSync;
 

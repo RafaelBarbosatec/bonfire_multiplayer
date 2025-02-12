@@ -41,9 +41,10 @@ class BSocketClient {
   void send<T>(String event, T message) {
     final e = BEvent(
       event: event,
+      time: DateTime.now().microsecondsSinceEpoch,
       data: _packer.packData<T>(message),
     );
-    _channel.sink.add(_packer.packEvent<T>(e));
+    _channel.sink.add(_packer.packEvent(e));
   }
 
   /// Registers a callback for a specific event.
@@ -53,6 +54,15 @@ class BSocketClient {
 
   void _onChannelListen(dynamic message) {
     final event = _packer.unpackEvent(message.toString());
+    if (event.event == BSyncTimeEvent.eventName) {
+      _sendSyncTime();
+      return;
+    }
     _onSubscribers[event.event]?.call(event);
+  }
+
+  void _sendSyncTime() {
+    final event = BSyncTimeEvent();
+    _channel.sink.add(_packer.packEvent(event));
   }
 }

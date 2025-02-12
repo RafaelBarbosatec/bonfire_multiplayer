@@ -34,6 +34,8 @@ class MyRemoteEnemy extends SimpleEnemy
       position,
       eventManager,
     );
+
+    movementOnlyVisible = false;
   }
 
   @override

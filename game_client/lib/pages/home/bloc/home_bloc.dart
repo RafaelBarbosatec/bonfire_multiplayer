@@ -1,9 +1,7 @@
 import 'dart:async';
 
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
-import 'package:bonfire_multiplayer/data/repositories/ntp_repository.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
-import 'package:bonfire_multiplayer/util/time_sync.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_events/shared_events.dart';
@@ -13,15 +11,9 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GameEventManager _eventManager;
-  final TimeSync _timeSync;
-  final NtpRepository _ntpRepository;
   HomeBloc({
     required GameEventManager eventManager,
-    required TimeSync timeSync,
-    required NtpRepository ntpRepository,
   })  : _eventManager = eventManager,
-        _timeSync = timeSync,
-        _ntpRepository = ntpRepository,
         super(const HomeState()) {
     on<ConnectEvent>(_onConnectEvent);
     on<ConnectedEvent>(_onConnectedEvent);
@@ -37,7 +29,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     try {
-      await _syncServerTime();
       await _eventManager.connect(
         onConnect: _onConnect,
         onDisconnect: _onDisconnect,
@@ -99,9 +90,5 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   FutureOr<void> _onDisposeEvent(DisposeEvent event, Emitter<HomeState> emit) {
     emit(const HomeState());
-  }
-
-  Future<void> _syncServerTime() async {
-    await _timeSync.synchronize(_ntpRepository.getNtpTime);
   }
 }
