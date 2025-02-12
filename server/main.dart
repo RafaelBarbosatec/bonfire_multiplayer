@@ -19,11 +19,13 @@ final LoggerProvider logger = LoggerLogger();
 BonfireWebsocket? server;
 
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
-
-  server ??= await  BonfireWebsocket()..init(
-    onClientConnect: onClientConnect,
-    onClientDisconnect: onClientDisconnect,
-  );
+  if (server == null) {
+    server = BonfireWebsocket();
+    await server!.init(
+      onClientConnect: onClientConnect,
+      onClientDisconnect: onClientDisconnect,
+    );
+  }
   game ??= GameServer(
     server: server!,
     maps: [
@@ -31,7 +33,7 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
       DesertMap(),
     ],
   );
-  
+
   await game!.start();
 
   return serve(

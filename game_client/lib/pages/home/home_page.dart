@@ -73,6 +73,11 @@ class _HomePageState extends State<HomePage> {
                     decoration: const InputDecoration(
                       labelText: 'Nickname',
                     ),
+                    onFieldSubmitted: (value) {
+                      if (state.connected) {
+                        _enter();
+                      }
+                    },
                   ),
                   const SizedBox(height: 50),
                   SizedBox(

@@ -35,7 +35,7 @@ class BSocketClient {
   /// The socket actions associated with this client.
   final BonfireSocketActions socket;
 
-  final Map<String, void Function(dynamic)> _onSubscribers = {};
+  final Map<String, void Function(BEvent)> _onSubscribers = {};
 
   /// Sends a message to the client.
   void send<T>(String event, T message) {
@@ -48,11 +48,11 @@ class BSocketClient {
 
   /// Registers a callback for a specific event.
   void on<T>(String event, void Function(T event) callback) {
-    _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map));
+    _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map.data));
   }
 
   void _onChannelListen(dynamic message) {
     final event = _packer.unpackEvent(message.toString());
-    _onSubscribers[event.event]?.call(event.data);
+    _onSubscribers[event.event]?.call(event);
   }
 }
