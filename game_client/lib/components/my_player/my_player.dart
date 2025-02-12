@@ -53,18 +53,22 @@ class MyPlayer extends SimplePlayer
 
   @override
   void onNewState(MyPlayerState state) {
-    final _serverPosition = state.position;
+    final serverPosition = state.position;
 
     if (state.direction == null) {
       timer = async.Timer(
-        Duration(milliseconds: 100),
+        const Duration(milliseconds: 500),
         () {
           // Check if local position deviated too much from server position
-          if (position.distanceTo(_serverPosition) > _positionThreshold) {
-            _smoothCorrectPosition(_serverPosition);
-          }
+          // final distance = position.distanceTo(serverPosition);
+          // if (distance > _positionThreshold) {
+          _smoothCorrectPosition(serverPosition);
+          // }
         },
       );
+    } else {
+      timer?.cancel();
+      timer = null;
     }
     super.onNewState(state);
   }
