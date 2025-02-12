@@ -4,8 +4,6 @@ import 'package:dart_frog_web_socket/dart_frog_web_socket.dart';
 
 // ignore: public_member_api_docs
 class BSocketClient {
-  late EventPacker _packer;
-
   /// Creates a new instance of [BSocketClient].
   BSocketClient({
     required this.id,
@@ -24,6 +22,7 @@ class BSocketClient {
       onDone: () => onDisconnect(this),
     );
   }
+  late EventPacker _packer;
 
   /// The unique identifier for the client.
   final String id;
@@ -40,16 +39,20 @@ class BSocketClient {
 
   /// Sends a message to the client.
   void send<T>(String event, T message) {
-    _channel.sink.add(_packer.packEvent<T>(event, message));
+    final e = BEvent(
+      event: event,
+      data: _packer.packData<T>(message),
+    );
+    _channel.sink.add(_packer.packEvent<T>(e));
   }
 
   /// Registers a callback for a specific event.
   void on<T>(String event, void Function(T event) callback) {
-     _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map));
+    _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map));
   }
 
   void _onChannelListen(dynamic message) {
-    final event = _packer.unpackEvent(message);
+    final event = _packer.unpackEvent(message.toString());
     _onSubscribers[event.event]?.call(event.data);
   }
 }

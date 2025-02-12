@@ -1,3 +1,7 @@
+// ignore_for_file: public_member_api_docs
+
+import 'dart:developer';
+
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 
@@ -5,19 +9,6 @@ export 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 
 class BonfireSocketClient
     with BonfireTypeAdapterProvider, EventSerializerProvider {
-  late WebSocket _socket;
-  final Uri uri;
-  final Iterable<String>? protocols;
-  final Duration? pingInterval;
-  final Map<String, dynamic>? headers;
-  final Backoff? backoff;
-  final Duration? timeout;
-  final String? binaryType;
-  final bool debug;
-
-  final Map<String, void Function(dynamic)> _onSubscribers = {};
-  late EventPacker _packer;
-
   BonfireSocketClient({
     required this.uri,
     this.protocols,
@@ -35,10 +26,21 @@ class BonfireSocketClient
       typeAdapterProvider: this,
     );
   }
+  late WebSocket _socket;
+  final Uri uri;
+  final Iterable<String>? protocols;
+  final Duration? pingInterval;
+  final Map<String, dynamic>? headers;
+  final Backoff? backoff;
+  final Duration? timeout;
+  final String? binaryType;
+  final bool debug;
+  final Map<String, void Function(BEvent)> _onSubscribers = {};
+  late EventPacker _packer;
 
   Future<void> connect({
-    Function? onConnected,
-    Function(String? reason)? onDisconnected,
+    void Function()? onConnected,
+    void Function(String? reason)? onDisconnected,
   }) async {
     _socket = WebSocket(
       uri,
@@ -50,7 +52,7 @@ class BonfireSocketClient
       binaryType: binaryType,
     );
     _socket.connection.listen((state) {
-      print('BonfireSocketClient: Connection state: $state');
+      log('BonfireSocketClient: Connection state: $state');
       if (state is Connected || state is Reconnected) {
         onConnected?.call();
       }
@@ -63,18 +65,24 @@ class BonfireSocketClient
   }
 
   void _onMessageslListen(dynamic message) {
-    final event = _packer.unpackEvent(message);
-    _onSubscribers[event.event]?.call(event.data);
+    final event = _packer.unpackEvent(message.toString());
+    _onSubscribers[event.event]?.call(event);
     if (debug) {
-      print('BonfireSocketClient: ${event.toMap()}');
+      log('BonfireSocketClient: ${event.toMap()}');
     }
   }
 
   void send<T>(String event, T message) {
-    _socket.send(_packer.packEvent<T>(event, message));
+    final e = BEvent(
+      event: event,
+      data: _packer.packData<T>(message),
+    );
+    _socket.send(_packer.packEvent<T>(e));
   }
 
   void on<T>(String event, void Function(T event) callback) {
-    _onSubscribers[event] = (map) => callback(_packer.unpackData<T>(map));
+    _onSubscribers[event] = (map) {
+      callback(_packer.unpackData<T>(map.data));
+    };
   }
 }

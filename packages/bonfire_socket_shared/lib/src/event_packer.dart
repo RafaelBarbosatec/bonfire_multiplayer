@@ -1,49 +1,47 @@
 // ignore_for_file: public_member_api_docs
 
-import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 
+/// A class responsible for packing and unpacking events.
 class EventPacker {
-  final EventSerializerProvider serializerProvider;
-  final BonfireTypeAdapterProvider typeAdapterProvider;
-
+  /// Creates an instance of [EventPacker].
   EventPacker({
     required this.serializerProvider,
     required this.typeAdapterProvider,
   });
 
+  final EventSerializerProvider serializerProvider;
+  final BonfireTypeAdapterProvider typeAdapterProvider;
+
+  /// Gets the event serializer.
   EventSerializer get serializer => serializerProvider.serializer;
-  Map<String, BTypeAdapter<dynamic>> get types => typeAdapterProvider.types;
 
-  List<int> packEvent<T>(String event, T data) {
-    final typeString = T.toString();
-    dynamic eventdata = data;
-    if (types.containsKey(typeString)) {
-      final adapter = types[typeString]! as BTypeAdapter<T>;
-
-      eventdata = adapter.toMap(data);
-    }
-    final e = BEvent(
-      event: event,
-      data: eventdata,
+  /// Packs an event with the given [event] name and [data].
+  ///
+  /// Returns the packed event as a base64 encoded string.
+  String packEvent<T>(BEvent event) {
+    return base64Encode(
+      serializer.serialize(event.toMap()),
     );
-    return serializer.serialize(e.toMap());
+  }
+
+  /// Unpacks an event from the given base64 encoded [data].
+  ///
+  /// Returns the unpacked [BEvent].
+  BEvent unpackEvent(String data) {
+    final bytes = base64Decode(data);
+    return BEvent.fromMap(
+      serializer.deserialize(bytes),
+    );
   }
 
   T unpackData<T>(dynamic data) {
-    final typeString = T.toString();
-    if (types.containsKey(typeString)) {
-      final adapter = types[typeString]! as BTypeAdapter<T>;
-      return adapter.fromMap((data as Map).cast());
-    } else {
-      return data as T;
-    }
+    return typeAdapterProvider.toType<T>(data);
   }
 
-  BEvent unpackEvent(Uint8List data) {
-    return BEvent.fromMap(
-      serializer.deserialize(data),
-    );
+  dynamic packData<T>(T data) {
+    return typeAdapterProvider.toMap<T>(data) ?? data;
   }
 }
