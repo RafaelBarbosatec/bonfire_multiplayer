@@ -2,12 +2,22 @@
 
 import 'package:bonfire_socket_shared/src/event.dart';
 
-class BSyncTimeEvent extends BEvent {
-  BSyncTimeEvent()
+class PingSyncTimeEvent extends BEvent {
+  PingSyncTimeEvent()
       : super(
           event: eventName,
           time: DateTime.now().microsecondsSinceEpoch,
           data: null,
         );
-  static const String eventName = 'socket_sync_time';
+  static const String eventName = 'ping_sync_time';
+}
+
+class PongSyncTimeEvent extends BEvent {
+  PongSyncTimeEvent()
+      : super(
+          event: eventName,
+          time: DateTime.now().microsecondsSinceEpoch,
+          data: null,
+        );
+  static const String eventName = 'pong_sync_time';
 }

@@ -3,8 +3,6 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:bonfire_socket_client/event_queue.dart';
-import 'package:bonfire_socket_client/time_sync.dart';
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 
@@ -23,6 +21,7 @@ class BonfireSocketClient
     EventSerializer? serializer,
     this.debug = false,
     this.syncTimeInterval = const Duration(minutes: 1),
+    this.bufferDelayEnabled = false,
   }) {
     this.serializer = serializer ?? EventSerializerDefault();
     _packer = EventPacker(
@@ -33,6 +32,7 @@ class BonfireSocketClient
     _eventQueue = EventQueue<BEvent>(
       timeSync: timeSync,
       listen: _onListernQueue,
+      enabled: bufferDelayEnabled,
     );
   }
   late WebSocket _socket;
@@ -47,15 +47,19 @@ class BonfireSocketClient
   final Map<String, void Function(BEvent)> _onSubscribers = {};
   late EventPacker _packer;
   final Duration syncTimeInterval;
+  final bool bufferDelayEnabled;
   late TimeSync timeSync;
   late EventQueue<BEvent> _eventQueue;
   Completer<DateTime>? _timeSyncCompleter;
   Timer? _syncTimeTimer;
 
-  Future<void> connect({
+  bool _connected = false;
+
+  void connect({
     void Function()? onConnected,
     void Function(String? reason)? onDisconnected,
-  }) async {
+    void Function()? onConnecting,
+  }) {
     _socket = WebSocket(
       uri,
       protocols: protocols,
@@ -67,12 +71,19 @@ class BonfireSocketClient
     );
     _socket.connection.listen((state) async {
       log('BonfireSocketClient: Connection state: $state');
+
+      if (state is Connecting || state is Reconnecting) {
+        onConnecting?.call();
+      }
+
       if (state is Connected || state is Reconnected) {
         await _startSyncTimePing();
+        _connected = true;
         onConnected?.call();
       }
 
-      if (state is Disconnected) {
+      if (state is Disconnected && _connected) {
+        _connected = false;
         _syncTimeTimer?.cancel();
         _syncTimeTimer = null;
         onDisconnected?.call(state.reason);
@@ -83,17 +94,12 @@ class BonfireSocketClient
 
   void _onMessageslListen(dynamic message) {
     final event = _packer.unpackEvent(message.toString());
-    if (event.event == BSyncTimeEvent.eventName) {
-      _timeSyncCompleter?.complete(
-        DateTime.fromMicrosecondsSinceEpoch(event.time),
-      );
-      _timeSyncCompleter = null;
+    if (_handleSyncTime(event)) {
       return;
     }
     _eventQueue.add(
       Frame(event, event.time),
     );
-    // _onSubscribers[event.event]?.call(event);
     if (debug) {
       log('BonfireSocketClient: ${event.toMap()}');
     }
@@ -106,11 +112,6 @@ class BonfireSocketClient
       data: _packer.packData<T>(message),
     );
     _socket.send(_packer.packEvent(e));
-  }
-
-  void _sendSyncTime() {
-    final event = BSyncTimeEvent();
-    _socket.send(_packer.packEvent(event));
   }
 
   void on<T>(String event, void Function(T event) callback) {
@@ -130,7 +131,7 @@ class BonfireSocketClient
     _timeSyncCompleter = Completer<DateTime>();
     await timeSync.synchronize(
       () {
-        _sendSyncTime();
+        _sendPingSyncTime();
         return _timeSyncCompleter!.future;
       },
     );
@@ -142,5 +143,32 @@ class BonfireSocketClient
       syncTimeInterval,
       (timer) => _syncTime(),
     );
+  }
+
+  bool _handleSyncTime(BEvent event) {
+    if (event.event == PongSyncTimeEvent.eventName) {
+      _timeSyncCompleter?.complete(
+        DateTime.fromMicrosecondsSinceEpoch(event.time),
+      );
+      _timeSyncCompleter = null;
+      return true;
+    }
+
+    if (event.event == PingSyncTimeEvent.eventName) {
+      _sendPongSyncTime();
+      return true;
+    }
+
+    return false;
+  }
+
+  void _sendPingSyncTime() {
+    final event = PingSyncTimeEvent();
+    _socket.send(_packer.packEvent(event));
+  }
+
+  void _sendPongSyncTime() {
+    final event = PongSyncTimeEvent();
+    _socket.send(_packer.packEvent(event));
   }
 }

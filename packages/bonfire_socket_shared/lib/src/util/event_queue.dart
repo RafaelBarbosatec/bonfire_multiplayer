@@ -2,7 +2,7 @@
 
 import 'dart:collection';
 
-import 'package:bonfire_socket_client/time_sync.dart';
+import 'package:bonfire_socket_shared/src/util/time_sync.dart';
 
 abstract class Timeline<T> {}
 
@@ -32,6 +32,7 @@ class EventQueue<T> {
     required this.timeSync,
     required this.listen,
     this.delay,
+    this.enabled = true,
   }) {
     _timeLine = Queue<Timeline<T>>();
   }
@@ -39,6 +40,7 @@ class EventQueue<T> {
   late Queue<Timeline<T>> _timeLine;
 
   final void Function(T value) listen;
+  final bool enabled;
 
   final TimeSync timeSync;
 
@@ -47,6 +49,10 @@ class EventQueue<T> {
   Duration? _delayTimeSync;
 
   void add(Frame<T> value) {
+    if (!enabled) {
+      listen.call(value.value);
+      return;
+    }
     _delayTimeSync ??= Duration(
       microseconds: timeSync.roundTripTime ~/ 2,
     );

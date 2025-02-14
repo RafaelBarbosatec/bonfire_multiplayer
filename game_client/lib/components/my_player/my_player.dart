@@ -57,13 +57,13 @@ class MyPlayer extends SimplePlayer
 
     if (state.direction == null) {
       timer = async.Timer(
-        const Duration(milliseconds: 500),
+        const Duration(milliseconds: 100),
         () {
           // Check if local position deviated too much from server position
-          // final distance = position.distanceTo(serverPosition);
-          // if (distance > _positionThreshold) {
-          _smoothCorrectPosition(serverPosition);
-          // }
+          final distance = position.distanceTo(serverPosition);
+          if (distance > _positionThreshold) {
+            _smoothCorrectPosition(serverPosition);
+          }
         },
       );
     } else {

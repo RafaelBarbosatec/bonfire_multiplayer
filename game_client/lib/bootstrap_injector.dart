@@ -10,9 +10,6 @@ final getIt = GetIt.instance;
 class BootstrapInjector {
   static BaseInviroment enviroment = LocalInviroment();
   // static  BaseInviroment enviroment = ServerInviroment();
-  // static String address = '127.0.0.1';
-  // static String address = '10.0.2.2';
-  // static String address = '192.168.0.21';
 
   static Future<void> run() async {
     getIt.registerFactory<WebsocketProvider>(

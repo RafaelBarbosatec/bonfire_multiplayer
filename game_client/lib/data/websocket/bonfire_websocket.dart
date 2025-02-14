@@ -22,6 +22,7 @@ class BonfireWebsocket extends WebsocketProvider {
   }) async {
     _client = BonfireSocketClient(
       uri: address,
+      bufferDelayEnabled: true,
     );
     _client?.connect(onConnected: () {
       _connected = true;

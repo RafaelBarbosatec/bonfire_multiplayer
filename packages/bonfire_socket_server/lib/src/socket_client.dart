@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bonfire_socket_server/src/socket_actions.dart';
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 import 'package:dart_frog_web_socket/dart_frog_web_socket.dart';
@@ -12,10 +14,17 @@ class BSocketClient {
     required this.socket,
     required BonfireTypeAdapterProvider typeAdapterProvider,
     required EventSerializerProvider serializerProvider,
+    this.bufferDelayEnabled = true,
   }) : _channel = channel {
     _packer = EventPacker(
       serializerProvider: serializerProvider,
       typeAdapterProvider: typeAdapterProvider,
+    );
+    _timeSync = TimeSync();
+    _eventQueue = EventQueue<BEvent>(
+      timeSync: _timeSync,
+      listen: _onQueueEvent,
+      enabled: bufferDelayEnabled,
     );
     _channel.stream.listen(
       _onChannelListen,
@@ -37,6 +46,11 @@ class BSocketClient {
 
   final Map<String, void Function(BEvent)> _onSubscribers = {};
 
+  Completer<DateTime>? _timeSyncCompleter;
+  late TimeSync _timeSync;
+  final bool bufferDelayEnabled;
+  late EventQueue<BEvent> _eventQueue;
+
   /// Sends a message to the client.
   void send<T>(String event, T message) {
     final e = BEvent(
@@ -54,15 +68,56 @@ class BSocketClient {
 
   void _onChannelListen(dynamic message) {
     final event = _packer.unpackEvent(message.toString());
-    if (event.event == BSyncTimeEvent.eventName) {
-      _sendSyncTime();
+    if (_handleSyncTime(event)) {
       return;
     }
+    _eventQueue.add(
+      Frame(event, event.time),
+    );
+  }
+
+  void _onQueueEvent(BEvent event) {
     _onSubscribers[event.event]?.call(event);
   }
 
-  void _sendSyncTime() {
-    final event = BSyncTimeEvent();
+  Future<void> _syncTime() async {
+    if (_timeSyncCompleter != null) {
+      return;
+    }
+    _timeSyncCompleter = Completer<DateTime>();
+    await _timeSync.synchronize(
+      () {
+        _sendPingSyncTime();
+        return _timeSyncCompleter!.future;
+      },
+    );
+  }
+
+  void _sendPongSyncTime() {
+    final event = PongSyncTimeEvent();
     _channel.sink.add(_packer.packEvent(event));
+  }
+
+  void _sendPingSyncTime() {
+    final event = PingSyncTimeEvent();
+    _channel.sink.add(_packer.packEvent(event));
+  }
+
+  bool _handleSyncTime(BEvent event) {
+    if (event.event == PingSyncTimeEvent.eventName) {
+      _sendPongSyncTime();
+      _syncTime();
+      return true;
+    }
+
+    if (event.event == PongSyncTimeEvent.eventName) {
+      _timeSyncCompleter?.complete(
+        DateTime.fromMicrosecondsSinceEpoch(event.time),
+      );
+      _timeSyncCompleter = null;
+      return true;
+    }
+
+    return false;
   }
 }
