@@ -41,6 +41,14 @@ class Player extends GamePlayer
   }
 
   @override
+  bool checkContact(ContactSensor other) {
+    if (other is Player) {
+      return false;
+    }
+    return super.checkContact(other);
+  }
+
+  @override
   void onUpdate(double dt) {
     if (moveDirection != null) {
       moveFromDirection(dt, moveDirection!);
