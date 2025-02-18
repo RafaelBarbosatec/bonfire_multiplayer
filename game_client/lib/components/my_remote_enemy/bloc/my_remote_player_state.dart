@@ -1,15 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'my_remote_enemy_bloc.dart';
 
-class MyRemoteEnemyState extends Equatable {
-  final Vector2 position;
-  final MoveDirectionEnum? direction;
-  final MoveDirectionEnum lastDirection;
-
+class MyRemoteEnemyState extends MoveState {
   const MyRemoteEnemyState({
-    required this.position,
-    this.direction,
-    required this.lastDirection,
+    required super.position,
+    super.direction,
+    required super.lastDirection,
   });
 
   MyRemoteEnemyState copyWith({

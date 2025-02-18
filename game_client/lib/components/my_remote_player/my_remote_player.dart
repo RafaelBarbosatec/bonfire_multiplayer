@@ -4,14 +4,15 @@ import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/bloc/my_remote_player_bloc.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
-import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
+import 'package:bonfire_multiplayer/util/update_movement_mixin.dart';
 
 class MyRemotePlayer extends SimplePlayer
     with
         BlockMovementCollision,
         WithNameBottom,
+        UpdateMovementMixin,
         BonfireBlocListenable<MyRemotePlayerBloc, MyRemotePlayerState> {
   final String id;
   MyRemotePlayer({
@@ -59,28 +60,8 @@ class MyRemotePlayer extends SimplePlayer
 
   @override
   void onNewState(MyRemotePlayerState state) {
-    // if distance greater than 5 pixel do interpolation of position
-    if (position.distanceTo(state.position) > 5) {
-      _updatePosition(state.position);
-    }
-    if (state.direction != null) {
-      setZeroVelocity();
-      moveFromDirection(state.direction!.toDirection());
-    } else {
-      lastDirection = state.lastDirection.toDirection();
-      stopMove(forceIdle: true);
-      _updatePosition(state.position);
-    }
+    updateStateMove(state);
     super.onNewState(state);
-  }
-
-  void _updatePosition(Vector2 position) {
-    add(
-      MoveEffect.to(
-        position,
-        EffectController(duration: 0.05),
-      ),
-    );
   }
 
   @override

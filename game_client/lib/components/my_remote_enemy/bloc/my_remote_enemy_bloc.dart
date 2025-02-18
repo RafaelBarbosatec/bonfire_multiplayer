@@ -3,15 +3,14 @@ import 'dart:async';
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
-import 'package:equatable/equatable.dart';
+import 'package:bonfire_multiplayer/util/move_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_events/shared_events.dart';
 
 part 'my_remote_player_event.dart';
 part 'my_remote_player_state.dart';
 
-class MyRemoteEnemyBloc
-    extends Bloc<MyRemoteEnemyEvent, MyRemoteEnemyState> {
+class MyRemoteEnemyBloc extends Bloc<MyRemoteEnemyEvent, MyRemoteEnemyState> {
   final GameEventManager _eventManager;
   final String playerId;
   final Vector2 initPosition;
