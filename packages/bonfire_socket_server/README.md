@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/RafaelBarbosatec/bonfire_multiplayer
       path: packages/bonfire_socket_server
-  dart_frog: ^0.1.0
+  dart_frog: ^1.2.0
 ```
 
 ### Example
