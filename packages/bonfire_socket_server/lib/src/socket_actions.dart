@@ -45,7 +45,14 @@ mixin BonfireSocketActions {
   /// - Parameters:
   ///   - roomId: The ID of the room to enter.
   ///   - client: The client to add to the room.
-  void enterRoom(String roomId, BSocketClient client);
+  bool enterRoom(String roomId, BSocketClient client);
+
+  /// Adds a client to the specified room or create if the room not exist.
+  ///
+  /// - Parameters:
+  ///   - roomId: The ID of the room to enter.
+  ///   - client: The client to add to the room.
+  void createAndEnterRoom(String roomId, BSocketClient client);
 
   /// Removes a client from the specified room.
   ///
@@ -69,4 +76,8 @@ mixin BonfireSocketActions {
   ///
   /// - Returns: The ID of the room the client is in, or `null` if the client is not in any room.
   String? getMyRoomId(BSocketClient client);
+
+  List<BSocketClient> getRoom(String roomId);
+
+  Map<String, List<BSocketClient>> getRooms();
 }

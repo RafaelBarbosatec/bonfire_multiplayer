@@ -44,11 +44,17 @@ class BSocketClient {
   /// The socket actions associated with this client.
   final BonfireSocketActions socket;
 
+  /// Indicates whether the buffer delay is enabled for the socket client.
+  /// When set to `true`, the socket client will use a buffer delay to optimize
+  /// data transmission, potentially reducing the number of packets sent.
+  /// When set to `false`, data will be sent immediately without buffering.
+  final bool bufferDelayEnabled;
+
   final Map<String, void Function(BEvent)> _onSubscribers = {};
 
   Completer<DateTime>? _timeSyncCompleter;
   late TimeSync _timeSync;
-  final bool bufferDelayEnabled;
+
   late EventQueue<BEvent> _eventQueue;
 
   /// Sends a message to the client.
@@ -119,5 +125,26 @@ class BSocketClient {
     }
 
     return false;
+  }
+
+  /// Gets the room ID associated with this socket client.
+  ///
+  /// This property retrieves the room ID by calling the `getMyRoomId` method
+  /// on the `socket` object, passing this client instance as a parameter.
+  ///
+  /// Returns `null` if the client is not in a room.
+  String? get roomId => socket.getMyRoomId(this);
+
+  /// Allows the client to leave the current room.
+  ///
+  /// This method retrieves the current room ID using the `roomId` property.
+  /// If the client is in a room (i.e., the room ID is not `null`), it calls
+  /// the `leaveRoom` method on the `socket` object, passing the room ID and
+  /// this client instance as parameters.
+  void leaveRoom() {
+    final id = roomId;
+    if (id != null) {
+      socket.leaveRoom(id, this);
+    }
   }
 }

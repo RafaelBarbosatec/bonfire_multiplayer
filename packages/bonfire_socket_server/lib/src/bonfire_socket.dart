@@ -68,8 +68,8 @@ class BonfireSocket
   final bool bufferDelayEnabled;
 
   /// Returns a [Handler] that manages WebSocket connections.
-  Handler handler() {
-    return webSocketHandler(_addClient);
+  Future<Response> handler(RequestContext context) async {
+    return webSocketHandler(_addClient)(context);
   }
 
   void _addClient(WebSocketChannel channel, _) {
@@ -88,9 +88,7 @@ class BonfireSocket
 
   void _onClientDisconnect(BSocketClient client) {
     _clients.remove(client);
-    for (final room in _rooms.values) {
-      room.remove(client);
-    }
+    client.leaveRoom();
     onClientDisconnect?.call(client);
   }
 
@@ -126,13 +124,19 @@ class BonfireSocket
   }
 
   @override
-  void enterRoom(String roomId, BSocketClient client) {
+  bool enterRoom(String roomId, BSocketClient client) {
     if (_rooms.containsKey(roomId)) {
       _rooms[roomId]!.add(client);
+      return true;
     } else {
-      createRoom(roomId);
-      _rooms[roomId]!.add(client);
+      return false;
     }
+  }
+
+  @override
+  void createAndEnterRoom(String roomId, BSocketClient client) {
+    createRoom(roomId);
+    enterRoom(roomId, client);
   }
 
   @override
@@ -161,5 +165,15 @@ class BonfireSocket
       }
     }
     return null;
+  }
+
+  @override
+  List<BSocketClient> getRoom(String roomId) {
+    return _rooms[roomId] ?? [];
+  }
+
+  @override
+  Map<String, List<BSocketClient>> getRooms() {
+    return Map.unmodifiable(_rooms);
   }
 }

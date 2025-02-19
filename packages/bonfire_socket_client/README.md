@@ -1,39 +1,190 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# BonfireSocketClient
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+BonfireSocketClient is a Dart library for managing WebSocket connections with advanced features like event serialization, time synchronization, and event buffering.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- WebSocket connection management
+- Event serialization and deserialization
+- Time synchronization
+- Event buffering with delay
 
-## Getting started
+## Installation
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add the following dependencies to your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+   bonfire_socket_client:
+    git:
+      url: https://github.com/RafaelBarbosatec/bonfire_multiplayer
+      path: packages/bonfire_socket_client
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+### Import the library
 
 ```dart
-const like = 'sample';
+import 'package:bonfire_socket_client/bonfire_socket_client.dart';
 ```
 
-## Additional information
+### Create an instance of BonfireSocketClient
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+final client = BonfireSocketClient(
+  uri: Uri.parse('wss://your-websocket-url'),
+  debug: true,
+);
+```
+
+### Connect to the WebSocket server
+
+```dart
+client.connect(
+  onConnected: () {
+    print('Connected to the server');
+  },
+  onDisconnected: (reason) {
+    print('Disconnected from the server: $reason');
+  },
+  onConnecting: () {
+    print('Connecting to the server...');
+  },
+);
+```
+
+### Listen for events
+
+```dart
+client.on<String>('event_name', (data) {
+  print('Received event: $data');
+});
+```
+
+### Send events
+
+```dart
+client.send('event_name', 'Your message');
+```
+
+### Time synchronization
+
+The client automatically synchronizes time with the server. You can configure the synchronization interval using the `syncTimeInterval` parameter.
+
+### Event buffering
+
+Enable event buffering with delay using the `bufferDelayEnabled` parameter.
+
+### Registering Type Adapters
+
+To send and receive custom classes, you need to register type adapters.
+
+1. Create a class and a corresponding type adapter:
+
+```dart
+class MyCustomClass {
+  final String name;
+  final int value;
+
+  MyCustomClass({required this.name, required this.value});
+}
+
+class MyCustomClassAdapter extends BTypeAdapter<MyCustomClass> {
+  @override
+  MyCustomClass fromMap(Map<String, dynamic> map) {
+    return MyCustomClass(
+      name: map['name'],
+      value: map['value'],
+    );
+  }
+
+  @override
+  Map<String, dynamic> toMap(MyCustomClass data) {
+    return {
+      'name': data.name,
+      'value': data.value,
+    };
+  }
+}
+```
+
+2. Register the type adapter with the client:
+
+```dart
+client.registerType(MyCustomClassAdapter());
+```
+
+3. Send and receive events using the custom class:
+
+```dart
+client.send('custom_event', MyCustomClass(name: 'example', value: 42));
+
+client.on<MyCustomClass>('custom_event', (data) {
+  print('Received custom event: ${data.name}, ${data.value}');
+});
+```
+
+## Example
+
+Here is a complete example:
+
+```dart
+import 'package:bonfire_socket_client/bonfire_socket_client.dart';
+
+class MyCustomClass {
+  final String name;
+  final int value;
+
+  MyCustomClass({required this.name, required this.value});
+}
+
+class MyCustomClassAdapter extends BTypeAdapter<MyCustomClass> {
+  @override
+  MyCustomClass fromMap(Map<String, dynamic> map) {
+    return MyCustomClass(
+      name: map['name'],
+      value: map['value'],
+    );
+  }
+
+  @override
+  Map<String, dynamic> toMap(MyCustomClass data) {
+    return {
+      'name': data.name,
+      'value': data.value,
+    };
+  }
+}
+
+void main() {
+  final client = BonfireSocketClient(
+    uri: Uri.parse('wss://your-websocket-url'),
+    debug: true,
+  );
+
+  client.registerType(MyCustomClassAdapter());
+
+  client.connect(
+    onConnected: () {
+      print('Connected to the server');
+    },
+    onDisconnected: (reason) {
+      print('Disconnected from the server: $reason');
+    },
+    onConnecting: () {
+      print('Connecting to the server...');
+    },
+  );
+
+  client.on<MyCustomClass>('custom_event', (data) {
+    print('Received custom event: ${data.name}, ${data.value}');
+  });
+
+  client.send('custom_event', MyCustomClass(name: 'example', value: 42));
+}
+```
+
+## License
+
+This project is licensed under the MIT License.
