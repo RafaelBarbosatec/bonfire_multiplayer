@@ -1,12 +1,19 @@
-name: bonfire_socket_shared
+name: bonfire_server
 description: "A new Flutter package project."
 version: 0.0.1
 homepage:
+publish_to: "none"
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  shared_events:
+    path: ../../shared_events
+  tiledjsonreader:
+    git:
+      url: https://github.com/RafaelBarbosatec/tiled_json_reader.git
+      ref: without-flutter
 
 dev_dependencies:
   flutter_test:

@@ -1,12 +1,9 @@
 import 'dart:math';
 
+import 'package:bonfire_server/bonfire_server.dart';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
-import '../core/game.dart';
-import '../core/game_component.dart';
-import '../core/game_map.dart';
-import '../core/game_player.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
 import 'components/player.dart';
 
@@ -43,17 +40,20 @@ class GameServer extends Game {
   }
 
   @override
-  void onStateUpdate(GameComponent comp) {
-    if (comp is GameMap) {
-      if (comp.players.isEmpty) {
+  void updateListeners(GameComponent compChanged) {
+    if (compChanged is GameMap) {
+      if (compChanged.players.isEmpty) {
         return;
       }
-      for (final player in comp.players) {
+      final players = compChanged.playersState;
+      final npcs = compChanged.npcsState;
+
+      for (final player in compChanged.players) {
         player.send(
           EventType.UPDATE_STATE.name,
           GameStateModel(
-            players: comp.playersState,
-            npcs: comp.npcsState,
+            players: players,
+            npcs: npcs,
           ),
         );
       }
@@ -88,9 +88,7 @@ class GameServer extends Game {
       client: client,
     );
 
-    final initialMap = maps[0];
-
-    initialMap.add(player);
+    final initialMap = maps[0]..add(player);
 
     // send ACK to client that request join.
     client.send(
@@ -132,6 +130,7 @@ class GameServer extends Game {
   @override
   Future<void> start() async {
     await _loadMaps();
+    logger.i('Start Game loop');
     return super.start();
   }
 
@@ -178,5 +177,11 @@ class GameServer extends Game {
       }
       mapLoaded = true;
     }
+  }
+
+  @override
+  void stop() {
+    logger.i('Stop Game loop');
+    super.stop();
   }
 }
