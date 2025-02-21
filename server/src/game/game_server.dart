@@ -8,12 +8,11 @@ import '../infrastructure/websocket/websocket_provider.dart';
 import 'components/player.dart';
 
 class GameServer extends Game {
-  GameServer({required this.server, required this.maps}) {
+  GameServer({required this.server, required super.maps}) {
     _registerTypes();
   }
   static const tileSize = 16.0;
-  final List<GameMap> maps;
-  bool mapLoaded = false;
+
   List<WebsocketClient> clients = [];
 
   final WebsocketProvider server;
@@ -127,13 +126,6 @@ class GameServer extends Game {
     }
   }
 
-  @override
-  Future<void> start() async {
-    await _loadMaps();
-    logger.i('Start Game loop');
-    return super.start();
-  }
-
   void _registerTypes() {
     server
       ..registerType<JoinEvent>(
@@ -168,15 +160,16 @@ class GameServer extends Game {
       );
   }
 
-  Future<void> _loadMaps() async {
-    if (!mapLoaded) {
-      logger.d('Loading maps...');
-      addAll(maps);
-      for (final map in maps) {
-        await map.load();
-      }
-      mapLoaded = true;
-    }
+  @override
+  Future<void> onLoadMaps() {
+    logger.d('Loading maps...');
+    return super.onLoadMaps();
+  }
+
+  @override
+  void onStarted() {
+    logger.i('Start Game loop');
+    super.onStarted();
   }
 
   @override

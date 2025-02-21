@@ -1,8 +1,15 @@
 import 'dart:async';
 
 import 'package:bonfire_server/src/components/game_component.dart';
+import 'package:bonfire_server/src/components/game_map.dart';
 
 abstract class Game extends GameComponent {
+  Game({this.maps = const [], super.components});
+
+  final List<GameMap> maps;
+  bool _mapLoaded = false;
+  bool get mapsIsLoaded => _mapLoaded;
+
   final List<GameComponent> _compRequestedUpdate = [];
   Timer? _gameTimer;
   final DateTime _initialTime = DateTime.now();
@@ -32,7 +39,8 @@ abstract class Game extends GameComponent {
 
   void updateListeners(GameComponent compChanged);
 
-  Future<void> start() {
+  Future<void> start() async {
+    await onLoadMaps();
     _gameTimer ??= Timer.periodic(
       const Duration(milliseconds: 30),
       (timer) {
@@ -42,11 +50,23 @@ abstract class Game extends GameComponent {
         onUpdate(dt);
       },
     );
-    return Future.value();
+    onStarted();
   }
 
   void stop() {
     _gameTimer?.cancel();
     _gameTimer = null;
+  }
+
+  void onStarted() {}
+
+  Future<void> onLoadMaps() async {
+    if (!_mapLoaded) {
+      addAll(maps);
+      for (final map in maps) {
+        await map.load();
+      }
+      _mapLoaded = true;
+    }
   }
 }
