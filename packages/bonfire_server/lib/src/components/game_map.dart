@@ -63,7 +63,7 @@ abstract class GameMap extends GameComponent {
   }
 
   Future<void> load() async {
-    final tiled = TiledJsonReader(path);
+    final tiled = TiledJsonReader('public/$path');
     final map = await tiled.read();
     for (final layer in map.layers ?? <MapLayer>[]) {
       _collectLayerInformations(layer, map);

@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:bonfire_server/src/components/game_component.dart';
 import 'package:bonfire_server/src/components/game_map.dart';
+import 'package:bonfire_server/src/components/game_player.dart';
+
+export 'package:bonfire_server/src/extensions/game_extensions.dart';
 
 abstract class Game extends GameComponent {
-  Game({this.maps = const [], super.components});
+  Game({this.maps = const []});
 
   final List<GameMap> maps;
   bool _mapLoaded = false;
@@ -50,7 +53,7 @@ abstract class Game extends GameComponent {
         onUpdate(dt);
       },
     );
-    onStarted();
+    onStart();
   }
 
   void stop() {
@@ -58,7 +61,7 @@ abstract class Game extends GameComponent {
     _gameTimer = null;
   }
 
-  void onStarted() {}
+  void onStart() {}
 
   Future<void> onLoadMaps() async {
     if (!_mapLoaded) {
@@ -69,4 +72,6 @@ abstract class Game extends GameComponent {
       _mapLoaded = true;
     }
   }
+
+  void onPlayerChangeMap(GamePlayer player, GameMap map) {}
 }

@@ -101,29 +101,16 @@ class GameServer extends Game {
     );
   }
 
-  void changeMap(GamePlayer player, String newMapId, GameVector position) {
-    try {
-      final map = maps.firstWhere((element) => element.id == newMapId);
-
-      player
-        ..position = position
-        ..stopMove()
-        ..removeFromParent();
-
-      map.add(player);
-
-      player.send(
-        EventType.JOIN_MAP.name,
-        JoinMapEvent(
-          state: player.state,
-          players: map.playersState,
-          npcs: map.npcsState,
-          map: map.toModel(),
-        ),
-      );
-    } catch (e) {
-      logger.e('Not found map: $newMapId');
-    }
+  void onPlayerChangeMap(GamePlayer player, GameMap map) {
+    player.send(
+      EventType.JOIN_MAP.name,
+      JoinMapEvent(
+        state: player.state,
+        players: map.playersState,
+        npcs: map.npcsState,
+        map: map.toModel(),
+      ),
+    );
   }
 
   void _registerTypes() {
@@ -167,9 +154,9 @@ class GameServer extends Game {
   }
 
   @override
-  void onStarted() {
+  void onStart() {
     logger.i('Start Game loop');
-    super.onStarted();
+    super.onStart();
   }
 
   @override
