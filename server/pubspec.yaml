@@ -11,10 +11,8 @@ dependencies:
   logger: ^2.0.2+1
   shared_events:
     path: "../shared_events"
-  tiledjsonreader:
-    git:
-      url: https://github.com/RafaelBarbosatec/tiled_json_reader.git
-      ref: without-flutter
+  bonfire_server:
+    path: ../packages/bonfire_server
   bonfire_socket_server: 
     path: ../packages/bonfire_socket_server
 

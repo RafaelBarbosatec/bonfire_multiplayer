@@ -1,22 +1,18 @@
 import 'dart:math';
 
+import 'package:bonfire_server/bonfire_server.dart';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
-import '../core/game.dart';
-import '../core/game_component.dart';
-import '../core/game_map.dart';
-import '../core/game_player.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
 import 'components/player.dart';
 
 class GameServer extends Game {
-  GameServer({required this.server, required this.maps}) {
+  GameServer({required this.server, required super.maps}) {
     _registerTypes();
   }
   static const tileSize = 16.0;
-  final List<GameMap> maps;
-  bool mapLoaded = false;
+
   List<WebsocketClient> clients = [];
 
   final WebsocketProvider server;
@@ -43,17 +39,20 @@ class GameServer extends Game {
   }
 
   @override
-  void onStateUpdate(GameComponent comp) {
-    if (comp is GameMap) {
-      if (comp.players.isEmpty) {
+  void updateListeners(GameComponent compChanged) {
+    if (compChanged is GameMap) {
+      if (compChanged.players.isEmpty) {
         return;
       }
-      for (final player in comp.players) {
+      final players = compChanged.playersState;
+      final npcs = compChanged.npcsState;
+
+      for (final player in compChanged.players) {
         player.send(
           EventType.UPDATE_STATE.name,
           GameStateModel(
-            players: comp.playersState,
-            npcs: comp.npcsState,
+            players: players,
+            npcs: npcs,
           ),
         );
       }
@@ -88,9 +87,7 @@ class GameServer extends Game {
       client: client,
     );
 
-    final initialMap = maps[0];
-
-    initialMap.add(player);
+    final initialMap = maps[0]..add(player);
 
     // send ACK to client that request join.
     client.send(
@@ -104,35 +101,16 @@ class GameServer extends Game {
     );
   }
 
-  void changeMap(GamePlayer player, String newMapId, GameVector position) {
-    try {
-      final map = maps.firstWhere((element) => element.id == newMapId);
-
-      player
-        ..position = position
-        ..stopMove()
-        ..removeFromParent();
-
-      map.add(player);
-
-      player.send(
-        EventType.JOIN_MAP.name,
-        JoinMapEvent(
-          state: player.state,
-          players: map.playersState,
-          npcs: map.npcsState,
-          map: map.toModel(),
-        ),
-      );
-    } catch (e) {
-      logger.e('Not found map: $newMapId');
-    }
-  }
-
-  @override
-  Future<void> start() async {
-    await _loadMaps();
-    return super.start();
+  void onPlayerChangeMap(GamePlayer player, GameMap map) {
+    player.send(
+      EventType.JOIN_MAP.name,
+      JoinMapEvent(
+        state: player.state,
+        players: map.playersState,
+        npcs: map.npcsState,
+        map: map.toModel(),
+      ),
+    );
   }
 
   void _registerTypes() {
@@ -169,14 +147,21 @@ class GameServer extends Game {
       );
   }
 
-  Future<void> _loadMaps() async {
-    if (!mapLoaded) {
-      logger.d('Loading maps...');
-      addAll(maps);
-      for (final map in maps) {
-        await map.load();
-      }
-      mapLoaded = true;
-    }
+  @override
+  Future<void> onLoadMaps() {
+    logger.d('Loading maps...');
+    return super.onLoadMaps();
+  }
+
+  @override
+  void onStart() {
+    logger.i('Start Game loop');
+    super.onStart();
+  }
+
+  @override
+  void stop() {
+    logger.i('Stop Game loop');
+    super.stop();
   }
 }

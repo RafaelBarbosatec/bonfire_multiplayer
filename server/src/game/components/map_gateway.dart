@@ -1,12 +1,7 @@
+import 'package:bonfire_server/bonfire_server.dart';
 import 'package:shared_events/shared_events.dart';
 
 import '../../../main.dart';
-import '../../core/game_component.dart';
-import '../../core/game_player.dart';
-import '../../core/geometry/rectangle.dart';
-import '../../core/mixins/contact_sensor.dart';
-import '../../core/mixins/game_ref.dart';
-import '../../core/positioned_game_component.dart';
 import '../game_server.dart';
 
 class MapGateway extends PositionedGameComponent
@@ -32,11 +27,15 @@ class MapGateway extends PositionedGameComponent
       logger.i(
         'Player(${comp.state.id}) change map {${comp.parent} to {$mapTagetId}}',
       );
-      game?.changeMap(
-        comp,
-        mapTagetId,
-        targetPlayerPosition.clone(),
-      );
+      final success = game?.changeMap(
+            comp,
+            mapTagetId,
+            targetPlayerPosition.clone(),
+          ) ??
+          false;
+      if (!success) {
+        logger.e('Not found map: $mapTagetId');
+      }
       return false;
     }
     return true;

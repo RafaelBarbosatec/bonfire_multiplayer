@@ -2,10 +2,10 @@
 
 import 'dart:io';
 
+import 'package:bonfire_server/bonfire_server.dart';
 import 'package:bonfire_socket_server/bonfire_socket_server.dart';
 import 'package:dart_frog/dart_frog.dart';
 
-import 'src/core/game.dart';
 import 'src/game/game_server.dart';
 import 'src/game/maps/desert.dart';
 import 'src/game/maps/florest.dart';
