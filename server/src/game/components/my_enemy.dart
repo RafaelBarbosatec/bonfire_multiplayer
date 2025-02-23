@@ -4,9 +4,9 @@ import 'package:shared_events/shared_events.dart';
 import 'player.dart';
 
 class MyEnemy extends GameNpc
-    with Vision<Player>, ContactSensor, BlockMovementOnContact, RandomMovement {
+    with Vision<Player>, Collision, BlockMovementOnCollision, RandomMovement {
   MyEnemy({required super.state}) {
-    setupGameSensor(
+    setupCollision(
       RectangleShape(
         GameVector.all(16),
         position: GameVector(x: 8, y: 16),
@@ -24,13 +24,7 @@ class MyEnemy extends GameNpc
     super.onUpdate(dt);
 
     if (_targetPlayer != null) {
-      var direction = (_targetPlayer!.position - position).normalized();
-      if (direction.x.abs() < 0.2) direction = GameVector(x: 0, y: direction.y);
-      if (direction.y.abs() < 0.2) direction = GameVector(x: direction.x, y: 0);
-      final moveDirection = MoveDirectionEnum.fromVector(
-        direction,
-      );
-      moveFromDirection(dt, moveDirection);
+      followComponent(_targetPlayer!, dt);
     } else {
       randomMove(dt);
     }

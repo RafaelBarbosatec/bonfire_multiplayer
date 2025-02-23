@@ -3,7 +3,7 @@ import 'package:bonfire_server/src/geometry/circle.dart';
 import 'package:bonfire_server/src/mixins/contact_sensor.dart';
 import 'package:shared_events/shared_events.dart';
 
-mixin Vision<T extends ContactSensor> on PositionedGameComponent {
+mixin Vision<T extends Collision> on PositionedGameComponent {
   CircleShape? _visionField;
 
   double get radiusVision;

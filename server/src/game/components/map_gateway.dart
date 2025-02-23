@@ -5,14 +5,14 @@ import '../../../main.dart';
 import '../game_server.dart';
 
 class MapGateway extends PositionedGameComponent
-    with ContactSensor, GameRef<GameServer> {
+    with Collision, GameRef<GameServer> {
   MapGateway({
     required super.position,
     required super.size,
     required this.mapTagetId,
     required this.targetPlayerPosition,
   }) {
-    setupGameSensor(
+    setupCollision(
       RectangleShape(
         size,
       ),

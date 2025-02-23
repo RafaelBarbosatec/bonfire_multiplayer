@@ -49,7 +49,7 @@ abstract class GameMap extends GameComponent {
   void onObjectBuilder(GameMapObjectProperties object);
 
   @override
-  bool checkContactWithParents(ContactSensor comp) {
+  bool checkContactWithParents(Collision comp) {
     final shape = comp.getShapeContact();
     if (shape != null) {
       for (final collision in _collisions) {

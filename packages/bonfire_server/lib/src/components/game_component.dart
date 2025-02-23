@@ -53,8 +53,8 @@ abstract class GameComponent {
     _compsToRemove.add(comp);
   }
 
-  bool checkContactWithParents(ContactSensor comp) {
-    for (final sensor in components.whereType<ContactSensor>()) {
+  bool checkContactWithParents(Collision comp) {
+    for (final sensor in components.whereType<Collision>()) {
       if (sensor != comp) {
         if (sensor.checkContact(comp)) {
           return true;
@@ -64,9 +64,9 @@ abstract class GameComponent {
     return parent?.checkContactWithParents(comp) ?? false;
   }
 
-  List<ContactSensor> getShapeContacts(Shape shape) {
-    final contacts = <ContactSensor>[];
-    for (final sensor in components.whereType<ContactSensor>()) {
+  List<Collision> getShapeContacts(Shape shape) {
+    final contacts = <Collision>[];
+    for (final sensor in components.whereType<Collision>()) {
       if (sensor.checkShapeContact(shape)) {
         contacts.add(sensor);
       }

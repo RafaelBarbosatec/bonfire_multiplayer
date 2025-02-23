@@ -4,7 +4,7 @@ import 'package:bonfire_server/src/mixins/block_movement_contact.dart';
 import 'package:bonfire_server/src/util/game_timer.dart';
 import 'package:shared_events/shared_events.dart';
 
-mixin RandomMovement on BlockMovementOnContact {
+mixin RandomMovement on BlockMovementOnCollision {
   GameVector _initPosition = GameVector.zero();
 
   GameTimer _timer = GameTimer(duration: 2);

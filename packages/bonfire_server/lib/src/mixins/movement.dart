@@ -2,6 +2,8 @@ import 'package:bonfire_server/src/components/positioned_game_component.dart';
 import 'package:bonfire_server/src/util/game_timer.dart';
 import 'package:shared_events/shared_events.dart';
 
+export 'package:bonfire_server/src/extensions/movement_ext.dart';
+
 mixin Movement on PositionedGameComponent {
   static const diaginalReduction = 0.7853981633974483;
 

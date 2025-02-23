@@ -5,13 +5,13 @@ import 'package:shared_events/shared_events.dart';
 import '../../infrastructure/websocket/websocket_provider.dart';
 
 class Player extends GamePlayer
-    with ContactSensor, MapRef, BlockMovementOnContact {
+    with Collision, MapRef, BlockMovementOnCollision {
   Player({
     required super.state,
     required this.client,
   }) {
     _listenMove();
-    setupGameSensor(
+    setupCollision(
       RectangleShape(
         GameVector.all(16),
         position: GameVector(x: 8, y: 16),
@@ -37,7 +37,7 @@ class Player extends GamePlayer
   }
 
   @override
-  bool checkContact(ContactSensor other) {
+  bool checkContact(Collision other) {
     if (other is Player) {
       return false;
     }

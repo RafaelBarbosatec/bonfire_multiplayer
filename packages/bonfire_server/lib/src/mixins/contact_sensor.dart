@@ -2,16 +2,16 @@ import 'package:bonfire_server/src/components/game_component.dart';
 import 'package:bonfire_server/src/components/positioned_game_component.dart';
 import 'package:bonfire_server/src/geometry/base/shape.dart';
 
-mixin ContactSensor on PositionedGameComponent {
+mixin Collision on PositionedGameComponent {
   Shape? _shape;
   // ignore: use_setters_to_change_properties
-  void setupGameSensor(Shape shape) {
+  void setupCollision(Shape shape) {
     _shape = shape;
   }
 
   Shape? getShapeContact() => _shape?.translated(position);
 
-  bool checkContact(ContactSensor other) {
+  bool checkContact(Collision other) {
     final myShape = getShapeContact();
     if (myShape == null) return false;
     final otherSHape = other.getShapeContact();
