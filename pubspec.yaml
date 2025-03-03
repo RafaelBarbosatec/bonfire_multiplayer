@@ -1,0 +1,9 @@
+name: my_project
+publish_to: none
+environment:
+  sdk: ^3.6.0
+workspace:
+  - packages/bonfire_server
+  - packages/bonfire_socket_client
+  - packages/bonfire_socket_server
+  - packages/bonfire_socket_shared

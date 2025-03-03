@@ -1,0 +1,6 @@
+name: bonfire_multiplayer
+
+packages:
+  - game_client
+  - server
+  - packages/**

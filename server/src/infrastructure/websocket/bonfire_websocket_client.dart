@@ -20,4 +20,9 @@ class BonfireWebsocketClient extends WebsocketClient {
   @override
   // TODO: implement id
   String get id => client.id;
+
+  @override
+  void cleanListener(String event) {
+    client.cleanListener(event);
+  }
 }

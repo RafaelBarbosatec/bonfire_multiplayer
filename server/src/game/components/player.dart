@@ -26,14 +26,22 @@ class Player extends GamePlayer
   MoveDirectionEnum? moveDirection;
 
   void _listenMove() {
-    client.on<MoveEvent>(
-      EventType.MOVE.name,
-      (data) {
-        if (data.mapId == map.id) {
-          moveDirection = data.direction;
-        }
-      },
-    );
+    client
+      ..on<MoveEvent>(
+        EventType.MOVE.name,
+        (data) {
+          if (data.mapId == map.id) {
+            moveDirection = data.direction;
+          }
+        },
+      )
+      ..on<MoveEvent>(
+        EventType.LEAVE.name,
+        (data) {
+          client.cleanListener(EventType.MOVE.name);
+          removeFromParent();
+        },
+      );
   }
 
   @override

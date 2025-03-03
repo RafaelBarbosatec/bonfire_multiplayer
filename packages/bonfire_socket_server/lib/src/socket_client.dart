@@ -147,4 +147,12 @@ class BSocketClient {
       socket.leaveRoom(id, this);
     }
   }
+
+  void cleanListeners() {
+    _onSubscribers.clear();
+  }
+
+  void cleanListener(String event) {
+    _onSubscribers.remove(event);
+  }
 }
