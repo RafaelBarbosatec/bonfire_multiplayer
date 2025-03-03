@@ -4,6 +4,7 @@ import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_enemy/my_remote_enemy.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
+import 'package:bonfire_multiplayer/pages/game/widgets/menu_widget.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
@@ -82,6 +83,14 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
             moveOnlyMapArea: true,
           ),
           onReady: _onReady,
+          overlayBuilderMap: {
+            MenuWidget.overlayName: (context, gameRef) {
+              return MenuWidget(
+                eventManager: _eventManager,
+              );
+            }
+          },
+          initialActiveOverlays: const [MenuWidget.overlayName],
         ),
       ),
     );
