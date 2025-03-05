@@ -171,4 +171,8 @@ class BonfireSocketClient
     final event = PongSyncTimeEvent();
     _socket.send(_packer.packEvent(event));
   }
+
+  void disconnect([int? code, String? reason]) {
+    _socket.close(code, reason);
+  }
 }

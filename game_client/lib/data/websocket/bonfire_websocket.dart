@@ -20,6 +20,10 @@ class BonfireWebsocket extends WebsocketProvider {
     void Function()? onConnect,
     void Function()? onDisconnect,
   }) async {
+    if (_connected) {
+      onConnect?.call();
+      return;
+    }
     _client = BonfireSocketClient(
       uri: address,
       bufferDelayEnabled: true,
@@ -69,5 +73,10 @@ class BonfireWebsocket extends WebsocketProvider {
         fromMap: type.fromMap,
       ),
     );
+  }
+
+  @override
+  void disconnect([int? code, String? reason]) {
+    _client?.disconnect(code, reason);
   }
 }

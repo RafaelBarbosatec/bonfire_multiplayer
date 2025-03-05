@@ -8,6 +8,7 @@ abstract class WebsocketProvider {
   void onEvent<T>(String event, void Function(T data) callback);
   void send<T>(String event, T data);
   void registerType<T>(TypeAdapter<T> type);
+  void disconnect([int? code, String? reason]);
 }
 
 class TypeAdapter<T> {

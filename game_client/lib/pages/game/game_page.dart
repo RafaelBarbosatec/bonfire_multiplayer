@@ -85,9 +85,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
           onReady: _onReady,
           overlayBuilderMap: {
             MenuWidget.overlayName: (context, gameRef) {
-              return MenuWidget(
-                eventManager: _eventManager,
-              );
+              return const MenuWidget();
             }
           },
           initialActiveOverlays: const [MenuWidget.overlayName],
