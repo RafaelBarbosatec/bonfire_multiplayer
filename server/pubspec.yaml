@@ -9,6 +9,7 @@ environment:
 dependencies:
   dart_frog: ^1.0.0
   logger: ^2.0.2+1
+  multiple_result: ^5.1.0
   shared_events:
     path: "../shared_events"
   bonfire_server:
