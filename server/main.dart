@@ -13,6 +13,7 @@ import 'src/infrastructure/logger/logger_logger.dart';
 import 'src/infrastructure/logger/logger_provider.dart';
 import 'src/infrastructure/websocket/bonfire_websocket.dart';
 import 'src/infrastructure/websocket/websocket_provider.dart';
+import 'src/injector.dart';
 
 GameServer? game;
 final LoggerProvider logger = LoggerLogger();
@@ -37,17 +38,19 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   await game!.start();
 
   return serve(
-    handler
-        .use(
-          provider<Game>(
-            (context) => game!,
+    Injector.run(
+      handler
+          .use(
+            provider<Game>(
+              (context) => game!,
+            ),
+          )
+          .use(
+            provider<BonfireSocket>(
+              (context) => server!.socket,
+            ),
           ),
-        )
-        .use(
-          provider<BonfireSocket>(
-            (context) => server!.socket,
-          ),
-        ),
+    ),
     ip,
     port,
   );
