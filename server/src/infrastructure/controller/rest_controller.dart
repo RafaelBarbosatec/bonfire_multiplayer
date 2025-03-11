@@ -11,16 +11,16 @@ export 'package:dart_frog/dart_frog.dart';
 export 'package:multiple_result/multiple_result.dart';
 
 abstract class RestController {
-  Future<Result<ApiResponse,Failure>>? post(RequestContext context) => null;
-  Future<Result<ApiResponse,Failure>>? get(RequestContext context) => null;
-  Future<Result<ApiResponse,Failure>>? put(RequestContext context) => null;
-  Future<Result<ApiResponse,Failure>>? delete(RequestContext context) => null;
-  Future<Result<ApiResponse,Failure>>? head(RequestContext context) => null;
-  Future<Result<ApiResponse,Failure>>? patch(RequestContext context) => null;
-  Future<Result<ApiResponse,Failure>>? options(RequestContext context) => null;
+  Future<Result<ApiResponse, Failure>>? post(RequestContext context) => null;
+  Future<Result<ApiResponse, Failure>>? get(RequestContext context) => null;
+  Future<Result<ApiResponse, Failure>>? put(RequestContext context) => null;
+  Future<Result<ApiResponse, Failure>>? delete(RequestContext context) => null;
+  Future<Result<ApiResponse, Failure>>? head(RequestContext context) => null;
+  Future<Result<ApiResponse, Failure>>? patch(RequestContext context) => null;
+  Future<Result<ApiResponse, Failure>>? options(RequestContext context) => null;
 
   Future<Response> onRequest(RequestContext context) async {
-    Future<Result<ApiResponse,Failure>>? resp;
+    Future<Result<ApiResponse, Failure>>? resp;
     switch (context.request.method) {
       case HttpMethod.post:
         resp = post(context);

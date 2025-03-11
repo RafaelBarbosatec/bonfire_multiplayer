@@ -17,6 +17,13 @@ class ApiResponse {
     );
   }
 
+  factory ApiResponse.badRequest(dynamic body) {
+    return ApiResponse(
+      code: HttpStatus.badRequest,
+      body: body,
+    );
+  }
+
   factory ApiResponse.unauthorized() {
     return ApiResponse(
       code: HttpStatus.unauthorized,
