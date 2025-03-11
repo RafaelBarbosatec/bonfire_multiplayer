@@ -1,9 +1,5 @@
-name: my_project
-publish_to: none
+name: bonfire_multiplayer
 environment:
-  sdk: ^3.6.0
-workspace:
-  - packages/bonfire_server
-  - packages/bonfire_socket_client
-  - packages/bonfire_socket_server
-  - packages/bonfire_socket_shared
+  sdk: ">=3.7.0 <4.0.0"
+dev_dependencies:
+  melos: ^6.3.2
