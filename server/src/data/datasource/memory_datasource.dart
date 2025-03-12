@@ -1,8 +1,8 @@
 import 'datasource.dart';
 
-class MemoryDatasource extends Datasource {
-  final Map<String, List<Map<String, dynamic>>> _data = {};
+final Map<String, List<Map<String, dynamic>>> _data = {};
 
+class MemoryDatasource extends Datasource {
   @override
   Future<void> deleteDocument({required String document}) {
     _data.remove(document);
