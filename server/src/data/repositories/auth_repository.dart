@@ -50,7 +50,7 @@ class AuthRepository {
   String _generateToken(User user) {
     final jwt = JWT(
       {
-        'id': user.id,
+        'user_id': user.id,
       },
     );
 
