@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dart_frog/dart_frog.dart';
 import 'package:multiple_result/multiple_result.dart';
 
@@ -15,7 +13,7 @@ extension EitherApiResponseExt on Result<ApiResponse, Failure> {
       ),
       (failure) => Response.json(
         body: failure.toMap(),
-        statusCode: failure.statusCode ?? HttpStatus.badRequest,
+        statusCode: failure.statusCode,
       ),
     );
   }
