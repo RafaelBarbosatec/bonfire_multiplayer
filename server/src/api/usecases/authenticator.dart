@@ -10,7 +10,6 @@ class Authenticator {
   Future<User?> verifyToken(String token) async {
     final data = JWT.tryDecode(token);
     if (data != null) {
-      print(data.payload);
       final user = await repository.getById(
         (data.payload as Map?)?['user_id']?.toString() ?? '',
       );
