@@ -1,7 +1,0 @@
-dependency_overrides:
-  bonfire_socket_server:
-    path: .dart_frog_path_dependencies/bonfire_socket_server
-  bonfire_socket_shared:
-    path: .dart_frog_path_dependencies/bonfire_socket_shared
-  shared_events:
-    path: .dart_frog_path_dependencies/shared_events
