@@ -1,7 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_auth/dart_frog_auth.dart';
 
-import '../src/api/data/model/user.dart';
+import '../src/api/data/model/user_model.dart';
 import '../src/api/usecases/authenticator.dart';
 
 final pathsNotAuthenticated = [
@@ -12,7 +12,7 @@ final pathsNotAuthenticated = [
 
 Handler middleware(Handler handler) {
   return handler.use(
-    bearerAuthentication<User>(
+    bearerAuthentication<UserModel>(
       authenticator: (context, token) async {
         final authenticator = context.read<Authenticator>();
         return authenticator.verifyToken(token);
