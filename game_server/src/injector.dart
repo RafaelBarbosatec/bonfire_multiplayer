@@ -4,6 +4,7 @@ import 'api/controllers/sign_in_controller.dart';
 import 'api/controllers/sign_up_controller.dart';
 import 'api/data/datasource/datasource.dart';
 import 'api/data/datasource/memory_datasource.dart';
+import 'api/data/repositories/character_repository.dart';
 import 'api/data/repositories/user_repository.dart';
 import 'api/usecases/authenticator.dart';
 import 'api/usecases/generate_jwt_usecase.dart';
@@ -38,6 +39,13 @@ abstract class Injector {
         .use(
           provider(
             (context) => UserRepository(
+              datasource: context.read(),
+            ),
+          ),
+        )
+        .use(
+          provider(
+            (context) => CharacterRepository(
               datasource: context.read(),
             ),
           ),
