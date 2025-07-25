@@ -7,6 +7,8 @@ import '../src/api/usecases/authenticator.dart';
 final pathsNotAuthenticated = [
   '/auth/sign_in',
   '/auth/sign_up',
+  '/auth/refresh_token',
+  '/ws',
   '/',
 ];
 
