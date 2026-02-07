@@ -5,6 +5,18 @@
 
 Simple example of multiplayer game using Bonfire + Dart Frog + Polo
 
+## Recent Improvements 🎉
+
+**WebSocket Communication Optimizations** - See [WEBSOCKET_IMPROVEMENTS.md](WEBSOCKET_IMPROVEMENTS.md) for details:
+- ✅ Fixed out-of-order event handling with 200ms reordering window
+- ✅ Improved time synchronization (60s → 30s interval)
+- ✅ RTT averaging for stable latency compensation (5-sample buffer)
+- ✅ Consistent buffer configuration across client/server
+- ✅ Event delay capping (max 100ms) to prevent stalls
+- ✅ Connection stability with 10s ping interval
+
+These improvements significantly reduce event delays and ensure proper event ordering, even on unstable networks.
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
