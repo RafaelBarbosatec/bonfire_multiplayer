@@ -4,19 +4,21 @@ import 'package:bonfire_multiplayer/util/move_state.dart';
 
 mixin UpdateMovementMixin on Movement {
   void updateStateMove(MoveState state) {
-    // Always interpolate to server position to stay in sync
-    // Duration matches server update rate (30ms) for smooth movement
-    _updatePosition(state.position);
-    
-    // Update direction for animation purposes without client-side movement
+    // Update direction and trigger animations using Bonfire's movement API
     if (state.direction != null) {
-      // Update lastDirection for animation but don't call moveFromDirection
-      // This prevents client-side prediction that conflicts with server position
-      lastDirection = state.direction!.toDirection();
+      // Call moveFromDirection to trigger walking animation
+      // Note: The translate() override in MyRemotePlayer prevents actual movement
+      // This allows animations to play while position is controlled by server
+      moveFromDirection(state.direction!.toDirection());
     } else {
+      // Stop movement and show idle animation
       lastDirection = state.lastDirection.toDirection();
       stopMove(forceIdle: true);
     }
+    
+    // Always sync to server position regardless of movement direction
+    // MoveEffect smoothly interpolates to the server-provided position
+    _updatePosition(state.position);
   }
 
   void _updatePosition(Vector2 position) {
