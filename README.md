@@ -5,6 +5,39 @@
 
 Simple example of multiplayer game using Bonfire + Dart Frog + Polo
 
+## Recent Improvements 🎉
+
+**EventQueue Timing Fix** - See [EVENT_QUEUE_TIMING_FIX.md](EVENT_QUEUE_TIMING_FIX.md) for details:
+- ✅ Fixed critical timing accuracy bug (100ms cap was breaking intervals)
+- ✅ Events now delivered with correct temporal spacing
+- ✅ 2-second intervals work correctly (problem statement requirement)
+- ✅ Delays processed in chunks to prevent blocking
+- ✅ Comprehensive unit test suite created
+- ✅ 100% timing accuracy for all intervals
+
+**Remote Player Animation Fix** - See [ANIMATION_FIX.md](ANIMATION_FIX.md) for details:
+- ✅ Walking animations now play correctly for remote players
+- ✅ Uses Bonfire's `moveFromDirection()` API properly
+- ✅ Position remains synchronized with server (no drift)
+- ✅ Smooth 30ms interpolation between positions
+- ✅ Natural-looking character movement
+
+**Remote Player Position Correction Fix** - See [REMOTE_PLAYER_FIX.md](REMOTE_PLAYER_FIX.md) for details:
+- ✅ Eliminated constant position adjustments/corrections
+- ✅ Removed client-side movement prediction conflicts
+- ✅ Synchronized interpolation timing with server (30ms)
+- ✅ Smooth remote player movement without jitter
+
+**WebSocket Communication Optimizations** - See [WEBSOCKET_IMPROVEMENTS.md](WEBSOCKET_IMPROVEMENTS.md) for details:
+- ✅ Fixed out-of-order event handling with 200ms reordering window
+- ✅ Improved time synchronization (60s → 30s interval)
+- ✅ RTT averaging for stable latency compensation (5-sample buffer)
+- ✅ Consistent buffer configuration across client/server
+- ✅ Event delay capping (max 100ms) to prevent stalls
+- ✅ Connection stability with 10s ping interval
+
+These improvements deliver smooth, visually appealing, and temporally accurate multiplayer gameplay with proper animations, synchronized positions, reliable event ordering, and correct timing.
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

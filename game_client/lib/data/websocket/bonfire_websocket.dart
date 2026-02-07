@@ -27,6 +27,7 @@ class BonfireWebsocket extends WebsocketProvider {
     _client = BonfireSocketClient(
       uri: address,
       bufferDelayEnabled: true,
+      pingInterval: const Duration(seconds: 10),
     );
     _client?.connect(onConnected: () {
       _connected = true;

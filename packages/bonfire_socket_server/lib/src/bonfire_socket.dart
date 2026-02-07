@@ -47,7 +47,7 @@ class BonfireSocket
     this.onClientConnect,
     this.onClientDisconnect,
     EventSerializer? serializer,
-    this.bufferDelayEnabled = false,
+    this.bufferDelayEnabled = true,
   }) {
     this.serializer = serializer ?? EventSerializerDefault();
   }
