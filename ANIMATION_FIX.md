@@ -231,7 +231,7 @@ The solution relies on synchronized timing:
 | Parameter | Value | Location |
 |-----------|-------|----------|
 | Server tick rate | 30ms | bonfire_server/lib/src/game.dart:48 |
-| Interpolation duration | 30ms | update_movement_mixin.dart:27 |
+| Interpolation duration | 30ms | update_movement_mixin.dart:24-30 |
 | Player speed | 80 px/s | ComponentStateModel default |
 | Movement control | Server only | translate() override |
 
