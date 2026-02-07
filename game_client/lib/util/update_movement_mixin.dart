@@ -4,25 +4,28 @@ import 'package:bonfire_multiplayer/util/move_state.dart';
 
 mixin UpdateMovementMixin on Movement {
   void updateStateMove(MoveState state) {
-    // if distance greater than 5 pixel do interpolation of position
-    if (position.distanceTo(state.position) > 5) {
-      _updatePosition(state.position);
-    }
+    // Always interpolate to server position to stay in sync
+    // Duration matches server update rate (30ms) for smooth movement
+    _updatePosition(state.position);
+    
+    // Update direction for animation purposes without client-side movement
     if (state.direction != null) {
-      setZeroVelocity();
-      moveFromDirection(state.direction!.toDirection());
+      // Update lastDirection for animation but don't call moveFromDirection
+      // This prevents client-side prediction that conflicts with server position
+      lastDirection = state.direction!.toDirection();
     } else {
       lastDirection = state.lastDirection.toDirection();
       stopMove(forceIdle: true);
-      _updatePosition(state.position);
     }
   }
 
   void _updatePosition(Vector2 position) {
+    // Use 30ms to match server tick rate
+    // This ensures smooth interpolation between server updates
     add(
       MoveEffect.to(
         position,
-        EffectController(duration: 0.05),
+        EffectController(duration: 0.03),
       ),
     );
   }
