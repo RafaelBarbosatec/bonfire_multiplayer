@@ -7,6 +7,12 @@ Simple example of multiplayer game using Bonfire + Dart Frog + Polo
 
 ## Recent Improvements 🎉
 
+**Remote Player Position Correction Fix** - See [REMOTE_PLAYER_FIX.md](REMOTE_PLAYER_FIX.md) for details:
+- ✅ Eliminated constant position adjustments/corrections
+- ✅ Removed client-side movement prediction conflicts
+- ✅ Synchronized interpolation timing with server (30ms)
+- ✅ Smooth remote player movement without jitter
+
 **WebSocket Communication Optimizations** - See [WEBSOCKET_IMPROVEMENTS.md](WEBSOCKET_IMPROVEMENTS.md) for details:
 - ✅ Fixed out-of-order event handling with 200ms reordering window
 - ✅ Improved time synchronization (60s → 30s interval)
@@ -15,7 +21,7 @@ Simple example of multiplayer game using Bonfire + Dart Frog + Polo
 - ✅ Event delay capping (max 100ms) to prevent stalls
 - ✅ Connection stability with 10s ping interval
 
-These improvements significantly reduce event delays and ensure proper event ordering, even on unstable networks.
+These improvements significantly reduce event delays, ensure proper event ordering, and eliminate position correction issues for smooth multiplayer gameplay.
 
 ## Getting Started
 
