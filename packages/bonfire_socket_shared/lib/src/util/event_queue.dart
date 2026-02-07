@@ -49,7 +49,6 @@ class EventQueue<T> {
   final TimeSync timeSync;
 
   bool _running = false;
-  int _lastProcessedTimestamp = 0;
 
   Duration? _delayTimeSync;
 
@@ -59,10 +58,13 @@ class EventQueue<T> {
       return;
     }
     
-    // Recalculate delay based on current RTT for better accuracy
-    _delayTimeSync = Duration(
-      microseconds: timeSync.roundTripTime ~/ 2,
-    );
+    // Calculate delay based on RTT only if not set or RTT changed significantly
+    if (_delayTimeSync == null || 
+        (_delayTimeSync!.inMicroseconds - (timeSync.roundTripTime ~/ 2)).abs() > 10000) {
+      _delayTimeSync = Duration(
+        microseconds: timeSync.roundTripTime ~/ 2,
+      );
+    }
 
     final newTimeStamp = timeSync.serverTimestampToLocal(value.timestamp);
     final frame = value.updateTime(
@@ -115,42 +117,91 @@ class EventQueue<T> {
     // Sort pending frames by timestamp
     _pendingFrames.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-    // Reconstruct timeline with properly ordered frames
-    final allFrames = <Frame<T>>[];
-    
-    // Extract current frames from timeline
-    for (final item in _timeLine) {
-      if (item is Frame<T>) {
-        allFrames.add(item);
+    // Insert each pending frame in the correct position
+    for (final pendingFrame in _pendingFrames) {
+      _insertFrameInOrder(pendingFrame);
+    }
+    _pendingFrames.clear();
+  }
+
+  void _insertFrameInOrder(Frame<T> frame) {
+    // Convert timeline to list for easier manipulation
+    final items = _timeLine.toList();
+    _timeLine.clear();
+
+    // Find insertion point
+    int insertIndex = -1;
+    for (int i = 0; i < items.length; i++) {
+      if (items[i] is Frame<T>) {
+        final existingFrame = items[i] as Frame<T>;
+        if (frame.timestamp < existingFrame.timestamp) {
+          insertIndex = i;
+          break;
+        }
       }
     }
-    
-    // Add pending frames
-    allFrames.addAll(_pendingFrames);
-    _pendingFrames.clear();
 
-    // Sort all frames
-    allFrames.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    // If no insertion point found, add at end
+    if (insertIndex == -1) {
+      insertIndex = items.length;
+    }
 
-    // Rebuild timeline
-    _timeLine.clear();
-    for (var i = 0; i < allFrames.length; i++) {
-      if (i == 0) {
-        final now = DateTime.now();
-        if (allFrames[i].time.isAfter(now)) {
-          final diff = allFrames[i].time.difference(now).inMicroseconds;
-          if (diff > 0) {
-            _timeLine.add(Delay<T>(diff));
+    // Rebuild timeline with frame inserted at correct position
+    Frame<T>? previousFrame;
+    for (int i = 0; i < items.length; i++) {
+      if (i == insertIndex) {
+        // Insert the new frame here
+        if (previousFrame != null) {
+          final delayBefore = frame.timestamp - previousFrame.timestamp;
+          if (delayBefore > 0) {
+            _timeLine.add(Delay<T>(delayBefore));
+          }
+        } else {
+          // First frame, check against current time
+          final now = DateTime.now();
+          if (frame.time.isAfter(now)) {
+            final diff = frame.time.difference(now).inMicroseconds;
+            if (diff > 0) {
+              _timeLine.add(Delay<T>(diff));
+            }
           }
         }
-        _timeLine.add(allFrames[i]);
-      } else {
-        final delay = allFrames[i].timestamp - allFrames[i - 1].timestamp;
-        if (delay > 0) {
-          _timeLine.add(Delay<T>(delay));
-        }
-        _timeLine.add(allFrames[i]);
+        _timeLine.add(frame);
+        previousFrame = frame;
       }
+
+      // Skip delays, recalculate them based on frames
+      if (items[i] is Frame<T>) {
+        final currentFrame = items[i] as Frame<T>;
+        if (previousFrame != null) {
+          final delayBefore = currentFrame.timestamp - previousFrame.timestamp;
+          if (delayBefore > 0) {
+            _timeLine.add(Delay<T>(delayBefore));
+          }
+        } else if (i == 0) {
+          // First frame, check against current time
+          final now = DateTime.now();
+          if (currentFrame.time.isAfter(now)) {
+            final diff = currentFrame.time.difference(now).inMicroseconds;
+            if (diff > 0) {
+              _timeLine.add(Delay<T>(diff));
+            }
+          }
+        }
+        _timeLine.add(currentFrame);
+        previousFrame = currentFrame;
+      }
+    }
+
+    // Handle case where frame should be added at the end
+    if (insertIndex == items.length && items.isNotEmpty) {
+      if (previousFrame != null) {
+        final delayBefore = frame.timestamp - previousFrame.timestamp;
+        if (delayBefore > 0) {
+          _timeLine.add(Delay<T>(delayBefore));
+        }
+      }
+      _timeLine.add(frame);
     }
   }
 
@@ -168,7 +219,6 @@ class EventQueue<T> {
       final current = _timeLine.removeFirst();
       if (current is Frame<T>) {
         // Process frame immediately, delays handled before frames
-        _lastProcessedTimestamp = current.timestamp;
         listen.call(current.value);
       } else if (current is Delay<T>) {
         // Cap maximum delay to prevent excessive blocking
