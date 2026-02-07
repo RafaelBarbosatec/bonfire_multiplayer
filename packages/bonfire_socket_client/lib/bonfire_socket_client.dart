@@ -20,8 +20,8 @@ class BonfireSocketClient
     this.binaryType,
     EventSerializer? serializer,
     this.debug = false,
-    this.syncTimeInterval = const Duration(minutes: 1),
-    this.bufferDelayEnabled = false,
+    this.syncTimeInterval = const Duration(seconds: 30),
+    this.bufferDelayEnabled = true,
   }) {
     this.serializer = serializer ?? EventSerializerDefault();
     _packer = EventPacker(
