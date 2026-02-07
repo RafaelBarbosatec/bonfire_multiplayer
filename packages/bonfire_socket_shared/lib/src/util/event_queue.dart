@@ -221,10 +221,17 @@ class EventQueue<T> {
         // Process frame immediately, delays handled before frames
         listen.call(current.value);
       } else if (current is Delay<T>) {
-        // Cap maximum delay to prevent excessive blocking
-        final delayMicros = current.timestamp.clamp(0, 100000); // Max 100ms
-        if (delayMicros > 0) {
-          await Future.delayed(Duration(microseconds: delayMicros));
+        // Process delay in chunks to prevent blocking while maintaining timing
+        var remainingDelay = current.timestamp;
+        const maxChunkSize = 100000; // 100ms chunks to prevent blocking
+        
+        while (remainingDelay > maxChunkSize) {
+          await Future.delayed(Duration(microseconds: maxChunkSize));
+          remainingDelay -= maxChunkSize;
+        }
+        
+        if (remainingDelay > 0) {
+          await Future.delayed(Duration(microseconds: remainingDelay));
         }
       }
     }
