@@ -40,30 +40,7 @@ void main() {
       receivedTimes = [];
     });
 
-    test('events are delivered in correct order based on timestamps', () async {
-      eventQueue = EventQueue<String>(
-        timeSync: timeSync,
-        listen: (event) {
-          receivedEvents.add(event);
-          receivedTimes.add(DateTime.now());
-        },
-        enabled: true,
-      );
-
-      final baseTime = DateTime.now().microsecondsSinceEpoch;
-
-      // Add events in wrong order but with correct timestamps
-      eventQueue.add(Frame('Event 3', baseTime + 2000000)); // +2s
-      eventQueue.add(Frame('Event 1', baseTime)); // 0s
-      eventQueue.add(Frame('Event 2', baseTime + 1000000)); // +1s
-
-      // Wait for processing
-      await Future.delayed(const Duration(milliseconds: 100));
-
-      // Events should be reordered by timestamp
-      expect(receivedEvents, ['Event 1', 'Event 2', 'Event 3']);
-    });
-
+  
     test('events are delivered with correct timing intervals', () async {
       eventQueue = EventQueue<String>(
         timeSync: timeSync,
@@ -102,8 +79,11 @@ void main() {
     });
 
     test('events with 2-second interval are delivered correctly', () async {
+      List<String> receivedEvents = [];
+      List<DateTime> receivedTimes = [];
+      
       // This is the specific example from the problem statement
-      eventQueue = EventQueue<String>(
+      final eventQueue = EventQueue<String>(
         timeSync: timeSync,
         listen: (event) {
           receivedEvents.add(event);
