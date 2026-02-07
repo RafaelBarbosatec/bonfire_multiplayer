@@ -1,7 +1,7 @@
 # Remote Player Position Correction Fix
 
 ## Problem (Portuguese)
-> não percebi grande melhora. em meu remove player toda hora acontence ajuste de posição que é executada em game_client/lib/util/update_movement_mixin.dart na linha 9. sinal que ao executar a sequencia de eventos estam executando em tempos diferentes do real, ou está executando numa velocidade diferente do server não sei. tem como investigar isso?
+> não percebi grande melhora. em meu remote player toda hora acontece ajuste de posição que é executada em game_client/lib/util/update_movement_mixin.dart na linha 9. sinal que ao executar a sequência de eventos estão executando em tempos diferentes do real, ou está executando numa velocidade diferente do server não sei. tem como investigar isso?
 
 ## Translation
 "I didn't notice much improvement. In my remote player, position adjustment happens all the time, which is executed in game_client/lib/util/update_movement_mixin.dart at line 9. This is a sign that when executing the sequence of events, they are executing at different times from the real ones, or it's executing at a different speed than the server, I don't know. Can you investigate this?"
