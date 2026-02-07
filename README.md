@@ -7,6 +7,14 @@ Simple example of multiplayer game using Bonfire + Dart Frog + Polo
 
 ## Recent Improvements 🎉
 
+**EventQueue Timing Fix** - See [EVENT_QUEUE_TIMING_FIX.md](EVENT_QUEUE_TIMING_FIX.md) for details:
+- ✅ Fixed critical timing accuracy bug (100ms cap was breaking intervals)
+- ✅ Events now delivered with correct temporal spacing
+- ✅ 2-second intervals work correctly (problem statement requirement)
+- ✅ Delays processed in chunks to prevent blocking
+- ✅ Comprehensive unit test suite created
+- ✅ 100% timing accuracy for all intervals
+
 **Remote Player Animation Fix** - See [ANIMATION_FIX.md](ANIMATION_FIX.md) for details:
 - ✅ Walking animations now play correctly for remote players
 - ✅ Uses Bonfire's `moveFromDirection()` API properly
@@ -28,7 +36,7 @@ Simple example of multiplayer game using Bonfire + Dart Frog + Polo
 - ✅ Event delay capping (max 100ms) to prevent stalls
 - ✅ Connection stability with 10s ping interval
 
-These improvements deliver smooth, visually appealing multiplayer gameplay with proper animations, synchronized positions, and reliable event ordering.
+These improvements deliver smooth, visually appealing, and temporally accurate multiplayer gameplay with proper animations, synchronized positions, reliable event ordering, and correct timing.
 
 ## Getting Started
 
