@@ -9,6 +9,7 @@ mixin UpdateMovementMixin on Movement {
       // Call moveFromDirection to trigger walking animation
       // Note: The translate() override in MyRemotePlayer prevents actual movement
       // This allows animations to play while position is controlled by server
+      setZeroVelocity();
       moveFromDirection(state.direction!.toDirection());
     } else {
       // Stop movement and show idle animation
