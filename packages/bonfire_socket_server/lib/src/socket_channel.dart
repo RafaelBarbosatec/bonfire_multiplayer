@@ -5,9 +5,9 @@ import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 import 'package:dart_frog_web_socket/dart_frog_web_socket.dart';
 
 // ignore: public_member_api_docs
-class BSocketClient {
-  /// Creates a new instance of [BSocketClient].
-  BSocketClient({
+class BSocketChannel {
+  /// Creates a new instance of [BSocketChannel].
+  BSocketChannel({
     required this.id,
     required WebSocketChannel channel,
     required this.onDisconnect,
@@ -21,11 +21,6 @@ class BSocketClient {
       typeAdapterProvider: typeAdapterProvider,
     );
     _timeSync = TimeSync();
-    _eventQueue = EventQueue<BEvent>(
-      timeSync: _timeSync,
-      listen: _onQueueEvent,
-      enabled: bufferDelayEnabled,
-    );
     _channel.stream.listen(
       _onChannelListen,
       onDone: () => onDisconnect(this),
@@ -39,7 +34,7 @@ class BSocketClient {
   final WebSocketChannel _channel;
 
   /// Callback function that is called when the client disconnects.
-  final void Function(BSocketClient client) onDisconnect;
+  final void Function(BSocketChannel client) onDisconnect;
 
   /// The socket actions associated with this client.
   final BonfireSocketActions socket;
@@ -54,8 +49,6 @@ class BSocketClient {
 
   Completer<DateTime>? _timeSyncCompleter;
   late TimeSync _timeSync;
-
-  late EventQueue<BEvent> _eventQueue;
 
   /// Sends a message to the client.
   void send<T>(String event, T message) {
@@ -77,9 +70,7 @@ class BSocketClient {
     if (_handleSyncTime(event)) {
       return;
     }
-    _eventQueue.add(
-      Frame(event, event.time),
-    );
+    _onQueueEvent(event);
   }
 
   void _onQueueEvent(BEvent event) {

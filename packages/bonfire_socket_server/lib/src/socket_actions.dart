@@ -1,4 +1,4 @@
-import 'package:bonfire_socket_server/src/socket_client.dart';
+import 'package:bonfire_socket_server/src/socket_channel.dart';
 
 /// A mixin that defines the actions that can be performed with a Bonfire socket.
 ///
@@ -18,7 +18,7 @@ mixin BonfireSocketActions {
   ///   - client: The client to exclude from the broadcast.
   ///   - event: The event name to broadcast.
   ///   - message: The message to send.
-  void sendBroadcastFrom<T>(BSocketClient client, String event, T message);
+  void sendBroadcastFrom<T>(BSocketChannel client, String event, T message);
 
   /// Sends a message to a specific client.
   ///
@@ -26,7 +26,7 @@ mixin BonfireSocketActions {
   ///   - client: The client to send the message to.
   ///   - event: The event name.
   ///   - message: The message to send.
-  void sendTo<T>(BSocketClient client, String event, T message);
+  void sendTo<T>(BSocketChannel client, String event, T message);
 
   /// Creates a new room with the specified ID.
   ///
@@ -45,21 +45,21 @@ mixin BonfireSocketActions {
   /// - Parameters:
   ///   - roomId: The ID of the room to enter.
   ///   - client: The client to add to the room.
-  bool enterRoom(String roomId, BSocketClient client);
+  bool enterRoom(String roomId, BSocketChannel client);
 
   /// Adds a client to the specified room or create if the room not exist.
   ///
   /// - Parameters:
   ///   - roomId: The ID of the room to enter.
   ///   - client: The client to add to the room.
-  void createAndEnterRoom(String roomId, BSocketClient client);
+  void createAndEnterRoom(String roomId, BSocketChannel client);
 
   /// Removes a client from the specified room.
   ///
   /// - Parameters:
   ///   - roomId: The ID of the room to leave.
   ///   - client: The client to remove from the room.
-  void leaveRoom(String roomId, BSocketClient client);
+  void leaveRoom(String roomId, BSocketChannel client);
 
   /// Sends a message to all clients in the specified room.
   ///
@@ -75,9 +75,9 @@ mixin BonfireSocketActions {
   ///   - client: The client whose room ID to retrieve.
   ///
   /// - Returns: The ID of the room the client is in, or `null` if the client is not in any room.
-  String? getMyRoomId(BSocketClient client);
+  String? getMyRoomId(BSocketChannel client);
 
-  List<BSocketClient> getRoom(String roomId);
+  List<BSocketChannel> getRoom(String roomId);
 
-  Map<String, List<BSocketClient>> getRooms();
+  Map<String, List<BSocketChannel>> getRooms();
 }
