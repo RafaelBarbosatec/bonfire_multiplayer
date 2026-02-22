@@ -14,6 +14,7 @@ import 'src/infrastructure/logger/logger_provider.dart';
 import 'src/infrastructure/websocket/bonfire_websocket.dart';
 import 'src/infrastructure/websocket/websocket_provider.dart';
 import 'src/injector.dart';
+import 'src/server_type_injector.dart';
 
 GameServer? game;
 final LoggerProvider logger = LoggerLogger();
@@ -26,6 +27,7 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
       onClientConnect: onClientConnect,
       onClientDisconnect: onClientDisconnect,
     );
+    injectServerTypes(server!);
   }
   game ??= GameServer(
     server: server!,

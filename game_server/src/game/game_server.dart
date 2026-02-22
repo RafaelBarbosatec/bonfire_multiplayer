@@ -8,9 +8,7 @@ import '../infrastructure/websocket/websocket_provider.dart';
 import 'components/player.dart';
 
 class GameServer extends Game {
-  GameServer({required this.server, required super.maps}) {
-    _registerTypes();
-  }
+  GameServer({required this.server, required super.maps});
   static const tileSize = 16.0;
 
   List<WebsocketClient> clients = [];
@@ -101,6 +99,7 @@ class GameServer extends Game {
     );
   }
 
+  @override
   void onPlayerChangeMap(GamePlayer player, GameMap map) {
     player.send(
       EventType.JOIN_MAP.name,
@@ -111,40 +110,6 @@ class GameServer extends Game {
         map: map.toModel(),
       ),
     );
-  }
-
-  void _registerTypes() {
-    server
-      ..registerType<JoinEvent>(
-        TypeAdapter(
-          toMap: (type) => type.toMap(),
-          fromMap: JoinEvent.fromMap,
-        ),
-      )
-      ..registerType<JoinMapEvent>(
-        TypeAdapter(
-          toMap: (type) => type.toMap(),
-          fromMap: JoinMapEvent.fromMap,
-        ),
-      )
-      ..registerType<GameStateModel>(
-        TypeAdapter(
-          toMap: (type) => type.toMap(),
-          fromMap: GameStateModel.fromMap,
-        ),
-      )
-      ..registerType<PlayerEvent>(
-        TypeAdapter(
-          toMap: (type) => type.toMap(),
-          fromMap: PlayerEvent.fromMap,
-        ),
-      )
-      ..registerType<MoveEvent>(
-        TypeAdapter(
-          toMap: (type) => type.toMap(),
-          fromMap: MoveEvent.fromMap,
-        ),
-      );
   }
 
   @override
