@@ -5,5 +5,6 @@ enum EventType {
   JOIN_MAP,
   UPDATE_STATE,
   MOVE,
-  CHANGE_MAP;
+  CHANGE_MAP,
+  LEAVE;
 }

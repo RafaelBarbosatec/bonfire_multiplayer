@@ -5,7 +5,7 @@ import 'websocket_provider.dart';
 class BonfireWebsocketClient extends WebsocketClient {
   BonfireWebsocketClient({required this.client});
 
-  final BSocketClient client;
+  final BSocketChannel client;
 
   @override
   void on<T>(String event, void Function(T event) callback) {
@@ -20,4 +20,9 @@ class BonfireWebsocketClient extends WebsocketClient {
   @override
   // TODO: implement id
   String get id => client.id;
+
+  @override
+  void cleanListener(String event) {
+    client.cleanListener(event);
+  }
 }

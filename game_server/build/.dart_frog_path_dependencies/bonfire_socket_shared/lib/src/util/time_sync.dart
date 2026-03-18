@@ -3,6 +3,8 @@
 class TimeSync {
   Duration _serverDifference = Duration.zero;
   int _roundTripTime = 0;
+  final List<int> _rttSamples = [];
+  static const int _maxSamples = 5;
 
   Future<void> synchronize(Future<DateTime> Function() getServerTime) async {
     try {
@@ -11,12 +13,22 @@ class TimeSync {
       final responseTime = DateTime.now();
 
       final roundTripTime = responseTime.difference(requestTime);
-      _roundTripTime = roundTripTime.inMicroseconds;
-      final adjustedServerTime = serverTime.add(roundTripTime ~/ 2);
+      final rttMicros = roundTripTime.inMicroseconds;
+      
+      // Store RTT samples for averaging
+      _rttSamples.add(rttMicros);
+      if (_rttSamples.length > _maxSamples) {
+        _rttSamples.removeAt(0);
+      }
+      
+      // Use average RTT for more stable timing
+      _roundTripTime = _rttSamples.reduce((a, b) => a + b) ~/ _rttSamples.length;
+      
+      final adjustedServerTime = serverTime.add(Duration(microseconds: _roundTripTime ~/ 2));
 
       _serverDifference = adjustedServerTime.difference(responseTime);
       _log('diff: $_serverDifference');
-      _log('roundTripTime: $roundTripTime');
+      _log('roundTripTime: ${Duration(microseconds: _roundTripTime)} (avg of ${_rttSamples.length} samples)');
     } catch (e) {
       throw Exception('Failed to connect to the server: $e');
     }

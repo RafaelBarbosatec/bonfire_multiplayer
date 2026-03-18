@@ -1,7 +1,6 @@
+import 'package:bonfire_server/bonfire_server.dart';
 import 'package:dart_frog/dart_frog.dart';
 
-import '../src/core/game.dart';
-import '../src/core/game_map.dart';
 import '../src/game/components/player.dart';
 
 Future<Response> onRequest(RequestContext context) async {

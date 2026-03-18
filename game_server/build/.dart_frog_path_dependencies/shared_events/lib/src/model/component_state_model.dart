@@ -13,6 +13,8 @@ class ComponentStateModel {
     MoveDirectionEnum? lastDirection,
     this.action,
     Map<String, dynamic>? properties,
+    this.lastInputId, // For client-side prediction acknowledgment
+    this.serverTimestamp, // Server timestamp for lag compensation
   })  : properties = properties ?? {},
         _direction = direction,
         _lastDirection = lastDirection ?? direction {
@@ -23,6 +25,8 @@ class ComponentStateModel {
   final String name;
   final String? action;
   final double speed;
+  final int? lastInputId;
+  final int? serverTimestamp;
   MoveDirectionEnum? _lastDirection;
   MoveDirectionEnum? _direction;
   GameVector position;
@@ -53,6 +57,8 @@ class ComponentStateModel {
       'action': action,
       'speed': speed,
       'properties': properties,
+      'lastInputId': lastInputId,
+      'serverTimestamp': serverTimestamp,
     };
   }
 
@@ -72,6 +78,8 @@ class ComponentStateModel {
       action: map['action'] as String?,
       speed: double.tryParse(map['speed'].toString()) ?? 80,
       properties: map['properties'] as Map<String, dynamic>? ?? {},
+      lastInputId: map['lastInputId'] as int?,
+      serverTimestamp: map['serverTimestamp'] as int?,
     );
   }
 }

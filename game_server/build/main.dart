@@ -2,10 +2,10 @@
 
 import 'dart:io';
 
+import 'package:bonfire_server/bonfire_server.dart';
 import 'package:bonfire_socket_server/bonfire_socket_server.dart';
 import 'package:dart_frog/dart_frog.dart';
 
-import 'src/core/game.dart';
 import 'src/game/game_server.dart';
 import 'src/game/maps/desert.dart';
 import 'src/game/maps/florest.dart';
@@ -13,6 +13,8 @@ import 'src/infrastructure/logger/logger_logger.dart';
 import 'src/infrastructure/logger/logger_provider.dart';
 import 'src/infrastructure/websocket/bonfire_websocket.dart';
 import 'src/infrastructure/websocket/websocket_provider.dart';
+import 'src/injector.dart';
+import 'src/server_type_injector.dart';
 
 GameServer? game;
 final LoggerProvider logger = LoggerLogger();
@@ -25,6 +27,7 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
       onClientConnect: onClientConnect,
       onClientDisconnect: onClientDisconnect,
     );
+    injectServerTypes(server!);
   }
   game ??= GameServer(
     server: server!,
@@ -37,17 +40,19 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   await game!.start();
 
   return serve(
-    handler
-        .use(
-          provider<Game>(
-            (context) => game!,
+    Injector.run(
+      handler
+          .use(
+            provider<Game>(
+              (context) => game!,
+            ),
+          )
+          .use(
+            provider<BonfireSocket>(
+              (context) => server!.socket,
+            ),
           ),
-        )
-        .use(
-          provider<BonfireSocket>(
-            (context) => server!.socket,
-          ),
-        ),
+    ),
     ip,
     port,
   );

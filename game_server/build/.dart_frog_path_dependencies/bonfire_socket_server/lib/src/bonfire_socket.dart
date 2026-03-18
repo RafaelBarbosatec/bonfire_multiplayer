@@ -1,5 +1,5 @@
 import 'package:bonfire_socket_server/src/socket_actions.dart';
-import 'package:bonfire_socket_server/src/socket_client.dart';
+import 'package:bonfire_socket_server/src/socket_channel.dart';
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_web_socket/dart_frog_web_socket.dart';
@@ -47,33 +47,33 @@ class BonfireSocket
     this.onClientConnect,
     this.onClientDisconnect,
     EventSerializer? serializer,
-    this.bufferDelayEnabled = false,
+    this.bufferDelayEnabled = true,
   }) {
     this.serializer = serializer ?? EventSerializerDefault();
   }
 
-  final List<BSocketClient> _clients = [];
-  final Map<String, List<BSocketClient>> _rooms = {};
+  final List<BSocketChannel> _clients = [];
+  final Map<String, List<BSocketChannel>> _rooms = {};
 
   /// Returns a list of connected clients.
-  List<BSocketClient> get clients => List.unmodifiable(_clients);
+  List<BSocketChannel> get clients => List.unmodifiable(_clients);
 
   /// Callback function that is called when a client connects.
-  void Function(BSocketClient client)? onClientConnect;
+  void Function(BSocketChannel client)? onClientConnect;
 
   /// Callback function that is called when a client disconnects.
-  void Function(BSocketClient client)? onClientDisconnect;
+  void Function(BSocketChannel client)? onClientDisconnect;
 
   /// Whether to enable buffer delay for incoming messages.
   final bool bufferDelayEnabled;
 
   /// Returns a [Handler] that manages WebSocket connections.
-  Handler handler() {
-    return webSocketHandler(_addClient);
+  Future<Response> handler(RequestContext context) async {
+    return webSocketHandler(_addClient)(context);
   }
 
   void _addClient(WebSocketChannel channel, _) {
-    final client = BSocketClient(
+    final client = BSocketChannel(
       id: const Uuid().v1(),
       channel: channel,
       onDisconnect: _onClientDisconnect,
@@ -86,11 +86,9 @@ class BonfireSocket
     onClientConnect?.call(client);
   }
 
-  void _onClientDisconnect(BSocketClient client) {
+  void _onClientDisconnect(BSocketChannel client) {
     _clients.remove(client);
-    for (final room in _rooms.values) {
-      room.remove(client);
-    }
+    client.leaveRoom();
     onClientDisconnect?.call(client);
   }
 
@@ -102,14 +100,14 @@ class BonfireSocket
   }
 
   @override
-  void sendBroadcastFrom<T>(BSocketClient client, String event, T message) {
+  void sendBroadcastFrom<T>(BSocketChannel client, String event, T message) {
     for (final client in _clients.where((c) => c != client)) {
       client.send<T>(event, message);
     }
   }
 
   @override
-  void sendTo<T>(BSocketClient client, String event, T message) {
+  void sendTo<T>(BSocketChannel client, String event, T message) {
     client.send<T>(event, message);
   }
 
@@ -126,17 +124,23 @@ class BonfireSocket
   }
 
   @override
-  void enterRoom(String roomId, BSocketClient client) {
+  bool enterRoom(String roomId, BSocketChannel client) {
     if (_rooms.containsKey(roomId)) {
       _rooms[roomId]!.add(client);
+      return true;
     } else {
-      createRoom(roomId);
-      _rooms[roomId]!.add(client);
+      return false;
     }
   }
 
   @override
-  void leaveRoom(String roomId, BSocketClient client) {
+  void createAndEnterRoom(String roomId, BSocketChannel client) {
+    createRoom(roomId);
+    enterRoom(roomId, client);
+  }
+
+  @override
+  void leaveRoom(String roomId, BSocketChannel client) {
     _rooms[roomId]?.remove(client);
     if (_rooms[roomId]?.isEmpty ?? false) {
       _rooms.remove(roomId);
@@ -154,12 +158,22 @@ class BonfireSocket
   }
 
   @override
-  String? getMyRoomId(BSocketClient client) {
+  String? getMyRoomId(BSocketChannel client) {
     for (final entry in _rooms.entries) {
       if (entry.value.contains(client)) {
         return entry.key;
       }
     }
     return null;
+  }
+
+  @override
+  List<BSocketChannel> getRoom(String roomId) {
+    return _rooms[roomId] ?? [];
+  }
+
+  @override
+  Map<String, List<BSocketChannel>> getRooms() {
+    return Map.unmodifiable(_rooms);
   }
 }
