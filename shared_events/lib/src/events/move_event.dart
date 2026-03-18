@@ -7,12 +7,16 @@ class MoveEvent {
     required this.time,
     required this.direction,
     required this.mapId,
+    this.inputId, // For client-side prediction
+    this.timestamp, // For lag compensation
   });
 
   final GameVector position;
   final String time;
   final MoveDirectionEnum? direction;
   final String mapId;
+  final int? inputId;
+  final int? timestamp; // Client timestamp in milliseconds
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -20,6 +24,8 @@ class MoveEvent {
       'time': time,
       'direction': direction?.index,
       'map': mapId,
+      'inputId': inputId,
+      'timestamp': timestamp,
     };
   }
 
@@ -31,6 +37,8 @@ class MoveEvent {
       direction: map['direction'] != null
           ? MoveDirectionEnum.values[map['direction']]
           : null,
+      inputId: map['inputId'] as int?,
+      timestamp: map['timestamp'] as int?,
     );
   }
 }

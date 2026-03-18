@@ -6,6 +6,7 @@ import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
+import 'package:bonfire_multiplayer/util/smooth_movement_mixin.dart';
 import 'package:bonfire_multiplayer/util/update_movement_mixin.dart';
 
 class MyRemotePlayer extends SimplePlayer
@@ -13,6 +14,7 @@ class MyRemotePlayer extends SimplePlayer
         BlockMovementCollision,
         WithNameBottom,
         UpdateMovementMixin,
+        SmoothMovementMixin,
         BonfireBlocListenable<MyRemotePlayerBloc, MyRemotePlayerState> {
   final String id;
   MyRemotePlayer({

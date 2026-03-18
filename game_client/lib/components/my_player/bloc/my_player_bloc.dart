@@ -40,6 +40,8 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
         time: DateTime.now().toIso8601String(),
         direction: event.direction,
         mapId: mapId,
+        inputId: event.inputId,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
       ),
     );
   }
@@ -49,6 +51,7 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
           position: state.position.toVector2(),
           direction: state.direction,
           lastDirection: state.lastDirection,
+          lastInputId: state.lastInputId,
         ),
       );
 
@@ -61,6 +64,7 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
         position: event.position,
         direction: event.direction,
         lastDirection: event.lastDirection,
+        lastInputId: event.lastInputId,
       ),
     );
   }
