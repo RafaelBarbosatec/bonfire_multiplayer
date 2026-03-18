@@ -21,7 +21,7 @@ class MyPlayer extends SimplePlayer
   bool sendedIdle = false;
   async.Timer? timer;
   static const double _positionThreshold =
-      32.0; // 2 tiles threshold for correction
+      32; // 2 tiles threshold for correction
 
   // Client-side prediction variables
   final List<InputEvent> _inputBuffer = [];
@@ -81,12 +81,12 @@ class MyPlayer extends SimplePlayer
     if (state.direction == null) {
       timer = async.Timer(
         const Duration(
-          milliseconds: 150,
+          milliseconds: 250,
         ), // Increased delay for better tolerance
         () {
           // Check if local position deviated too much from server position
           final distance = position.distanceTo(serverPosition);
-          if (distance > _positionThreshold) {
+          if (distance > _positionThreshold / 4) {
             _smoothCorrectPosition(serverPosition);
           }
         },
@@ -135,7 +135,6 @@ class MyPlayer extends SimplePlayer
 
     // Check for significant position deviation
     final distance = position.distanceTo(serverState.position);
-
     if (distance > _positionThreshold) {
       // Significant deviation detected - smooth correction needed
       _smoothCorrectPosition(serverState.position);
