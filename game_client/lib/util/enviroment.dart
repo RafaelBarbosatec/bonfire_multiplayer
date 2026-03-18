@@ -35,11 +35,11 @@ class LocalInviroment extends BaseInviroment {
 
 class ServerInviroment extends BaseInviroment {
   @override
-  String get address => 'bonfire-multiplayer.onrender.com';
+  String get address => 'rpg-game-backend-cnoqlk-1d5af0-104-248-6-2.traefik.me';
 
   @override
   int? get port => null;
 
   @override
-  bool get ssl => true;
+  bool get ssl => false;
 }

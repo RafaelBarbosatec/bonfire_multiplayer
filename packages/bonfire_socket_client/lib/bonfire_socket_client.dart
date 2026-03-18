@@ -29,6 +29,11 @@ class BonfireSocketClient
       typeAdapterProvider: this,
     );
     timeSync = TimeSync();
+    _eventQueue = EventQueue<BEvent>(
+      timeSync: timeSync,
+      listen: _onListernQueue,
+      enabled: bufferDelayEnabled,
+    );
   }
   late WebSocket _socket;
   final Uri uri;
@@ -46,6 +51,7 @@ class BonfireSocketClient
   late TimeSync timeSync;
   Completer<DateTime>? _timeSyncCompleter;
   Timer? _syncTimeTimer;
+  late EventQueue<BEvent> _eventQueue;
 
   bool _connected = false;
 
@@ -91,7 +97,9 @@ class BonfireSocketClient
     if (_handleSyncTime(event)) {
       return;
     }
-    _onListernQueue(event);
+    _eventQueue.add(
+      Frame(event, event.time),
+    );
     if (debug) {
       log('BonfireSocketClient: ${event.toMap()}');
     }

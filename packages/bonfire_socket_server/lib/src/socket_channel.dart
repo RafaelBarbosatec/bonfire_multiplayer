@@ -21,6 +21,11 @@ class BSocketChannel {
       typeAdapterProvider: typeAdapterProvider,
     );
     _timeSync = TimeSync();
+    _eventQueue = EventQueue<BEvent>(
+      timeSync: _timeSync,
+      listen: _onQueueEvent,
+      enabled: bufferDelayEnabled,
+    );
     _channel.stream.listen(
       _onChannelListen,
       onDone: () => onDisconnect(this),
@@ -49,6 +54,7 @@ class BSocketChannel {
 
   Completer<DateTime>? _timeSyncCompleter;
   late TimeSync _timeSync;
+  late EventQueue<BEvent> _eventQueue;
 
   /// Sends a message to the client.
   void send<T>(String event, T message) {
@@ -70,7 +76,9 @@ class BSocketChannel {
     if (_handleSyncTime(event)) {
       return;
     }
-    _onQueueEvent(event);
+    _eventQueue.add(
+      Frame(event, event.time),
+    );
   }
 
   void _onQueueEvent(BEvent event) {
