@@ -1,0 +1,8 @@
+# melos_managed_dependency_overrides: bonfire_socket_client,bonfire_socket_shared,shared_events
+dependency_overrides:
+  bonfire_socket_client:
+    path: ../packages/bonfire_socket_client
+  bonfire_socket_shared:
+    path: ../packages/bonfire_socket_shared
+  shared_events:
+    path: ../shared_events

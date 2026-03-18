@@ -1,0 +1,4 @@
+# melos_managed_dependency_overrides: bonfire_socket_shared
+dependency_overrides:
+  bonfire_socket_shared:
+    path: ../bonfire_socket_shared
