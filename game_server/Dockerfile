@@ -12,18 +12,12 @@ ENV PATH="/root/.pub-cache/bin:${PATH}"
 # Copy project structure maintaining relative paths
 COPY . .
 
-# Debug: Check the directory structure
-RUN ls -la /app/
-RUN ls -la /app/game_server/ || true
-
-# Set working directory to game_server for build
-WORKDIR /app/game_server
-
+# Files are already in /app/ so we don't need to change to game_server
 # Build the production-ready Dart Frog application
 RUN dart_frog build
 
 # Switch to build output folder for dependency resolution & compilation
-WORKDIR /app/game_server/build
+WORKDIR /app/build
 
 # Ensure packages are still up-to-date if anything has changed
 RUN dart pub get --offline
@@ -33,8 +27,8 @@ RUN dart compile exe bin/server.dart -o bin/server
 # libraries and configuration files stored in `/runtime/` from the build stage.
 FROM scratch
 COPY --from=build /runtime/ /
-COPY --from=build /app/game_server/bin/server /app/bin/
-COPY --from=build /app/game_server/public /public
+COPY --from=build /app/bin/server /app/bin/
+COPY --from=build /app/public /public
 
 # Start server.
 CMD ["/app/bin/server"]
