@@ -47,8 +47,8 @@ class GameRect {
 
   factory GameRect.fromMap(Map<String, dynamic> map) {
     return GameRect(
-      position: GameVector.fromMap(map['position'] as Map<String, dynamic>),
-      size: GameVector.fromMap(map['size'] as Map<String, dynamic>),
+      position: GameVector.fromMap((map['position'] as Map).cast()),
+      size: GameVector.fromMap((map['size'] as Map).cast()),
     );
   }
 

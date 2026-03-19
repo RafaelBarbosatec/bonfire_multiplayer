@@ -4,6 +4,7 @@ import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
+import 'package:bonfire_multiplayer/util/smooth_movement_mixin.dart';
 import 'package:bonfire_multiplayer/util/update_movement_mixin.dart';
 
 import 'bloc/my_remote_enemy_bloc.dart';
@@ -12,6 +13,7 @@ class MyRemoteEnemy extends SimpleEnemy
     with
         WithNameBottom,
         UpdateMovementMixin,
+        SmoothMovementMixin,
         BonfireBlocListenable<MyRemoteEnemyBloc, MyRemoteEnemyState> {
   final String id;
   MyRemoteEnemy({

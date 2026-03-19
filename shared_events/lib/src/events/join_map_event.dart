@@ -28,16 +28,16 @@ class JoinMapEvent {
 
   factory JoinMapEvent.fromMap(Map<String, dynamic> map) {
     return JoinMapEvent(
-      state: ComponentStateModel.fromMap(map['state'] as Map<String, dynamic>),
-      map: MapModel.fromMap(map['map'] as Map<String, dynamic>),
+      state: ComponentStateModel.fromMap((map['state'] as Map).cast()),
+      map: MapModel.fromMap((map['map'] as Map).cast()),
       players: List<ComponentStateModel>.from(
         (map['players'] as List).map<ComponentStateModel>(
-          (x) => ComponentStateModel.fromMap(x as Map<String, dynamic>),
+          (x) => ComponentStateModel.fromMap((x as Map).cast()),
         ),
       ),
       npcs: List<ComponentStateModel>.from(
         (map['npcs'] as List).map<ComponentStateModel>(
-          (x) => ComponentStateModel.fromMap(x as Map<String, dynamic>),
+          (x) => ComponentStateModel.fromMap((x as Map).cast()),
         ),
       ),
     );

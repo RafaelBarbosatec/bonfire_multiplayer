@@ -36,7 +36,7 @@ class CharacterModel {
       nickName: map['nickName'] as String,
       skin: map['skin'] as String,
       userId: map['userId'] as String,
-      position: CharacterPosition.fromMap(map['position'] as Map<String, dynamic>),
+      position: CharacterPosition.fromMap((map['position'] as Map).cast()),
       mapId: map['mapId'] as String,
     );
   }

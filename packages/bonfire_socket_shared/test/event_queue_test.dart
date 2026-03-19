@@ -40,7 +40,6 @@ void main() {
       receivedTimes = [];
     });
 
-  
     test('events are delivered with correct timing intervals', () async {
       eventQueue = EventQueue<String>(
         timeSync: timeSync,
@@ -48,7 +47,6 @@ void main() {
           receivedEvents.add(event);
           receivedTimes.add(DateTime.now());
         },
-        enabled: true,
       );
 
       final baseTime = DateTime.now().microsecondsSinceEpoch;
@@ -59,29 +57,31 @@ void main() {
       eventQueue.add(Frame('Event 3', baseTime + 1000000)); // +1000ms
 
       // Wait for all events to be processed
-      await Future.delayed(const Duration(milliseconds: 1500));
+      await Future<void>.delayed(const Duration(milliseconds: 1500));
 
       expect(receivedEvents.length, 3);
       expect(receivedEvents, ['Event 1', 'Event 2', 'Event 3']);
 
       // Check timing intervals (with some tolerance for test execution)
       if (receivedTimes.length >= 2) {
-        final interval1 = receivedTimes[1].difference(receivedTimes[0]).inMilliseconds;
+        final interval1 =
+            receivedTimes[1].difference(receivedTimes[0]).inMilliseconds;
         expect(interval1, greaterThan(400)); // At least 400ms
         expect(interval1, lessThan(600)); // At most 600ms
       }
 
       if (receivedTimes.length >= 3) {
-        final interval2 = receivedTimes[2].difference(receivedTimes[1]).inMilliseconds;
+        final interval2 =
+            receivedTimes[2].difference(receivedTimes[1]).inMilliseconds;
         expect(interval2, greaterThan(400)); // At least 400ms
         expect(interval2, lessThan(600)); // At most 600ms
       }
     });
 
     test('events with 2-second interval are delivered correctly', () async {
-      List<String> receivedEvents = [];
-      List<DateTime> receivedTimes = [];
-      
+      final receivedEvents = <String>[];
+      final receivedTimes = <DateTime>[];
+
       // This is the specific example from the problem statement
       final eventQueue = EventQueue<String>(
         timeSync: timeSync,
@@ -89,7 +89,6 @@ void main() {
           receivedEvents.add(event);
           receivedTimes.add(DateTime.now());
         },
-        enabled: true,
       );
 
       final baseTime = DateTime.now().microsecondsSinceEpoch;
@@ -99,15 +98,19 @@ void main() {
       eventQueue.add(Frame('Event B', baseTime + 2000000)); // +2s
 
       // Wait for both events
-      await Future.delayed(const Duration(milliseconds: 2500));
+      await Future<void>.delayed(const Duration(milliseconds: 2500));
 
       expect(receivedEvents, ['Event A', 'Event B']);
 
       // Verify 2-second interval (with tolerance)
       if (receivedTimes.length >= 2) {
-        final interval = receivedTimes[1].difference(receivedTimes[0]).inMilliseconds;
+        final interval =
+            receivedTimes[1].difference(receivedTimes[0]).inMilliseconds;
         expect(interval, greaterThan(1900)); // At least 1.9s
-        expect(interval, lessThan(2200)); // At most 2.2s (including 100ms cap per delay)
+        expect(
+          interval,
+          lessThan(2200),
+        ); // At most 2.2s (including 100ms cap per delay)
       }
     });
 
@@ -117,8 +120,6 @@ void main() {
         listen: (event) {
           receivedEvents.add(event);
         },
-        enabled: true,
-        maxReorderWindow: const Duration(milliseconds: 200),
       );
 
       final baseTime = DateTime.now().microsecondsSinceEpoch;
@@ -126,23 +127,21 @@ void main() {
       // Add events with small out-of-order difference (within 200ms window)
       eventQueue.add(Frame('Event 1', baseTime));
       eventQueue.add(Frame('Event 3', baseTime + 200000)); // +200ms
-      eventQueue.add(Frame('Event 2', baseTime + 100000)); // +100ms (out of order)
+      eventQueue
+          .add(Frame('Event 2', baseTime + 100000)); // +100ms (out of order)
 
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
 
       // Should be reordered
       expect(receivedEvents, ['Event 1', 'Event 2', 'Event 3']);
     });
 
     test('out-of-order events outside reorder window are dropped', () async {
-      final droppedEvents = <String>[];
-      
       eventQueue = EventQueue<String>(
         timeSync: timeSync,
         listen: (event) {
           receivedEvents.add(event);
         },
-        enabled: true,
         maxReorderWindow: const Duration(milliseconds: 100),
       );
 
@@ -151,9 +150,11 @@ void main() {
       // Add events with large out-of-order difference (outside 100ms window)
       eventQueue.add(Frame('Event 1', baseTime));
       eventQueue.add(Frame('Event 3', baseTime + 500000)); // +500ms
-      eventQueue.add(Frame('Event 2', baseTime + 50000)); // +50ms (>100ms behind Event 3)
+      eventQueue.add(
+        Frame('Event 2', baseTime + 50000),
+      ); // +50ms (>100ms behind Event 3)
 
-      await Future.delayed(const Duration(milliseconds: 700));
+      await Future<void>.delayed(const Duration(milliseconds: 700));
 
       // Event 2 should be dropped as it's too far out of order
       expect(receivedEvents, ['Event 1', 'Event 3']);
@@ -167,7 +168,6 @@ void main() {
           receivedEvents.add(event);
           receivedTimes.add(DateTime.now());
         },
-        enabled: true,
       );
 
       final baseTime = DateTime.now().microsecondsSinceEpoch;
@@ -178,7 +178,7 @@ void main() {
       eventQueue.add(Frame('C', baseTime + 300000)); // +300ms
       eventQueue.add(Frame('D', baseTime + 600000)); // +600ms
 
-      await Future.delayed(const Duration(milliseconds: 900));
+      await Future<void>.delayed(const Duration(milliseconds: 900));
 
       expect(receivedEvents, ['A', 'B', 'C', 'D']);
 
@@ -219,7 +219,7 @@ void main() {
       eventQueue.add(Frame('Event 2', baseTime + 1000000)); // +1s
 
       // Should be immediate
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(receivedEvents, ['Event 1', 'Event 2']);
 
@@ -234,20 +234,20 @@ void main() {
         listen: (event) {
           receivedEvents.add(event);
         },
-        enabled: true,
       );
 
       final baseTime = DateTime.now().microsecondsSinceEpoch;
 
       // Add many events in sequence
-      for (int i = 0; i < 10; i++) {
-        eventQueue.add(Frame('Event $i', baseTime + (i * 50000))); // 50ms intervals
+      for (var i = 0; i < 10; i++) {
+        eventQueue
+            .add(Frame('Event $i', baseTime + (i * 50000))); // 50ms intervals
       }
 
-      await Future.delayed(const Duration(milliseconds: 700));
+      await Future<void>.delayed(const Duration(milliseconds: 700));
 
       // Should maintain order
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         expect(receivedEvents[i], 'Event $i');
       }
     });
@@ -262,7 +262,6 @@ void main() {
           receivedEvents.add(event);
           receivedTimes.add(DateTime.now());
         },
-        enabled: true,
       );
 
       final baseTime = DateTime.now().microsecondsSinceEpoch;
@@ -271,14 +270,15 @@ void main() {
       eventQueue.add(Frame('Event 1', baseTime));
       eventQueue.add(Frame('Event 2', baseTime + 200000)); // +200ms
 
-      await Future.delayed(const Duration(milliseconds: 400));
+      await Future<void>.delayed(const Duration(milliseconds: 400));
 
       expect(receivedEvents, ['Event 1', 'Event 2']);
-      
+
       // The interval should include the RTT buffer (50ms) plus event interval (200ms)
       // But delays are capped at 100ms, so multiple chunks
       if (receivedTimes.length >= 2) {
-        final interval = receivedTimes[1].difference(receivedTimes[0]).inMilliseconds;
+        final interval =
+            receivedTimes[1].difference(receivedTimes[0]).inMilliseconds;
         expect(interval, greaterThan(180));
         expect(interval, lessThan(300));
       }
@@ -291,7 +291,6 @@ void main() {
           receivedEvents.add(event);
           receivedTimes.add(DateTime.now());
         },
-        enabled: true,
       );
 
       final baseTime = DateTime.now().microsecondsSinceEpoch;
@@ -300,14 +299,15 @@ void main() {
       eventQueue.add(Frame('Event 1', baseTime));
       eventQueue.add(Frame('Event 2', baseTime + 500000)); // +500ms
 
-      await Future.delayed(const Duration(milliseconds: 700));
+      await Future<void>.delayed(const Duration(milliseconds: 700));
 
       expect(receivedEvents, ['Event 1', 'Event 2']);
 
       // Even with 500ms interval, max 100ms cap should apply multiple times
       // So total delay should still be around 500ms but in 100ms chunks
       if (receivedTimes.length >= 2) {
-        final interval = receivedTimes[1].difference(receivedTimes[0]).inMilliseconds;
+        final interval =
+            receivedTimes[1].difference(receivedTimes[0]).inMilliseconds;
         expect(interval, greaterThan(400));
         expect(interval, lessThan(600));
       }

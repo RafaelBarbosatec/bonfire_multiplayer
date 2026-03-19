@@ -31,7 +31,7 @@ class MoveEvent {
 
   factory MoveEvent.fromMap(Map<String, dynamic> map) {
     return MoveEvent(
-      position: GameVector.fromMap(map['position'] as Map<String, dynamic>),
+      position: GameVector.fromMap((map['position'] as Map).cast()),
       time: map['time'] as String,
       mapId: map['map'] as String,
       direction: map['direction'] != null

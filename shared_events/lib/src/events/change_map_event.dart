@@ -18,7 +18,7 @@ class ChangeMapEvent {
   factory ChangeMapEvent.fromMap(Map<String, dynamic> map) {
     return ChangeMapEvent(
       pathMap: map['pathMap'] as String,
-      state: ComponentStateModel.fromMap(map['state'] as Map<String, dynamic>),
+      state: ComponentStateModel.fromMap((map['state'] as Map).cast()),
     );
   }
 }

@@ -66,8 +66,8 @@ class ComponentStateModel {
     return ComponentStateModel(
       id: map['id'] as String,
       name: map['name'] as String,
-      position: GameVector.fromMap(map['position'] as Map<String, dynamic>),
-      size: GameVector.fromMap(map['size'] as Map<String, dynamic>),
+      position: GameVector.fromMap((map['position'] as Map).cast()),
+      size: GameVector.fromMap((map['size'] as Map).cast()),
       life: map['life'] as int,
       direction: map['direction'] != null
           ? MoveDirectionEnum.values[map['direction']]
@@ -77,7 +77,7 @@ class ComponentStateModel {
           : null,
       action: map['action'] as String?,
       speed: double.tryParse(map['speed'].toString()) ?? 80,
-      properties: map['properties'] as Map<String, dynamic>? ?? {},
+      properties: (map['properties'] as Map?)?.cast() ?? {},
       lastInputId: map['lastInputId'] as int?,
       serverTimestamp: map['serverTimestamp'] as int?,
     );
