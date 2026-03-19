@@ -10,11 +10,11 @@ RUN dart pub global activate dart_frog_cli \
 ENV PATH="/root/.pub-cache/bin:${PATH}"
 
 # Copy shared dependencies first
-COPY ../shared_events ./shared_events
-COPY ../packages ./packages
+COPY shared_events ./shared_events
+COPY packages ./packages
 
 # Copy game_server source
-COPY . ./game_server
+COPY game_server ./game_server
 
 # Set working directory to game_server
 WORKDIR /app/game_server
