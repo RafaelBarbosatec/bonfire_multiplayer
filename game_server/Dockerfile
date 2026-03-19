@@ -4,20 +4,20 @@ FROM dart:stable AS build
 
 WORKDIR /app
 
+# Install Dart Frog CLI globally and add it to PATH
+RUN dart pub global activate dart_frog_cli \
+    && echo "export PATH=\"\$PATH:\$HOME/.pub-cache/bin\"" >> /etc/profile.d/dart_frog.sh
+ENV PATH="/root/.pub-cache/bin:${PATH}"
 
-# Copy external dependencies
-COPY ./.dart_frog_path_dependencies  ./.dart_frog_path_dependencies
-COPY ./pubspec_overrides.yaml ./pubspec_overrides.yaml
-
-# Copy Dependencies
-
-
-# Resolve app dependencies.
-COPY pubspec.* ./
-RUN dart pub get
-
-# Copy app source code and AOT compile it.
+# Copy project source
 COPY . .
+
+# Build the production-ready Dart Frog application
+RUN dart_frog build
+
+# Switch to build output folder for dependency resolution & compilation
+WORKDIR /app/build
+
 # Ensure packages are still up-to-date if anything has changed
 RUN dart pub get --offline
 RUN dart compile exe bin/server.dart -o bin/server
@@ -27,10 +27,7 @@ RUN dart compile exe bin/server.dart -o bin/server
 FROM scratch
 COPY --from=build /runtime/ /
 COPY --from=build /app/bin/server /app/bin/
-# COPY --from=build /app/lang /lang
 COPY --from=build /app/public /public
-# COPY --from=build /app/.env /.env
-
 
 # Start server.
 CMD ["/app/bin/server"]
