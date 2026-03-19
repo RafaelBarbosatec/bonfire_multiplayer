@@ -12,8 +12,11 @@ ENV PATH="/root/.pub-cache/bin:${PATH}"
 # Copy project structure maintaining relative paths
 COPY . .
 
+# Set working directory to game_server for build
+WORKDIR /app/game_server
+
 # Build the production-ready Dart Frog application
-RUN cd game_server && dart_frog build
+RUN dart_frog build
 
 # Switch to build output folder for dependency resolution & compilation
 WORKDIR /app/game_server/build
