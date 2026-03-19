@@ -9,14 +9,10 @@ RUN dart pub global activate dart_frog_cli \
     && echo "export PATH=\"\$PATH:\$HOME/.pub-cache/bin\"" >> /etc/profile.d/dart_frog.sh
 ENV PATH="/root/.pub-cache/bin:${PATH}"
 
-# Copy shared dependencies first
-COPY shared_events ./shared_events
-COPY packages ./packages
+# Copy project structure maintaining relative paths
+COPY . .
 
-# Copy game_server source
-COPY game_server ./game_server
-
-# Set working directory to game_server
+# Set working directory to game_server for build
 WORKDIR /app/game_server
 
 # Build the production-ready Dart Frog application
