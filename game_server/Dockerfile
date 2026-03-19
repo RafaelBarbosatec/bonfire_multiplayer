@@ -9,14 +9,21 @@ RUN dart pub global activate dart_frog_cli \
     && echo "export PATH=\"\$PATH:\$HOME/.pub-cache/bin\"" >> /etc/profile.d/dart_frog.sh
 ENV PATH="/root/.pub-cache/bin:${PATH}"
 
-# Copy project source
-COPY . .
+# Copy shared dependencies first
+COPY ../shared_events ./shared_events
+COPY ../packages ./packages
+
+# Copy game_server source
+COPY . ./game_server
+
+# Set working directory to game_server
+WORKDIR /app/game_server
 
 # Build the production-ready Dart Frog application
 RUN dart_frog build
 
 # Switch to build output folder for dependency resolution & compilation
-WORKDIR /app/build
+WORKDIR /app/game_server/build
 
 # Ensure packages are still up-to-date if anything has changed
 RUN dart pub get --offline
@@ -26,8 +33,8 @@ RUN dart compile exe bin/server.dart -o bin/server
 # libraries and configuration files stored in `/runtime/` from the build stage.
 FROM scratch
 COPY --from=build /runtime/ /
-COPY --from=build /app/bin/server /app/bin/
-COPY --from=build /app/public /public
+COPY --from=build /app/game_server/bin/server /app/bin/
+COPY --from=build /app/game_server/public /public
 
 # Start server.
 CMD ["/app/bin/server"]
