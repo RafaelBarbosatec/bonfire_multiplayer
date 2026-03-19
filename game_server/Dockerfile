@@ -12,6 +12,10 @@ ENV PATH="/root/.pub-cache/bin:${PATH}"
 # Copy project structure maintaining relative paths
 COPY . .
 
+# Debug: Check the directory structure
+RUN ls -la /app/
+RUN ls -la /app/game_server/ || true
+
 # Set working directory to game_server for build
 WORKDIR /app/game_server
 
