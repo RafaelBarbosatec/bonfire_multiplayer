@@ -8,7 +8,8 @@ import 'package:get_it/get_it.dart';
 final getIt = GetIt.instance;
 
 class BootstrapInjector {
-  static BaseInviroment enviroment = LocalInviroment();
+  // static BaseInviroment enviroment = LocalInviroment();
+  static BaseInviroment enviroment = ServerInviroment();
 
   static Future<void> run() async {
     getIt.registerLazySingleton<WebsocketProvider>(
