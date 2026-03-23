@@ -10,7 +10,7 @@ abstract class EventSerializer {
   Map<String, dynamic> deserialize(Uint8List data);
 }
 
-class EventSerializerDefault implements EventSerializer {
+class EventSerializerMsgpack implements EventSerializer {
   @override
   Uint8List serialize(Map<String, dynamic> map) {
     return msgpack.serialize(map);
@@ -22,7 +22,7 @@ class EventSerializerDefault implements EventSerializer {
   }
 }
 
-class EventSerializerUtf8 implements EventSerializer {
+class EventSerializerDefault implements EventSerializer {
   @override
   Uint8List serialize(Map<String, dynamic> map) {
     final json = jsonEncode(map);
