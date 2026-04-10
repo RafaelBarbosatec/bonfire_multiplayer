@@ -1,3 +1,4 @@
+export 'attackable.dart';
 export 'block_movement_contact.dart';
 export 'contact_sensor.dart';
 export 'game_ref.dart';
