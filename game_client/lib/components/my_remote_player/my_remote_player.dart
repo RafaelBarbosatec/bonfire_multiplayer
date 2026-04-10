@@ -13,8 +13,8 @@ class MyRemotePlayer extends SimplePlayer
     with
         BlockMovementCollision,
         WithNameBottom,
-        UpdateMovementMixin,
         SmoothMovementMixin,
+        UpdateMovementMixin,
         BonfireBlocListenable<MyRemotePlayerBloc, MyRemotePlayerState> {
   final String id;
   MyRemotePlayer({

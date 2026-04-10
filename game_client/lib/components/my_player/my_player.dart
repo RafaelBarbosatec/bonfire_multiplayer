@@ -6,7 +6,6 @@ import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dar
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
-import 'package:bonfire_multiplayer/util/input_event.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
 import 'package:flutter/material.dart';
@@ -18,13 +17,15 @@ class MyPlayer extends SimplePlayer
         WithNameBottom,
         BonfireBlocListenable<MyPlayerBloc, MyPlayerState> {
   JoystickMoveDirectional? _joystickDirectional;
-  bool sendedIdle = false;
-  async.Timer? timer;
-  static const double _positionThreshold =
-      32; // 2 tiles threshold for correction
+  async.Timer? _correctionTimer;
 
-  // Client-side prediction variables
-  final List<InputEvent> _inputBuffer = [];
+  // Thresholds for position correction
+  static const double _idleCorrectionThreshold =
+      8.0; // Small threshold when idle
+  static const double _emergencyThreshold = 64.0; // Force correction if way off
+
+  // Track if we're currently doing a correction
+  bool _isCorrectingPosition = false;
 
   MyPlayer({
     required ComponentStateModel state,
@@ -50,24 +51,17 @@ class MyPlayer extends SimplePlayer
   void onJoystickChangeDirectional(JoystickDirectionalEvent event) {
     if (isMounted && _joystickDirectional != event.directional) {
       _joystickDirectional = event.directional;
+// If not visible, snap immediately
+      if (!isVisible) {
+        position.setFrom(bloc.state.position);
+        return;
+      }
+      // Cancel any pending correction when player starts moving
+      _cancelCorrection();
 
-      // Add input to buffer for prediction
-      final inputId = _generateInputId();
-      final inputEvent = InputEvent(
-        id: inputId,
-        direction: event.directional.toMoveDirection(),
-        timestamp: DateTime.now(),
-        position: position.clone(),
-      );
-
-      _inputBuffer.add(inputEvent);
+      final inputId = DateTime.now().millisecondsSinceEpoch;
       _sendMove(inputId);
-
-      // Perform client-side prediction
-      _performClientPrediction();
     }
-    timer?.cancel();
-    timer = null;
     super.onJoystickChangeDirectional(event);
   }
 
@@ -75,27 +69,90 @@ class MyPlayer extends SimplePlayer
   void onNewState(MyPlayerState state) {
     final serverPosition = state.position;
 
-    // Process server reconciliation
-    _reconcileWithServer(state);
+    final distance = position.distanceTo(serverPosition);
+    final isMoving = state.direction != null;
 
-    if (state.direction == null) {
-      timer = async.Timer(
-        const Duration(
-          milliseconds: 250,
-        ), // Increased delay for better tolerance
-        () {
-          // Check if local position deviated too much from server position
-          final distance = position.distanceTo(serverPosition);
-          if (distance > _positionThreshold / 4) {
-            _smoothCorrectPosition(serverPosition);
-          }
-        },
-      );
-    } else {
-      timer?.cancel();
-      timer = null;
+    // Emergency correction: player is way too far from server position
+    // This handles teleports, respawns, or severe desync
+    if (distance > _emergencyThreshold) {
+      _cancelCorrection();
+      position.setFrom(serverPosition);
+      return;
     }
+
+    if (isMoving) {
+      // Player is moving - don't correct to avoid "stuttering"
+      // Trust client-side movement, server will correct when player stops
+      _cancelCorrection();
+    } else {
+      // Player stopped (server says direction is null)
+      // Schedule a correction after a small delay to ensure player really stopped
+      _scheduleIdleCorrection(serverPosition);
+    }
+
     super.onNewState(state);
+  }
+
+  void _scheduleIdleCorrection(Vector2 serverPosition) {
+    // Cancel any existing timer
+    _correctionTimer?.cancel();
+
+    // Wait a bit to make sure player really stopped
+    // This prevents corrections during brief pauses in movement
+    _correctionTimer = async.Timer(
+      const Duration(milliseconds: 200),
+      () {
+        // Double check we're still supposed to be idle
+        if (_joystickDirectional == JoystickMoveDirectional.IDLE) {
+          _performIdleCorrection(serverPosition);
+        }
+      },
+    );
+  }
+
+  void _performIdleCorrection(Vector2 targetPosition) {
+    final distance = position.distanceTo(targetPosition);
+
+    // Only correct if deviation is noticeable
+    if (distance < _idleCorrectionThreshold) {
+      return;
+    }
+
+    // Remove any existing MoveEffects to prevent conflicts
+    _removeExistingMoveEffects();
+
+    _isCorrectingPosition = true;
+
+    // Smooth correction with appropriate duration based on distance
+    // Shorter distance = faster correction
+    final duration = (distance / 100).clamp(0.15, 0.35);
+
+    add(
+      MoveEffect.to(
+        targetPosition,
+        EffectController(duration: duration, curve: Curves.easeOut),
+        onComplete: () {
+          _isCorrectingPosition = false;
+        },
+      ),
+    );
+  }
+
+  void _removeExistingMoveEffects() {
+    // Remove all MoveEffects to prevent stacking
+    children.whereType<MoveEffect>().toList().forEach((effect) {
+      effect.removeFromParent();
+    });
+  }
+
+  void _cancelCorrection() {
+    _correctionTimer?.cancel();
+    _correctionTimer = null;
+
+    if (_isCorrectingPosition) {
+      _removeExistingMoveEffects();
+      _isCorrectingPosition = false;
+    }
   }
 
   void _sendMove(int inputId) {
@@ -103,47 +160,14 @@ class MyPlayer extends SimplePlayer
       UpdateMoveStateEvent(
         position: position,
         direction: _joystickDirectional?.toMoveDirection(),
-        inputId: inputId, // Include input ID for server acknowledgment
+        inputId: inputId,
       ),
     );
-  }
-
-  void _smoothCorrectPosition(Vector2 serverPosition) {
-    // Correct position over 300ms for smoother transition
-    add(
-      MoveEffect.to(
-        serverPosition,
-        EffectController(duration: 0.3, curve: Curves.easeOut),
-      ),
-    );
-  }
-
-  int _generateInputId() {
-    return DateTime.now().millisecondsSinceEpoch;
-  }
-
-  void _performClientPrediction() {
-    // Continue moving locally while waiting for server confirmation
-    // This provides immediate feedback to the player
-  }
-
-  void _reconcileWithServer(MyPlayerState serverState) {
-    // Remove acknowledged inputs from buffer
-    if (serverState.lastInputId != null) {
-      _inputBuffer.removeWhere((input) => input.id <= serverState.lastInputId!);
-    }
-
-    // Check for significant position deviation
-    final distance = position.distanceTo(serverState.position);
-    if (distance > _positionThreshold) {
-      // Significant deviation detected - smooth correction needed
-      _smoothCorrectPosition(serverState.position);
-    }
   }
 
   @override
   void onRemove() {
-    _inputBuffer.clear();
+    _cancelCorrection();
     bloc.close();
     super.onRemove();
   }

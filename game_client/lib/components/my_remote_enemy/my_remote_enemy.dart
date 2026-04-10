@@ -12,8 +12,8 @@ import 'bloc/my_remote_enemy_bloc.dart';
 class MyRemoteEnemy extends SimpleEnemy
     with
         WithNameBottom,
-        UpdateMovementMixin,
         SmoothMovementMixin,
+        UpdateMovementMixin,
         BonfireBlocListenable<MyRemoteEnemyBloc, MyRemoteEnemyState> {
   final String id;
   MyRemoteEnemy({

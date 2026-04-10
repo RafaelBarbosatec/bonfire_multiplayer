@@ -1,35 +1,47 @@
 import 'dart:math';
 import 'package:bonfire/bonfire.dart';
 
-/// Enhanced movement interpolation with lag compensation
+/// Enhanced movement interpolation with lag compensation for remote entities.
+/// Provides smooth position updates between server state updates.
 mixin SmoothMovementMixin on GameComponent {
-  static const double _maxTeleportDistance = 64.0;
+  // Distance thresholds
+  static const double _teleportDistance = 64.0;  // Snap immediately (respawn, map change)
+  static const double _minInterpolateDistance = 2.0;  // Ignore tiny differences
+
+  // Interpolation timing
   static const double _defaultInterpolationTime = 0.06;
+  static const double _minInterpolationTime = 0.03;
+  static const double _maxInterpolationTime = 0.12;
 
   Vector2? _targetPosition;
   DateTime? _lastUpdateTime;
   double _interpolationProgress = 1.0;
-  late Vector2 _interpolationStart;
-  late Vector2 _interpolationEnd;
+  Vector2 _interpolationStart = Vector2.zero();
+  Vector2 _interpolationEnd = Vector2.zero();
   double _interpolationDuration = _defaultInterpolationTime;
 
-  /// Smoothly move to target position with adaptive interpolation
-  void smoothMoveTo(Vector2 target) {
+  /// Smoothly move to target position with adaptive interpolation.
+  ///
+  /// [target] - The server position to move towards
+  /// [snapWhenIdle] - If true, snaps directly to position (used when entity stops)
+  void smoothMoveTo(Vector2 target, {bool snapWhenIdle = false}) {
     final now = DateTime.now();
-
-    // Calculate optimal interpolation duration
-    _calculateInterpolationDuration(now);
-
     final distance = position.distanceTo(target);
 
-    // For large distances, teleport immediately (e.g., player respawn, map change)
-    if (distance > _maxTeleportDistance) {
-      position.setFrom(target);
-      _interpolationProgress = 1.0;
-      _targetPosition = target;
+    // Skip if difference is negligible (reduces jitter)
+    if (distance < _minInterpolateDistance && !snapWhenIdle) {
       _lastUpdateTime = now;
       return;
     }
+
+    // Snap immediately for: teleports, respawns, or when entity is idle
+    if (distance > _teleportDistance || snapWhenIdle) {
+      _snapToPosition(target, now);
+      return;
+    }
+
+    // Calculate optimal interpolation duration based on update frequency
+    _calculateInterpolationDuration(now);
 
     // Setup smooth interpolation
     _interpolationStart = position.clone();
@@ -39,12 +51,22 @@ mixin SmoothMovementMixin on GameComponent {
     _lastUpdateTime = now;
   }
 
+  void _snapToPosition(Vector2 target, DateTime now) {
+    position.setFrom(target);
+    _interpolationProgress = 1.0;
+    _targetPosition = target;
+    _lastUpdateTime = now;
+  }
+
   void _calculateInterpolationDuration(DateTime now) {
     if (_lastUpdateTime != null) {
       final timeBetweenUpdates =
           now.difference(_lastUpdateTime!).inMilliseconds / 1000.0;
-      // Use 120% of actual update interval for smoother movement
-      _interpolationDuration = (timeBetweenUpdates * 1.2).clamp(0.03, 0.12);
+      // Use 120% of actual update interval for overlap (smoother movement)
+      _interpolationDuration = (timeBetweenUpdates * 1.2).clamp(
+        _minInterpolationTime,
+        _maxInterpolationTime,
+      );
     } else {
       _interpolationDuration = _defaultInterpolationTime;
     }
@@ -57,30 +79,26 @@ mixin SmoothMovementMixin on GameComponent {
   }
 
   void _updateInterpolation(double dt) {
-    if (_interpolationProgress < 1.0 && _targetPosition != null) {
-      _interpolationProgress += dt / _interpolationDuration;
+    if (_interpolationProgress >= 1.0 || _targetPosition == null) {
+      return;
+    }
 
-      if (_interpolationProgress >= 1.0) {
-        _interpolationProgress = 1.0;
-        position.setFrom(_interpolationEnd);
-      } else {
-        // Use easing for smoother movement
-        final easedProgress = _easeOutCubic(_interpolationProgress);
-        final lerpedPosition = _interpolationStart +
-            (_interpolationEnd - _interpolationStart) * easedProgress;
-        position.setFrom(lerpedPosition);
-      }
+    _interpolationProgress += dt / _interpolationDuration;
+
+    if (_interpolationProgress >= 1.0) {
+      _interpolationProgress = 1.0;
+      position.setFrom(_interpolationEnd);
+    } else {
+      // Cubic easing for natural movement
+      final easedProgress = _easeOutCubic(_interpolationProgress);
+      position.setFrom(
+        _interpolationStart + (_interpolationEnd - _interpolationStart) * easedProgress,
+      );
     }
   }
 
-  /// Easing function for smoother animation
-  double _easeOutCubic(double t) {
-    return 1 - pow(1 - t, 3).toDouble();
-  }
+  double _easeOutCubic(double t) => 1 - pow(1 - t, 3).toDouble();
 
   /// Check if currently interpolating
   bool get isInterpolating => _interpolationProgress < 1.0;
-
-  /// Get interpolation progress (0.0 to 1.0)
-  double get interpolationProgress => _interpolationProgress;
 }
