@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_events/shared_events.dart';
 
 class GamePage extends StatefulWidget {
+  static const tileSize = 16.0;
   final JoinMapEvent event;
   const GamePage({super.key, required this.event});
 
@@ -47,49 +48,57 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Material(
       key: Key(joinMapEvent.map.path),
       color: Colors.black,
-      child: FadeTransition(
-        opacity: _controller,
-        child: BonfireWidget(
-          map: WorldMapByTiled(
-            WorldMapReader.fromNetwork(
-              Uri.parse(
-                '${BootstrapInjector.enviroment.restAddress}/${joinMapEvent.map.path}',
+      child: Stack(
+        children: [
+          const Center(
+            child: Text(
+              'Loading map...',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          playerControllers: [
-            Joystick(
-              directional: JoystickDirectional(
-                enableDiagonalInput: false,
+          FadeTransition(
+            opacity: _controller,
+            child: BonfireWidget(
+              map: WorldMapByTiled(
+                WorldMapReader.fromNetwork(
+                  Uri.parse(
+                    '${BootstrapInjector.enviroment.restAddress}/${joinMapEvent.map.path}',
+                  ),
+                ),
               ),
+              playerControllers: [
+                Joystick(
+                  directional: JoystickDirectional(enableDiagonalInput: false),
+                ),
+                Keyboard(config: KeyboardConfig(enableDiagonalInput: false)),
+              ],
+              player: MyPlayer(
+                state: joinMapEvent.state,
+                eventManager: _eventManager,
+                mapId: joinMapEvent.map.id,
+              ),
+              components: _getComponents(joinMapEvent, context),
+              cameraConfig: CameraConfig(
+                moveOnlyMapArea: true,
+                zoom: getZoomFromMaxVisibleTile(context, GamePage.tileSize, 15),
+              ),
+              onReady: _onReady,
+              overlayBuilderMap: {
+                MenuWidget.overlayName: (context, gameRef) {
+                  return const MenuWidget();
+                },
+              },
+              initialActiveOverlays: const [MenuWidget.overlayName],
             ),
-            Keyboard(
-              config: KeyboardConfig(
-                enableDiagonalInput: false,
-              ),
-            )
-          ],
-          player: MyPlayer(
-            state: joinMapEvent.state,
-            eventManager: _eventManager,
-            mapId: joinMapEvent.map.id,
           ),
-          components: _getComponents(joinMapEvent, context),
-          cameraConfig: CameraConfig(
-            initialMapZoomFit: InitialMapZoomFitEnum.fitWidth,
-            moveOnlyMapArea: true,
-          ),
-          onReady: _onReady,
-          overlayBuilderMap: {
-            MenuWidget.overlayName: (context, gameRef) {
-              return const MenuWidget();
-            }
-          },
-          initialActiveOverlays: const [MenuWidget.overlayName],
-        ),
+        ],
       ),
     );
   }
@@ -111,13 +120,9 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     this.game = game;
     _eventManager.onDisconnect(_onDisconnect);
 
-    _eventManager.onPlayerState(
-      _onPlayerState,
-    );
+    _eventManager.onPlayerState(_onPlayerState);
 
-    _eventManager.onEnemyState(
-      _onEnemyState,
-    );
+    _eventManager.onEnemyState(_onEnemyState);
 
     _eventManager.onJoinMapEvent(_onJoinMap);
     _onPlayerState(joinMapEvent.players);
@@ -135,18 +140,14 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
             (element) => element.id == serverPlayer.id,
           );
           if (!contain) {
-            game?.add(
-              _createRemotePlayer(serverPlayer),
-            );
+            game?.add(_createRemotePlayer(serverPlayer));
           }
         }
       }
 
       // remove RemotePlayer if no exist in server
       for (var player in remotePlayers) {
-        final contain = serverPlayers.any(
-          (element) => element.id == player.id,
-        );
+        final contain = serverPlayers.any((element) => element.id == player.id);
         if (!contain) {
           player.removeFromParent();
         }
@@ -166,18 +167,14 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
             (element) => element.id == serverPlayer.id,
           );
           if (!contain) {
-            game?.add(
-              _createRemoteEnemy(serverPlayer),
-            );
+            game?.add(_createRemoteEnemy(serverPlayer));
           }
         }
       }
 
       // remove RemotePlayer if no exist in server
       for (var player in remotePlayers) {
-        final contain = serverEnemies.any(
-          (element) => element.id == player.id,
-        );
+        final contain = serverEnemies.any((element) => element.id == player.id);
         if (!contain) {
           player.removeFromParent();
         }
