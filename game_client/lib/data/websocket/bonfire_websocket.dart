@@ -79,5 +79,7 @@ class BonfireWebsocket extends WebsocketProvider {
   @override
   void disconnect([int? code, String? reason]) {
     _client?.disconnect(code, reason);
+    _client = null;
+    _connected = false;
   }
 }

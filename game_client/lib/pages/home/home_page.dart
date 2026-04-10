@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     _bloc = inject();
     _controller = TextEditingController();
-    Future.delayed(Duration.zero, init);
+    Future.delayed(const Duration(seconds: 1), init);
     super.initState();
   }
 

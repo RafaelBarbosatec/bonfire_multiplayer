@@ -40,7 +40,8 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   @override
   void dispose() {
     _eventManager.removeOnPlayerState(_onPlayerState);
-    _eventManager.removeOnPlayerState(_onEnemyState);
+    _eventManager.removeOnEnemyState(_onEnemyState);
+    _eventManager.removeOnRemoved(_onRemoved);
     _eventManager.onJoinMapEvent(null);
     _controller.dispose();
     super.dispose();
@@ -110,74 +111,75 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     }).toList();
   }
 
-  int lastServerRemotes = 0;
-  int lastNpcServerRemotes = 0;
-
   // When the game is ready init listeners:
-  // PLAYER_LEAVE: When some player leave remove it of game.
-  // PLAYER_JOIN: When some player enter adds it in the game.
+  // Handles player/npc state updates and removals
   void _onReady(BonfireGameInterface game) {
     this.game = game;
     _eventManager.onDisconnect(_onDisconnect);
 
     _eventManager.onPlayerState(_onPlayerState);
-
     _eventManager.onEnemyState(_onEnemyState);
-
+    _eventManager.onRemoved(_onRemoved);
     _eventManager.onJoinMapEvent(_onJoinMap);
+
     _onPlayerState(joinMapEvent.players);
     _onEnemyState(joinMapEvent.npcs);
     Future.delayed(const Duration(milliseconds: 100), _controller.forward);
   }
 
   void _onPlayerState(Iterable<ComponentStateModel> serverPlayers) {
-    if (lastServerRemotes != serverPlayers.length && game != null) {
-      final remotePlayers = game?.query<MyRemotePlayer>() ?? [];
-      // adds RemotePlayer if no exist in the game but exist in server
-      for (var serverPlayer in serverPlayers) {
-        if (serverPlayer.id != joinMapEvent.state.id) {
-          final contain = remotePlayers.any(
-            (element) => element.id == serverPlayer.id,
-          );
-          if (!contain) {
-            game?.add(_createRemotePlayer(serverPlayer));
-          }
-        }
-      }
+    if (game == null) return;
 
-      // remove RemotePlayer if no exist in server
-      for (var player in remotePlayers) {
-        final contain = serverPlayers.any((element) => element.id == player.id);
-        if (!contain) {
-          player.removeFromParent();
+    final remotePlayers = game?.query<MyRemotePlayer>() ?? [];
+
+    // Add new players that don't exist locally
+    for (var serverPlayer in serverPlayers) {
+      if (serverPlayer.id != joinMapEvent.state.id) {
+        final exists = remotePlayers.any(
+          (element) => element.id == serverPlayer.id,
+        );
+        if (!exists) {
+          game?.add(_createRemotePlayer(serverPlayer));
         }
       }
-      lastServerRemotes = serverPlayers.length;
     }
+    // Note: Removals are now handled by _onRemoved
   }
 
   void _onEnemyState(Iterable<ComponentStateModel> serverEnemies) {
-    if (lastNpcServerRemotes != serverEnemies.length && game != null) {
-      lastNpcServerRemotes = serverEnemies.length;
-      final remotePlayers = game?.query<MyRemoteEnemy>() ?? [];
-      // adds RemotePlayer if no exist in the game but exist in server
-      for (var serverPlayer in serverEnemies) {
-        if (serverPlayer.id != joinMapEvent.state.id) {
-          final contain = remotePlayers.any(
-            (element) => element.id == serverPlayer.id,
-          );
-          if (!contain) {
-            game?.add(_createRemoteEnemy(serverPlayer));
-          }
-        }
-      }
+    if (game == null) return;
 
-      // remove RemotePlayer if no exist in server
-      for (var player in remotePlayers) {
-        final contain = serverEnemies.any((element) => element.id == player.id);
-        if (!contain) {
-          player.removeFromParent();
-        }
+    final remoteEnemies = game?.query<MyRemoteEnemy>() ?? [];
+
+    // Add new NPCs that don't exist locally
+    for (var serverEnemy in serverEnemies) {
+      final exists = remoteEnemies.any(
+        (element) => element.id == serverEnemy.id,
+      );
+      if (!exists) {
+        game?.add(_createRemoteEnemy(serverEnemy));
+      }
+    }
+    // Note: Removals are now handled by _onRemoved
+  }
+
+  /// Handle entity removals (both players and NPCs)
+  void _onRemoved(List<String> removedIds) {
+    if (game == null || removedIds.isEmpty) return;
+
+    // Remove players with matching IDs
+    final remotePlayers = game?.query<MyRemotePlayer>() ?? [];
+    for (var player in remotePlayers) {
+      if (removedIds.contains(player.id)) {
+        player.removeFromParent();
+      }
+    }
+
+    // Remove NPCs with matching IDs
+    final remoteEnemies = game?.query<MyRemoteEnemy>() ?? [];
+    for (var enemy in remoteEnemies) {
+      if (removedIds.contains(enemy.id)) {
+        enemy.removeFromParent();
       }
     }
   }
@@ -208,8 +210,6 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
 
   Future<void> _onJoinMap(JoinMapEvent event) async {
     game = null;
-    lastNpcServerRemotes = 0;
-    lastServerRemotes = 0;
     _controller.value = 0.0;
     await Future.delayed(Duration.zero);
     if (mounted) {
