@@ -1,17 +1,23 @@
 import 'dart:math';
+
 import 'package:bonfire/bonfire.dart';
+import 'package:flutter/widgets.dart';
 
 /// Enhanced movement interpolation with lag compensation for remote entities.
 /// Provides smooth position updates between server state updates.
 mixin SmoothMovementMixin on GameComponent {
   // Distance thresholds
-  static const double _teleportDistance = 64.0;  // Snap immediately (respawn, map change)
-  static const double _minInterpolateDistance = 2.0;  // Ignore tiny differences
+  static const double _teleportDistance =
+      64.0; // Snap immediately (respawn, map change)
+  static const double _minInterpolateDistance = 2.0; // Ignore tiny differences
 
   // Interpolation timing
-  static const double _defaultInterpolationTime = 0.06;
+  static const double _defaultInterpolationTime = 0.5;
   static const double _minInterpolationTime = 0.03;
   static const double _maxInterpolationTime = 0.12;
+
+  double get distanceToInterpolate =>
+      8.0; // Minimum distance to apply interpolation
 
   Vector2? _targetPosition;
   DateTime? _lastUpdateTime;
@@ -52,7 +58,17 @@ mixin SmoothMovementMixin on GameComponent {
   }
 
   void _snapToPosition(Vector2 target, DateTime now) {
-    position.setFrom(target);
+    final distance = position.distanceTo(target);
+    // Smooth correction with appropriate duration based on distance
+    // Shorter distance = faster correction
+    final duration = (distance / 100).clamp(0.15, 0.35);
+
+    add(
+      MoveEffect.to(
+        target,
+        EffectController(duration: duration, curve: Curves.easeOut),
+      ),
+    );
     _interpolationProgress = 1.0;
     _targetPosition = target;
     _lastUpdateTime = now;
@@ -84,16 +100,20 @@ mixin SmoothMovementMixin on GameComponent {
     }
 
     _interpolationProgress += dt / _interpolationDuration;
-
     if (_interpolationProgress >= 1.0) {
       _interpolationProgress = 1.0;
-      position.setFrom(_interpolationEnd);
     } else {
       // Cubic easing for natural movement
       final easedProgress = _easeOutCubic(_interpolationProgress);
-      position.setFrom(
-        _interpolationStart + (_interpolationEnd - _interpolationStart) * easedProgress,
-      );
+      final newPosition = _interpolationStart +
+          (_interpolationEnd - _interpolationStart) * easedProgress;
+      final distance = position.distanceTo(newPosition);
+
+      if (distance > distanceToInterpolate) {
+        position.setFrom(
+          newPosition,
+        );
+      }
     }
   }
 
