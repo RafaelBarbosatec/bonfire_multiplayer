@@ -15,6 +15,9 @@ class GameEventManager {
   final List<void Function(Iterable<ComponentStateModel> data)>
       enemyStateSubscriber = [];
 
+  /// Callbacks for when entities are removed (by ID)
+  final List<void Function(List<String> removedIds)> removedSubscriber = [];
+
   void Function(JoinMapEvent event)? _onJoinMapEvent;
 
   GameEventManager({required this.websocket});
@@ -29,7 +32,10 @@ class GameEventManager {
         _initOnPlayerState();
         onConnect?.call();
       },
-      onDisconnect: onDisconnect,
+      onDisconnect: () {
+        clearSubscribers();
+        onDisconnect?.call();
+      },
     );
   }
 
@@ -67,6 +73,14 @@ class GameEventManager {
     enemyStateSubscriber.add(callback);
   }
 
+  void onRemoved(void Function(List<String> removedIds) callback) {
+    removedSubscriber.add(callback);
+  }
+
+  void removeOnRemoved(void Function(List<String> removedIds) callback) {
+    removedSubscriber.remove(callback);
+  }
+
   void removeOnSpecificPlayerState(String id) {
     specificPlayerStateSubscriber.remove(id);
   }
@@ -91,20 +105,42 @@ class GameEventManager {
     _onJoinMapEvent = callback;
   }
 
+  /// Clear all subscribers (call on disconnect)
+  void clearSubscribers() {
+    specificPlayerStateSubscriber.clear();
+    specificEnemyStateSubscriber.clear();
+    playerStateSubscriber.clear();
+    enemyStateSubscriber.clear();
+    removedSubscriber.clear();
+    _onJoinMapEvent = null;
+  }
+
   void _listenState(GameStateModel state) {
-    for (var call in playerStateSubscriber) {
-      call(state.players);
-    }
-    for (var player in state.players) {
-      specificPlayerStateSubscriber[player.id]?.call(player);
+    // Notify about changed/new players
+    if (state.players.isNotEmpty) {
+      for (var call in playerStateSubscriber) {
+        call(state.players);
+      }
+      for (var player in state.players) {
+        specificPlayerStateSubscriber[player.id]?.call(player);
+      }
     }
 
-    for (var call in enemyStateSubscriber) {
-      call(state.npcs);
+    // Notify about changed/new NPCs
+    if (state.npcs.isNotEmpty) {
+      for (var call in enemyStateSubscriber) {
+        call(state.npcs);
+      }
+      for (var npc in state.npcs) {
+        specificEnemyStateSubscriber[npc.id]?.call(npc);
+      }
     }
 
-    for (var npc in state.npcs) {
-      specificEnemyStateSubscriber[npc.id]?.call(npc);
+    // Notify about removed entities (players or NPCs)
+    if (state.removed.isNotEmpty) {
+      for (var call in removedSubscriber) {
+        call(state.removed);
+      }
     }
   }
 
