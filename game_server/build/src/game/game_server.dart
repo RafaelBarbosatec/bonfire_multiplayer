@@ -6,6 +6,7 @@ import 'package:shared_events/shared_events.dart';
 import '../../main.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
 import 'components/player.dart';
+import 'state_tracker.dart';
 
 class GameServer extends Game {
   GameServer({required this.server, required super.maps});
@@ -14,6 +15,9 @@ class GameServer extends Game {
   List<WebsocketClient> clients = [];
 
   final WebsocketProvider server;
+
+  /// State tracker per map for delta updates
+  final Map<String, MapStateTracker> _mapTrackers = {};
 
   void enterClient(WebsocketClient client) {
     clients.add(client);
@@ -42,17 +46,24 @@ class GameServer extends Game {
       if (compChanged.players.isEmpty) {
         return;
       }
-      final players = compChanged.playersState;
-      final npcs = compChanged.npcsState;
 
-      for (final player in compChanged.players) {
-        player.send(
-          EventType.UPDATE_STATE.name,
-          GameStateModel(
-            players: players,
-            npcs: npcs,
-          ),
-        );
+      // Get or create tracker for this map
+      final tracker = _mapTrackers.putIfAbsent(
+        compChanged.id,
+        () => MapStateTracker(),
+      );
+
+      // Generate delta (only changed entities)
+      final delta = tracker.generateDelta(
+        currentPlayers: compChanged.playersState,
+        currentNpcs: compChanged.npcsState,
+      );
+
+      // Only send if there are actual changes
+      if (tracker.hasChanges(delta)) {
+        for (final player in compChanged.players) {
+          player.send(EventType.UPDATE_STATE.name, delta);
+        }
       }
     }
   }
