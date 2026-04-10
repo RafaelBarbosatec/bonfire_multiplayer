@@ -1,4 +1,5 @@
 import 'package:bonfire/bonfire.dart';
+import 'package:bonfire_multiplayer/pages/game/game_page.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/move_state.dart';
 import 'package:bonfire_multiplayer/util/smooth_movement_mixin.dart';
@@ -24,15 +25,16 @@ mixin UpdateMovementMixin on Movement {
   }
 
   void _updatePositionSmooth(Vector2 serverPosition) {
+    final distance = position.distanceTo(serverPosition);
+    if (distance < GamePage.tileSize / 2) {
+      return;
+    }
     // Check if this component uses SmoothMovementMixin
     if (this is SmoothMovementMixin) {
       (this as SmoothMovementMixin).smoothMoveTo(serverPosition);
     } else {
-      // Fallback to MoveEffect for components without SmoothMovementMixin
-      final distance = position.distanceTo(serverPosition);
-
       // For very large distances (teleportation), snap immediately
-      if (distance > 64.0) {
+      if (distance > GamePage.tileSize * 2) {
         position.setFrom(serverPosition);
       } else {
         // Smooth interpolation for normal movement
