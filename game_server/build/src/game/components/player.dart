@@ -2,7 +2,6 @@
 import 'package:bonfire_server/bonfire_server.dart';
 import 'package:shared_events/shared_events.dart';
 
-import '../../infrastructure/rate_limiter.dart';
 import '../../infrastructure/websocket/websocket_provider.dart';
 
 class Player extends GamePlayer
@@ -22,9 +21,6 @@ class Player extends GamePlayer
 
   final WebsocketClient client;
 
-  /// Rate limiter: max 60 move events per second
-  final _moveRateLimiter = RateLimiter(maxEvents: 60, windowMs: 1000);
-
   String get id => state.id;
 
   MoveDirectionEnum? moveDirection;
@@ -35,10 +31,7 @@ class Player extends GamePlayer
         EventType.MOVE.name,
         (data) {
           if (data.mapId == map.id) {
-            // Rate limit move events to prevent flood
-            if (_moveRateLimiter.tryConsume()) {
-              moveDirection = data.direction;
-            }
+            moveDirection = data.direction;
           }
         },
       )
