@@ -22,7 +22,7 @@ class MyPlayer extends SimplePlayer
   // Thresholds for position correction
   static const double _idleCorrectionThreshold =
       8.0; // Small threshold when idle
-  static const double _emergencyThreshold = 64.0; // Force correction if way off
+  static const double _emergencyThreshold = 32.0; // Force correction if way off
 
   // Track if we're currently doing a correction
   bool _isCorrectingPosition = false;
