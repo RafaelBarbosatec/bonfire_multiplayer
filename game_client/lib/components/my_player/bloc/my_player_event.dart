@@ -6,9 +6,8 @@ sealed class MyPlayerEvent {}
 class UpdateMoveStateEvent extends MyPlayerEvent {
   final Vector2 position;
   final MoveDirectionEnum? direction;
-  final int? inputId; // For client-side prediction
 
-  UpdateMoveStateEvent({required this.position, this.direction, this.inputId});
+  UpdateMoveStateEvent({required this.position, this.direction});
 }
 
 class UpdatePlayerPositionEvent extends MyPlayerEvent {

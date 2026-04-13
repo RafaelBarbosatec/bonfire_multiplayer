@@ -40,8 +40,6 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
         time: DateTime.now().toIso8601String(),
         direction: event.direction,
         mapId: mapId,
-        inputId: event.inputId,
-        timestamp: DateTime.now().millisecondsSinceEpoch,
       ),
     );
   }

@@ -34,7 +34,8 @@ class MyPlayer extends SimplePlayer
   }) : super(
           size: Vector2.all(32),
           animation: PlayersSpriteSheet.simpleAnimation(
-              PlayerSkin.fromName(state.properties['skin']).path),
+            PlayerSkin.fromName(state.properties['skin']).path,
+          ),
           initDirection: state.lastDirection?.toDirection() ?? Direction.down,
           position: state.position.toVector2(),
         ) {
@@ -59,8 +60,7 @@ class MyPlayer extends SimplePlayer
       // Cancel any pending correction when player starts moving
       _cancelCorrection();
 
-      final inputId = DateTime.now().millisecondsSinceEpoch;
-      _sendMove(inputId);
+      _sendMove();
     }
     super.onJoystickChangeDirectional(event);
   }
@@ -155,12 +155,11 @@ class MyPlayer extends SimplePlayer
     }
   }
 
-  void _sendMove(int inputId) {
+  void _sendMove() {
     bloc.add(
       UpdateMoveStateEvent(
         position: position,
         direction: _joystickDirectional?.toMoveDirection(),
-        inputId: inputId,
       ),
     );
   }
