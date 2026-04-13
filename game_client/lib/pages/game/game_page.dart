@@ -88,12 +88,14 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
               components: _getComponents(joinMapEvent, context),
               cameraConfig: CameraConfig(
                 moveOnlyMapArea: true,
-                zoom: getZoomFromMaxVisibleTile(context, GamePage.tileSize, 15),
+                zoom: getZoomFromMaxVisibleTile(context, GamePage.tileSize, 20),
               ),
               onReady: _onReady,
               overlayBuilderMap: {
                 MenuWidget.overlayName: (context, gameRef) {
-                  return const MenuWidget();
+                  return MenuWidget(
+                    game: gameRef,
+                  );
                 },
               },
               initialActiveOverlays: const [MenuWidget.overlayName],

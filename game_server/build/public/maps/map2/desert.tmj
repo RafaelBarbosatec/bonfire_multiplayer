@@ -224,7 +224,6 @@
         {
          "draworder":"topdown",
          "id":4,
-         "locked":true,
          "name":"gateway",
          "objects":[
                 {
@@ -240,12 +239,12 @@
                         {
                          "name":"x",
                          "type":"string",
-                         "value":"288"
+                         "value":"512"
                         }, 
                         {
                          "name":"y",
                          "type":"string",
-                         "value":"160"
+                         "value":"400"
                         }],
                  "rotation":0,
                  "type":"gateway",
@@ -264,7 +263,7 @@
  "nextobjectid":15,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.11.1",
+ "tiledversion":"1.11.2",
  "tileheight":16,
  "tilesets":[
         {
