@@ -51,10 +51,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     ConnectedEvent event,
     Emitter<HomeState> emit,
   ) {
-    _eventManager.onJoinMapEvent((event) {
-      add(EnterGameEvent(ackEvent: event));
-    });
+    _eventManager.onJoinMapEvent(_onJoinMapEvent);
     emit(state.copyWith(connected: true));
+  }
+
+  void _onJoinMapEvent(JoinMapEvent event) {
+    add(EnterGameEvent(ackEvent: event));
   }
 
   FutureOr<void> _onDisconnectedEvent(
