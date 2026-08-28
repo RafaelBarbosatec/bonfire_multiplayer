@@ -124,8 +124,9 @@ class MyPlayer extends SimplePlayer
     _isCorrectingPosition = true;
 
     // Smooth correction with appropriate duration based on distance
-    // Shorter distance = faster correction
-    final duration = (distance / 100).clamp(0.15, 0.35);
+    // Shorter distance = faster correction (kept short: long corrections
+    // are perceived as "muita correção")
+    final duration = (distance / 200).clamp(0.06, 0.15);
 
     add(
       MoveEffect.to(

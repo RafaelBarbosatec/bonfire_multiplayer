@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter (includes Dart SDK)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Dart packages — pub get + analyze + test
+        run: |
+          set -e
+          for pkg in shared_events packages/bonfire_socket_shared packages/bonfire_socket_client packages/bonfire_socket_server packages/bonfire_server game_server; do
+            echo "==> $pkg"
+            (cd "$pkg" && dart pub get)
+            (cd "$pkg" && dart analyze)
+            if [ -d "$pkg/test" ]; then
+              (cd "$pkg" && dart test)
+            fi
+          done
+
+      - name: Flutter client — pub get + analyze
+        working-directory: game_client
+        run: |
+          flutter pub get
+          flutter analyze

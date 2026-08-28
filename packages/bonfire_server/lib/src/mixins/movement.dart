@@ -8,7 +8,10 @@ mixin Movement on PositionedGameComponent {
   static const diaginalReduction = 0.7853981633974483;
 
   MoveDirectionEnum? direction;
-  final GameTimer _timer = GameTimer(duration: 1, loop: true);
+  final GameTimer _timer = GameTimer(
+    duration: 0.05,
+    loop: true,
+  ); // 20Hz position updates while moving (was 1s -> remote players "stop-and-go")
   double speed = 0;
 
   void moveFromDirection(double dt, MoveDirectionEnum direction) {

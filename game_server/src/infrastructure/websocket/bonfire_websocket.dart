@@ -14,6 +14,10 @@ class BonfireWebsocket extends WebsocketProvider {
     required OnClientDisconnect onClientDisconnect,
   }) async {
     _socket = BonfireSocket(
+      // Inputs (JOIN/MOVE/LEAVE) must reach the game loop immediately.
+      // Buffering/delaying them on the server added artificial input
+      // latency (RTT/2) and made lag compensation unfair.
+      bufferDelayEnabled: false,
       onClientConnect: (client) {
         onClientConnect(BonfireWebsocketClient(client: client), this);
       },

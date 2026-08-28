@@ -64,9 +64,13 @@ class MyRemoteEnemy extends SimpleEnemy
     super.onRemove();
   }
 
-  // do override to disable update direction
+  // Remote position is FULLY controlled by SmoothMovementMixin interpolation.
+  // The movement engine must NOT move remote entities — if it does, the
+  // engine's translate() fights the interpolation (both write position),
+  // causing constant jitter/corrections. Animation only is triggered via
+  // moveFromDirection() in UpdateMovementMixin.
   @override
   void translate(Vector2 displacement) {
-    position.add(displacement);
+    // no-op
   }
 }

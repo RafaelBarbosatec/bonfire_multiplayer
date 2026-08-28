@@ -12,11 +12,13 @@ class MapStateTracker {
 
   /// Calculate hash for a ComponentStateModel (for change detection)
   int _calculateHash(ComponentStateModel state) {
-    // Hash based on position, direction, life, and action
-    // These are the fields that matter for visual updates
+    // Hash based on position, direction, life, and action.
+    // Uses full float precision (NOT toInt()): truncating to integers made
+    // sub-pixel movements undetectable, batching them into visible
+    // micro-teleports / corrections on remote clients.
     return Object.hash(
-      state.position.x.toInt(),
-      state.position.y.toInt(),
+      state.position.x,
+      state.position.y,
       state.direction,
       state.life,
       state.action,
