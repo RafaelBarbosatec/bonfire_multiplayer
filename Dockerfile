@@ -10,7 +10,7 @@
 #  locais via path: shared_events, bonfire_server, bonfire_socket_server,
 #  bonfire_socket_shared).
 #
-#    docker build -f game_server/Dockerfile -t game_server .
+#    docker build -f Dockerfile -t game_server .
 #
 #  Stage 1 (build):  instala o Dart Frog CLI, roda `dart_frog build` e
 #                    compila o servidor AOT (`dart compile exe`).
