@@ -11,8 +11,10 @@ mixin UpdateMovementMixin on Movement, SmoothMovementMixin {
 
     // Update animation state
     if (!isIdle) {
-      // Trigger walking animation without actual movement
-      // (translate() override in remote components prevents position change)
+      // Trigger walking animation WITHOUT actual movement:
+      // translate() is a no-op on remote components, so the engine never
+      // moves them — position is fully controlled by SmoothMovementMixin
+      // (single source of truth, no jitter).
       setZeroVelocity();
       moveFromDirection(state.direction!.toDirection());
     } else {

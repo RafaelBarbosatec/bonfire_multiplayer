@@ -76,8 +76,12 @@ class BSocketChannel {
     if (_handleSyncTime(event)) {
       return;
     }
+    // Use the SERVER's receive time, not the client's clock: the client
+    // timestamp is in the client's timebase and must never be converted as
+    // if it were a server timestamp (TimeSync assumes server time — using
+    // the client clock here double-applied the offset and skewed delays).
     _eventQueue.add(
-      Frame(event, event.time),
+      Frame(event, DateTime.now().microsecondsSinceEpoch),
     );
   }
 
