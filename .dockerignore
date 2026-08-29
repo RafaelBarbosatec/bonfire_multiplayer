@@ -1,0 +1,16 @@
+# Contexto do build = raiz do monorepo (o game_server usa path deps locais).
+# Exclui o que o servidor não precisa / não deve copiar.
+
+.git
+.github
+**/.dart_tool/
+**/build/
+**/.env
+**/*.iml
+**/coverage/
+
+# Client Flutter (pesado e desnecessário para o servidor)
+game_client/
+
+# Melos / tooling local
+.melos/

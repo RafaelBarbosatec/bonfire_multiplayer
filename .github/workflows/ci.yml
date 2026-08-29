@@ -33,3 +33,12 @@ jobs:
         run: |
           flutter pub get
           flutter analyze --no-fatal-infos
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build server image (Dockerfile self-build)
+        run: |
+          DOCKER_BUILDKIT=1 docker build -f game_server/Dockerfile -t game_server:ci .

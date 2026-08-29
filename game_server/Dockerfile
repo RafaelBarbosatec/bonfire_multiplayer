@@ -1,34 +1,58 @@
-# Official Dart image: https://hub.docker.com/_/dart
-# Specify the Dart SDK base image version using dart:<version> (ex: dart:2.17)
+# syntax=docker/dockerfile:1
+
+# ============================================================================
+#  Dockerfile self-build (multi-stage)
+#
+#  O `dart_frog build` acontece DENTRO do container — não precisa rodar na
+#  sua máquina nem subir a pasta `build/` no git.
+#
+#  Contexto de build: a RAIZ do monorepo (o game_server depende de packages
+#  locais via path: shared_events, bonfire_server, bonfire_socket_server,
+#  bonfire_socket_shared).
+#
+#    docker build -f game_server/Dockerfile -t game_server .
+#
+#  Stage 1 (build):  instala o Dart Frog CLI, roda `dart_frog build` e
+#                    compila o servidor AOT (`dart compile exe`).
+#  Stage 2 (runtime): imagem mínima (scratch) com o binário + runtime.
+# ============================================================================
+
 FROM dart:stable AS build
 
 WORKDIR /app
 
+# Dart Frog CLI — necessário para gerar a pasta build/ do projeto.
+RUN dart pub global activate dart_frog_cli
+ENV PATH="$PATH:/root/.pub-cache/bin"
 
-# Copy external dependencies
-COPY ./.dart_frog_path_dependencies  ./.dart_frog_path_dependencies
-COPY ./pubspec_overrides.yaml ./pubspec_overrides.yaml
+# --- Camada de dependências (cache-friendly) -------------------------------
+# Copia só os pubspecs primeiro: mudanças de código não invalidam o `pub get`.
+COPY game_server/pubspec.yaml game_server/pubspec_overrides.yaml ./game_server/
+COPY shared_events/pubspec.yaml ./shared_events/
+COPY packages/bonfire_server/pubspec.yaml ./packages/bonfire_server/
+COPY packages/bonfire_socket_server/pubspec.yaml ./packages/bonfire_socket_server/
+COPY packages/bonfire_socket_shared/pubspec.yaml ./packages/bonfire_socket_shared/
 
-# Copy Dependencies
+RUN cd game_server && dart pub get
 
-
-# Resolve app dependencies.
-COPY pubspec.* ./
-RUN dart pub get
-
-# Copy app source code and AOT compile it.
+# --- Código fonte completo do monorepo --------------------------------------
 COPY . .
-# Ensure packages are still up-to-date if anything has changed
-RUN dart pub get --offline
+
+# Gera game_server/build/ (bin/server.dart, public/, routes/, ...)
+RUN cd game_server && dart_frog build
+
+# --- Compila o binário AOT a partir da build gerada -------------------------
+WORKDIR /app/game_server/build
+RUN dart pub get
 RUN dart compile exe bin/server.dart -o bin/server
 
-# Build minimal serving image from AOT-compiled `/server` and required system
-# libraries and configuration files stored in `/runtime/` from the build stage.
+# ============================================================================
+#  Runtime — imagem mínima (mesma estratégia do template oficial do Dart Frog)
+# ============================================================================
 FROM scratch
 COPY --from=build /runtime/ /
-COPY --from=build /app/bin/server /app/bin/
-COPY --from=build /app/public /public
+COPY --from=build /app/game_server/build/bin/server /app/bin/
+COPY --from=build /app/game_server/build/public /public
 
-
-# Start server.
+EXPOSE 8080
 CMD ["/app/bin/server"]
