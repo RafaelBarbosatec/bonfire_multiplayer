@@ -11,7 +11,9 @@ class MoveEvent {
   });
 
   final GameVector position;
-  final String time;
+  /// Microseconds since epoch (same unit as `ComponentStateModel.serverTimestamp`
+  /// and `BEvent.time`) — keeps the whole protocol on a single time unit.
+  final int time;
   final MoveDirectionEnum? direction;
   final String mapId;
 
@@ -33,7 +35,7 @@ class MoveEvent {
   factory MoveEvent.fromMap(Map<String, dynamic> map) {
     return MoveEvent(
       position: GameVector.fromMap((map['position'] as Map).cast()),
-      time: map['time'] as String,
+      time: map['time'] as int,
       mapId: map['map'] as String,
       direction: map['direction'] != null
           ? MoveDirectionEnum.values[map['direction']]

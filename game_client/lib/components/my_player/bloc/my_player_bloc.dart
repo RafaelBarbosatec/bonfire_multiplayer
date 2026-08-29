@@ -65,7 +65,7 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
       EventType.MOVE.name,
       MoveEvent(
         position: event.position.toGamePosition(),
-        time: DateTime.now().toIso8601String(),
+        time: DateTime.now().microsecondsSinceEpoch,
         direction: event.direction,
         mapId: mapId,
         inputId: inputId,

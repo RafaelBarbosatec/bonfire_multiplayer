@@ -48,7 +48,7 @@ class BonfireSocket
     this.onClientDisconnect,
     EventSerializer? serializer,
   }) {
-    this.serializer = serializer ?? EventSerializerDefault();
+    this.serializer = serializer ?? EventSerializerMsgpack();
   }
 
   final List<BSocketChannel> _clients = [];

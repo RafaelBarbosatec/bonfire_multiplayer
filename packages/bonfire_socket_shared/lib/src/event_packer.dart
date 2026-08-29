@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:bonfire_socket_shared/bonfire_socket_shared.dart';
 
@@ -18,20 +19,31 @@ class EventPacker {
   /// Gets the event serializer.
   EventSerializer get serializer => serializerProvider.serializer;
 
-  /// Packs an event with the given [event] name and [data].
+  /// Packs an event into the serialized bytes ready to be sent over the wire.
   ///
-  /// Returns the packed event as a base64 encoded string.
-  String packEvent(BEvent event) {
-    return base64Encode(
-      serializer.serialize(event.toMap()),
-    );
+  /// Returns the raw serialized bytes (msgpack by default) so the transport
+  /// can send a binary WebSocket frame — no base64 inflation (binary frames
+  /// are ~25% smaller than base64-encoded text frames).
+  Uint8List packEvent(BEvent event) {
+    return serializer.serialize(event.toMap());
   }
 
-  /// Unpacks an event from the given base64 encoded [data].
+  /// Unpacks a received message into a [BEvent].
   ///
-  /// Returns the unpacked [BEvent].
-  BEvent unpackEvent(String data) {
-    final bytes = base64Decode(data);
+  /// Accepts both binary frames (`List<int>`) and legacy base64 text frames
+  /// (`String`) so old clients/servers remain compatible during rollout.
+  BEvent unpackEvent(dynamic data) {
+    final Uint8List bytes;
+    if (data is String) {
+      bytes = base64Decode(data);
+    } else if (data is List<int>) {
+      bytes = Uint8List.fromList(data);
+    } else {
+      throw ArgumentError(
+        'Unsupported message type: ${data.runtimeType}. '
+        'Expected String (base64 text frame) or List<int> (binary frame).',
+      );
+    }
     return BEvent.fromMap(
       serializer.deserialize(bytes),
     );

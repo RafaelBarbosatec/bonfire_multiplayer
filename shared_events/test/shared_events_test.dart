@@ -72,7 +72,7 @@ void main() {
     test('round-trip toMap/fromMap', () {
       final original = MoveEvent(
         position: GameVector(x: 12, y: 34),
-        time: '2026-08-28T12:00:00.000Z',
+        time: 1780000000000000,
         direction: MoveDirectionEnum.downLeft,
         mapId: 'map-1',
         inputId: 7,
@@ -88,7 +88,7 @@ void main() {
     test('round-trip with null direction (idle) and null inputId', () {
       final original = MoveEvent(
         position: GameVector(x: 1, y: 2),
-        time: 't',
+        time: 123456,
         direction: null,
         mapId: 'map-1',
       );
