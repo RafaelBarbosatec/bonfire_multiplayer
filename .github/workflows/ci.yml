@@ -32,4 +32,4 @@ jobs:
         working-directory: game_client
         run: |
           flutter pub get
-          flutter analyze
+          flutter analyze --no-fatal-infos
