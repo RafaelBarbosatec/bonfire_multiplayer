@@ -32,6 +32,11 @@ class Player extends GamePlayer
         (data) {
           if (data.mapId == map.id) {
             moveDirection = data.direction;
+            // Echo the last processed input id back to the client so it
+            // can reconcile its pending inputs (client-side prediction).
+            if (data.inputId != null) {
+              state.lastInputId = data.inputId;
+            }
           }
         },
       )

@@ -25,7 +25,9 @@ class ComponentStateModel {
   final String name;
   final String? action;
   final double speed;
-  final int? lastInputId;
+  // Not final: the server updates it as inputs are processed
+  // (client-side prediction acknowledgment).
+  int? lastInputId;
   final int? serverTimestamp;
   MoveDirectionEnum? _lastDirection;
   MoveDirectionEnum? _direction;
