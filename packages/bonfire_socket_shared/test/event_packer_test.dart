@@ -79,7 +79,7 @@ void main() {
         typeAdapterProvider: _FakeTypeAdapterProvider(),
       );
       final event = BEvent(event: 'legacy', time: 42, data: {'k': 'v'});
-      final legacyFrame = base64Encode(jsonEncode(event.toMap()));
+      final legacyFrame = base64Encode(utf8.encode(jsonEncode(event.toMap())));
       final restored = jsonPacker.unpackEvent(legacyFrame);
       expect(restored.event, 'legacy');
       expect(restored.time, 42);
