@@ -19,6 +19,9 @@ class InputEvent {
   Vector2 getPredictedPosition(double speed, double deltaTime) {
     if (direction == null) return position.clone();
 
+    // cos(45°) for diagonal movement (matches the server's diagonal reduction)
+    const diagonalReduction = 0.7853981633974483;
+
     final Vector2 movement;
     switch (direction!) {
       case MoveDirectionEnum.up:
@@ -33,8 +36,29 @@ class InputEvent {
       case MoveDirectionEnum.right:
         movement = Vector2(speed * deltaTime, 0);
         break;
-      default:
-        movement = Vector2.zero();
+      case MoveDirectionEnum.upLeft:
+        movement = Vector2(
+          -speed * deltaTime * diagonalReduction,
+          -speed * deltaTime * diagonalReduction,
+        );
+        break;
+      case MoveDirectionEnum.upRight:
+        movement = Vector2(
+          speed * deltaTime * diagonalReduction,
+          -speed * deltaTime * diagonalReduction,
+        );
+        break;
+      case MoveDirectionEnum.downLeft:
+        movement = Vector2(
+          -speed * deltaTime * diagonalReduction,
+          speed * deltaTime * diagonalReduction,
+        );
+        break;
+      case MoveDirectionEnum.downRight:
+        movement = Vector2(
+          speed * deltaTime * diagonalReduction,
+          speed * deltaTime * diagonalReduction,
+        );
         break;
     }
 

@@ -75,15 +75,17 @@ void main() {
         time: '2026-08-28T12:00:00.000Z',
         direction: MoveDirectionEnum.downLeft,
         mapId: 'map-1',
+        inputId: 7,
       );
       final restored = MoveEvent.fromMap(original.toMap());
       expect(restored.position, original.position);
       expect(restored.time, original.time);
       expect(restored.direction, original.direction);
       expect(restored.mapId, original.mapId);
+      expect(restored.inputId, original.inputId);
     });
 
-    test('round-trip with null direction (idle)', () {
+    test('round-trip with null direction (idle) and null inputId', () {
       final original = MoveEvent(
         position: GameVector(x: 1, y: 2),
         time: 't',
@@ -92,6 +94,7 @@ void main() {
       );
       final restored = MoveEvent.fromMap(original.toMap());
       expect(restored.direction, isNull);
+      expect(restored.inputId, isNull);
     });
   });
 

@@ -1,4 +1,5 @@
 import 'package:bonfire_multiplayer/data/websocket/websocket_provider.dart';
+import 'package:bonfire_socket_client/bonfire_socket_client.dart';
 import 'package:shared_events/shared_events.dart';
 
 class GameEventManager {
@@ -42,6 +43,10 @@ class GameEventManager {
   void send<T>(String event, T data) {
     websocket.send(event, data);
   }
+
+  /// Clock synchronization with the server (for converting server
+  /// timestamps to the local timeline).
+  TimeSync? get timeSync => websocket.timeSync;
 
   void onDisconnect(void Function() onDisconnect) {
     websocket.onDisconnect(onDisconnect);

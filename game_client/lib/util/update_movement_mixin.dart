@@ -6,7 +6,7 @@ import 'package:bonfire_multiplayer/util/smooth_movement_mixin.dart';
 /// Mixin for handling remote player/enemy movement updates from server.
 /// Must be used together with SmoothMovementMixin.
 mixin UpdateMovementMixin on Movement, SmoothMovementMixin {
-  void updateStateMove(MoveState state) {
+  void updateStateMove(MoveState state, {DateTime? serverTime}) {
     final isIdle = state.direction == null;
 
     // Update animation state
@@ -26,6 +26,10 @@ mixin UpdateMovementMixin on Movement, SmoothMovementMixin {
     // Sync position to server
     // When idle: snap to exact position for precise sync
     // When moving: interpolate smoothly
-    smoothMoveTo(state.position, snapWhenIdle: isIdle);
+    smoothMoveTo(
+      state.position,
+      snapWhenIdle: isIdle,
+      serverTime: serverTime,
+    );
   }
 }

@@ -25,8 +25,12 @@ class ComponentStateModel {
   final String name;
   final String? action;
   final double speed;
-  final int? lastInputId;
-  final int? serverTimestamp;
+  // Not final: the server updates it as inputs are processed
+  // (client-side prediction acknowledgment).
+  int? lastInputId;
+  // Not final: the server stamps it on every move/stop (the moment the
+  // position is true on the server clock — used for interpolation).
+  int? serverTimestamp;
   MoveDirectionEnum? _lastDirection;
   MoveDirectionEnum? _direction;
   GameVector position;

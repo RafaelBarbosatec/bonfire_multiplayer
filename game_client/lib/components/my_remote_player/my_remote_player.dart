@@ -17,10 +17,12 @@ class MyRemotePlayer extends SimplePlayer
         UpdateMovementMixin,
         BonfireBlocListenable<MyRemotePlayerBloc, MyRemotePlayerState> {
   final String id;
+  final GameEventManager eventManager;
+
   MyRemotePlayer({
     required super.position,
     required PlayerSkin skin,
-    required GameEventManager eventManager,
+    required this.eventManager,
     required this.id,
     required String name,
     Direction? initDirection,
@@ -62,8 +64,16 @@ class MyRemotePlayer extends SimplePlayer
 
   @override
   void onNewState(MyRemotePlayerState state) {
-    updateStateMove(state);
+    updateStateMove(state, serverTime: _serverTimeOf(state));
     super.onNewState(state);
+  }
+
+  /// Converts the server timestamp to the local timeline so interpolation
+  /// follows the SERVER clock (immune to network jitter).
+  DateTime? _serverTimeOf(MyRemotePlayerState state) {
+    final ts = state.serverTimestamp;
+    if (ts == null) return null;
+    return eventManager.timeSync?.serverTimestampToLocal(ts);
   }
 
   @override

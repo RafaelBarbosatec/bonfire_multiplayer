@@ -7,6 +7,7 @@ class MoveEvent {
     required this.time,
     required this.direction,
     required this.mapId,
+    this.inputId,
   });
 
   final GameVector position;
@@ -14,12 +15,18 @@ class MoveEvent {
   final MoveDirectionEnum? direction;
   final String mapId;
 
+  /// Sequential id of the client input (client-side prediction).
+  /// The server echoes the last processed id via [ComponentStateModel.lastInputId]
+  /// so the client can reconcile pending inputs.
+  final int? inputId;
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'position': position.toMap(),
       'time': time,
       'direction': direction?.index,
       'map': mapId,
+      'inputId': inputId,
     };
   }
 
@@ -31,6 +38,7 @@ class MoveEvent {
       direction: map['direction'] != null
           ? MoveDirectionEnum.values[map['direction']]
           : null,
+      inputId: map['inputId'] as int?,
     );
   }
 }

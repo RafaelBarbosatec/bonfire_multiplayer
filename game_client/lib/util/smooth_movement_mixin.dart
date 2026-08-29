@@ -31,8 +31,16 @@ mixin SmoothMovementMixin on GameComponent {
   double _snapProgress = 0.0;
 
   /// Adds a new authoritative position from the server.
-  void smoothMoveTo(Vector2 target, {bool snapWhenIdle = false}) {
-    final now = DateTime.now();
+  ///
+  /// [serverTime] is the local-time equivalent of the server timestamp at
+  /// which the position is true. When provided, the render buffer
+  /// interpolates on the SERVER timeline (immune to network jitter);
+  /// otherwise it falls back to the arrival time.
+  void smoothMoveTo(
+    Vector2 target, {
+    bool snapWhenIdle = false,
+    DateTime? serverTime,
+  }) {
     final distance = position.distanceTo(target);
 
     // Ignore negligible differences (reduces jitter)
@@ -60,7 +68,9 @@ mixin SmoothMovementMixin on GameComponent {
 
     // Moving: push into the render buffer (single source of truth)
     _snapTarget = null;
-    _buffer.add(_BufferedState(target.clone(), now));
+    _buffer.add(
+      _BufferedState(target.clone(), serverTime ?? DateTime.now()),
+    );
     if (_buffer.length > _maxBufferSize) {
       _buffer.removeAt(0);
     }

@@ -26,7 +26,6 @@ class BonfireWebsocket extends WebsocketProvider {
     }
     _client = BonfireSocketClient(
       uri: address,
-      bufferDelayEnabled: true,
       pingInterval: const Duration(seconds: 10),
     );
     _client?.connect(onConnected: () {
@@ -75,6 +74,9 @@ class BonfireWebsocket extends WebsocketProvider {
       ),
     );
   }
+
+  @override
+  TimeSync? get timeSync => _client?.timeSync;
 
   @override
   void disconnect([int? code, String? reason]) {

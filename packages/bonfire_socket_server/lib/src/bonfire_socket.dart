@@ -47,7 +47,6 @@ class BonfireSocket
     this.onClientConnect,
     this.onClientDisconnect,
     EventSerializer? serializer,
-    this.bufferDelayEnabled = true,
   }) {
     this.serializer = serializer ?? EventSerializerDefault();
   }
@@ -64,9 +63,6 @@ class BonfireSocket
   /// Callback function that is called when a client disconnects.
   void Function(BSocketChannel client)? onClientDisconnect;
 
-  /// Whether to enable buffer delay for incoming messages.
-  final bool bufferDelayEnabled;
-
   /// Returns a [Handler] that manages WebSocket connections.
   Future<Response> handler(RequestContext context) async {
     return webSocketHandler(_addClient)(context);
@@ -80,7 +76,6 @@ class BonfireSocket
       typeAdapterProvider: this,
       socket: this,
       serializerProvider: this,
-      bufferDelayEnabled: bufferDelayEnabled,
     );
     _clients.add(client);
     onClientConnect?.call(client);

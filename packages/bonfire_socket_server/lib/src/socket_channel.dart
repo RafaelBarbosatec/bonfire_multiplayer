@@ -14,18 +14,12 @@ class BSocketChannel {
     required this.socket,
     required BonfireTypeAdapterProvider typeAdapterProvider,
     required EventSerializerProvider serializerProvider,
-    this.bufferDelayEnabled = true,
   }) : _channel = channel {
     _packer = EventPacker(
       serializerProvider: serializerProvider,
       typeAdapterProvider: typeAdapterProvider,
     );
     _timeSync = TimeSync();
-    _eventQueue = EventQueue<BEvent>(
-      timeSync: _timeSync,
-      listen: _onQueueEvent,
-      enabled: bufferDelayEnabled,
-    );
     _channel.stream.listen(
       _onChannelListen,
       onDone: () => onDisconnect(this),
@@ -44,17 +38,10 @@ class BSocketChannel {
   /// The socket actions associated with this client.
   final BonfireSocketActions socket;
 
-  /// Indicates whether the buffer delay is enabled for the socket client.
-  /// When set to `true`, the socket client will use a buffer delay to optimize
-  /// data transmission, potentially reducing the number of packets sent.
-  /// When set to `false`, data will be sent immediately without buffering.
-  final bool bufferDelayEnabled;
-
   final Map<String, void Function(BEvent)> _onSubscribers = {};
 
   Completer<DateTime>? _timeSyncCompleter;
   late TimeSync _timeSync;
-  late EventQueue<BEvent> _eventQueue;
 
   /// Sends a message to the client.
   void send<T>(String event, T message) {
@@ -76,16 +63,9 @@ class BSocketChannel {
     if (_handleSyncTime(event)) {
       return;
     }
-    // Use the SERVER's receive time, not the client's clock: the client
-    // timestamp is in the client's timebase and must never be converted as
-    // if it were a server timestamp (TimeSync assumes server time — using
-    // the client clock here double-applied the offset and skewed delays).
-    _eventQueue.add(
-      Frame(event, DateTime.now().microsecondsSinceEpoch),
-    );
-  }
-
-  void _onQueueEvent(BEvent event) {
+    // Dispatch immediately: inputs must reach the game loop without delay.
+    // WebSocket (TCP) already guarantees in-order delivery, and the client
+    // clock must never be used for server-side scheduling.
     _onSubscribers[event.event]?.call(event);
   }
 

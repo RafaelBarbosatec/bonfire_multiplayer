@@ -38,6 +38,7 @@ class MyRemoteEnemyBloc extends Bloc<MyRemoteEnemyEvent, MyRemoteEnemyState> {
         direction: event.state.direction,
         position: event.state.position.toVector2(),
         lastDirection: event.state.lastDirection,
+        serverTimestamp: event.state.serverTimestamp,
       ),
     );
   }

@@ -22,6 +22,7 @@ class MapStateTracker {
       state.direction,
       state.life,
       state.action,
+      state.lastInputId,
     );
   }
 

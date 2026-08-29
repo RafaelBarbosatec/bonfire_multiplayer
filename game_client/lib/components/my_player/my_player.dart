@@ -67,6 +67,16 @@ class MyPlayer extends SimplePlayer
 
   @override
   void onNewState(MyPlayerState state) {
+    // Client-side prediction reconciliation: while there are inputs not yet
+    // confirmed by the server (hasPendingInputs), the server is simply
+    // behind (lag) — correcting now would cause a visible "pull"/correction.
+    // Only reconcile once the server has caught up with our inputs.
+    if (state.hasPendingInputs) {
+      _cancelCorrection();
+      super.onNewState(state);
+      return;
+    }
+
     final serverPosition = state.position;
 
     final distance = position.distanceTo(serverPosition);
