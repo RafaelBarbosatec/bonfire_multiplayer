@@ -61,7 +61,7 @@ class GameServer extends Game {
 
       // Only send if there are actual changes
       if (tracker.hasChanges(delta)) {
-        final players = compChanged.players.toList();
+        final players = compChanged.players.whereType<Player>().toList();
         if (players.isEmpty) {
           return;
         }
