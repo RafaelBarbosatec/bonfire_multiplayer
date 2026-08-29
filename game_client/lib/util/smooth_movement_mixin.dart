@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:bonfire/bonfire.dart';
 
+import 'vector_utils.dart';
+
 /// Smooth interpolation for remote entities using a render buffer.
 ///
 /// Server states are pushed into a small buffer and the entity is rendered
@@ -104,7 +106,7 @@ mixin SmoothMovementMixin on GameComponent {
             ? 0.0
             : (renderTime.difference(a.time).inMicroseconds / span)
                 .clamp(0.0, 1.0);
-        position.setFrom(Vector2.lerp(a.position, b.position, t));
+        position.setFrom(VectorUtils.lerp(a.position, b.position, t));
 
         // Drop states that are now behind the render time (keep at least 2)
         while (_buffer.length > 2 && _buffer[1].time.isBefore(renderTime)) {

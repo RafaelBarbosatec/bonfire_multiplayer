@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 void main() {
   group('GameVector', () {
     test('round-trip toMap/fromMap', () {
-      const original = GameVector(x: 12.5, y: -3.25);
+      final original = GameVector(x: 12.5, y: -3.25);
       final restored = GameVector.fromMap(original.toMap());
       expect(restored, original);
     });
