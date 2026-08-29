@@ -9,7 +9,7 @@ final getIt = GetIt.instance;
 
 class BootstrapInjector {
   // static BaseInviroment enviroment = LocalInviroment();
-  static BaseInviroment enviroment = ServerInviroment();
+  static BaseInviroment enviroment = LocalInviroment();
 
   static Future<void> run() async {
     getIt.registerLazySingleton<WebsocketProvider>(
