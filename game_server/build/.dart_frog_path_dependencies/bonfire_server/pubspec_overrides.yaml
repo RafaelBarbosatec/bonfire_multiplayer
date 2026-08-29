@@ -1,4 +1,0 @@
-# melos_managed_dependency_overrides: shared_events
-dependency_overrides:
-  shared_events:
-    path: ../../shared_events
