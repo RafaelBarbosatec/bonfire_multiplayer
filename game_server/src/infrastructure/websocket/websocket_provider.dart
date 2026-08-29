@@ -31,5 +31,12 @@ abstract class WebsocketClient {
   String get id;
   void on<T>(String event, void Function(T event) callback);
   void send<T>(String event, T data);
+
+  /// Serializes an event to bytes WITHOUT sending (for one-pass broadcasts).
+  List<int> serializeEvent<T>(String event, T data);
+
+  /// Sends pre-serialized bytes (binary frame) to this client.
+  void sendRaw(List<int> bytes);
+
   void cleanListener(String event);
 }

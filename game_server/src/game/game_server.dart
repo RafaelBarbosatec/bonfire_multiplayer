@@ -61,8 +61,19 @@ class GameServer extends Game {
 
       // Only send if there are actual changes
       if (tracker.hasChanges(delta)) {
-        for (final player in compChanged.players) {
-          player.send(EventType.UPDATE_STATE.name, delta);
+        final players = compChanged.players.whereType<Player>().toList();
+        if (players.isEmpty) {
+          return;
+        }
+        // Serialize ONCE for the whole broadcast: the delta is the same for
+        // every player in the map, so we do a single msgpack pass and send
+        // the same bytes to each recipient (binary frames).
+        final bytes = players.first.client.serializeEvent<GameStateModel>(
+          EventType.UPDATE_STATE.name,
+          delta,
+        );
+        for (final player in players) {
+          player.client.sendRaw(bytes);
         }
       }
     }

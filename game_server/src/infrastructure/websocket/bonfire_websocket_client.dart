@@ -18,6 +18,16 @@ class BonfireWebsocketClient extends WebsocketClient {
   }
 
   @override
+  List<int> serializeEvent<T>(String event, T data) {
+    return client.serialize<T>(event, data);
+  }
+
+  @override
+  void sendRaw(List<int> bytes) {
+    client.sendRaw(bytes);
+  }
+
+  @override
   // TODO: implement id
   String get id => client.id;
 

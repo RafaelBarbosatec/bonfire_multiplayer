@@ -45,12 +45,26 @@ class BSocketChannel {
 
   /// Sends a message to the client.
   void send<T>(String event, T message) {
+    _channel.sink.add(serialize(event, message));
+  }
+
+  /// Serializes an event to bytes WITHOUT sending it.
+  ///
+  /// Lets the caller serialize once and broadcast the same bytes to many
+  /// clients ([sendRaw]) — one msgpack pass per broadcast instead of one
+  /// per recipient.
+  List<int> serialize<T>(String event, T message) {
     final e = BEvent(
       event: event,
       time: DateTime.now().microsecondsSinceEpoch,
       data: _packer.packData<T>(message),
     );
-    _channel.sink.add(_packer.packEvent(e));
+    return _packer.packEvent(e);
+  }
+
+  /// Sends pre-serialized bytes (binary frame) to this client.
+  void sendRaw(List<int> bytes) {
+    _channel.sink.add(bytes);
   }
 
   /// Registers a callback for a specific event.
@@ -59,7 +73,7 @@ class BSocketChannel {
   }
 
   void _onChannelListen(dynamic message) {
-    final event = _packer.unpackEvent(message.toString());
+    final event = _packer.unpackEvent(message);
     if (_handleSyncTime(event)) {
       return;
     }

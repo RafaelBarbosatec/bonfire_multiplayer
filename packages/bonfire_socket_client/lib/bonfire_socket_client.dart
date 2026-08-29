@@ -22,7 +22,7 @@ class BonfireSocketClient
     this.debug = false,
     this.syncTimeInterval = const Duration(seconds: 30),
   }) {
-    this.serializer = serializer ?? EventSerializerDefault();
+    this.serializer = serializer ?? EventSerializerMsgpack();
     _packer = EventPacker(
       serializerProvider: this,
       typeAdapterProvider: this,
@@ -85,7 +85,7 @@ class BonfireSocketClient
   }
 
   void _onMessageslListen(dynamic message) {
-    final event = _packer.unpackEvent(message.toString());
+    final event = _packer.unpackEvent(message);
     if (_handleSyncTime(event)) {
       return;
     }
@@ -104,6 +104,7 @@ class BonfireSocketClient
       time: DateTime.now().microsecondsSinceEpoch,
       data: _packer.packData<T>(message),
     );
+    // Binary frame (msgpack by default): no base64 inflation.
     _socket.send(_packer.packEvent(e));
   }
 
