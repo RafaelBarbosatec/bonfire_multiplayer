@@ -27,10 +27,30 @@ de inputs pendentes e reconciliação quando o servidor confirma.
   (corrigir nesse momento causaria o "puxão" visível).
 - **`InputEvent.getPredictedPosition`**: suporte a direções diagonais
   (reduction de cos(45°), igual ao servidor).
-- **`BonfireSocketClient` com `bufferDelayEnabled: false`**: o atraso de
-  render é responsabilidade do `SmoothMovementMixin` (render buffer fixo de
-  80ms). O buffer no transporte empilhava um atraso variável de RTT/2 em cima
-  do render buffer (atraso visual = RTT/2 + 80ms) — redundante e imprevisível.
+
+### Interpolação na timeline do servidor
+- **Servidor preenche `state.serverTimestamp`** (µs epoch) a cada movimento/
+  parada/join — o momento em que a posição é verdadeira no relógio do servidor.
+- **Cliente**: o `TimeSync` é exposto na cadeia (`WebsocketProvider.timeSync`
+  → `GameEventManager.timeSync`), e os widgets remotos convertem o
+  `serverTimestamp` para a timeline local antes de passar ao
+  `SmoothMovementMixin`. O render buffer interpola no **tempo do servidor**,
+  imune ao jitter da rede (antes usava o tempo de chegada — rajadas de rede
+  distorciam o ritmo do movimento).
+
+### Remoção do EventQueue (transporte)
+- **`EventQueue` removido** do `bonfire_socket_shared`, `bonfire_socket_client`
+  e `bonfire_socket_server`. Motivos:
+  - **Ordem**: o WebSocket (TCP) já garante entrega em ordem — o reorder
+    window era desnecessário.
+  - **Tempo de emissão ≠ tempo de chegada**: o TCP não preserva intervalos;
+    mas "reproduzir" eventos com atraso não é a técnica para movimento —
+    quem resolve jitter é a interpolação com render buffer na camada de
+    render (usando `serverTimestamp`), não um buffer no transporte.
+  - O buffer no transporte empilhava um atraso variável de RTT/2 e o servidor
+    não deve atrasar inputs (latência de entrada artificial).
+- Parâmetro `bufferDelayEnabled` removido dos construtores de client e server.
+- `TimeSync` **mantido** (necessário para converter `serverTimestamp`).
 
 ## Benefício
 

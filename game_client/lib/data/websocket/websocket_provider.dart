@@ -1,3 +1,5 @@
+import 'package:bonfire_socket_client/bonfire_socket_client.dart';
+
 abstract class WebsocketProvider {
   Future<void> init({
     void Function()? onConnect,
@@ -9,6 +11,11 @@ abstract class WebsocketProvider {
   void send<T>(String event, T data);
   void registerType<T>(TypeAdapter<T> type);
   void disconnect([int? code, String? reason]);
+
+  /// Clock synchronization with the server. Used to convert server
+  /// timestamps (e.g. ComponentStateModel.serverTimestamp) to the local
+  /// timeline for jitter-free interpolation.
+  TimeSync? get timeSync;
 }
 
 class TypeAdapter<T> {

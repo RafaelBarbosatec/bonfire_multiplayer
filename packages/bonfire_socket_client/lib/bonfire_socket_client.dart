@@ -21,7 +21,6 @@ class BonfireSocketClient
     EventSerializer? serializer,
     this.debug = false,
     this.syncTimeInterval = const Duration(seconds: 30),
-    this.bufferDelayEnabled = true,
   }) {
     this.serializer = serializer ?? EventSerializerDefault();
     _packer = EventPacker(
@@ -29,11 +28,6 @@ class BonfireSocketClient
       typeAdapterProvider: this,
     );
     timeSync = TimeSync();
-    _eventQueue = EventQueue<BEvent>(
-      timeSync: timeSync,
-      listen: _onListernQueue,
-      enabled: bufferDelayEnabled,
-    );
   }
   late WebSocket _socket;
   final Uri uri;
@@ -47,11 +41,9 @@ class BonfireSocketClient
   final Map<String, void Function(BEvent)> _onSubscribers = {};
   late EventPacker _packer;
   final Duration syncTimeInterval;
-  final bool bufferDelayEnabled;
   late TimeSync timeSync;
   Completer<DateTime>? _timeSyncCompleter;
   Timer? _syncTimeTimer;
-  late EventQueue<BEvent> _eventQueue;
 
   bool _connected = false;
 
@@ -97,9 +89,10 @@ class BonfireSocketClient
     if (_handleSyncTime(event)) {
       return;
     }
-    _eventQueue.add(
-      Frame(event, event.time),
-    );
+    // Dispatch immediately: WebSocket (TCP) already guarantees in-order
+    // delivery. Timing-sensitive rendering is handled by the render buffer
+    // (SmoothMovementMixin) using server timestamps — not by delaying here.
+    _dispatch(event);
     if (debug) {
       log('BonfireSocketClient: ${event.toMap()}');
     }
@@ -120,7 +113,7 @@ class BonfireSocketClient
     };
   }
 
-  void _onListernQueue(BEvent event) {
+  void _dispatch(BEvent event) {
     _onSubscribers[event.event]?.call(event);
   }
 

@@ -61,6 +61,10 @@ class Player extends GamePlayer
   void onUpdate(double dt) {
     if (moveDirection != null) {
       moveFromDirection(dt, moveDirection!);
+      // Stamp when this position is true on the server timeline, so clients
+      // can interpolate remote entities on server time (immune to network
+      // jitter) instead of on arrival time.
+      state.serverTimestamp = DateTime.now().microsecondsSinceEpoch;
     } else {
       stopMove();
     }
@@ -75,6 +79,7 @@ class Player extends GamePlayer
   @override
   void stopMove() {
     moveDirection = null;
+    state.serverTimestamp = DateTime.now().microsecondsSinceEpoch;
     super.stopMove();
   }
 }

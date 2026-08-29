@@ -26,10 +26,6 @@ class BonfireWebsocket extends WebsocketProvider {
     }
     _client = BonfireSocketClient(
       uri: address,
-      // Render delay is handled by SmoothMovementMixin (fixed render buffer).
-      // Buffering in the transport adds a variable RTT/2 delay on top of it
-      // and is only useful for consumers that don't have the mixin.
-      bufferDelayEnabled: false,
       pingInterval: const Duration(seconds: 10),
     );
     _client?.connect(onConnected: () {
@@ -78,6 +74,9 @@ class BonfireWebsocket extends WebsocketProvider {
       ),
     );
   }
+
+  @override
+  TimeSync? get timeSync => _client?.timeSync;
 
   @override
   void disconnect([int? code, String? reason]) {

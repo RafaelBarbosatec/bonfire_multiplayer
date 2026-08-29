@@ -96,6 +96,8 @@ class GameServer extends Game {
       client: client,
     );
 
+    player.state.serverTimestamp = DateTime.now().microsecondsSinceEpoch;
+
     final initialMap = maps[0]..add(player);
 
     // send ACK to client that request join.
