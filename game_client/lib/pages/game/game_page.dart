@@ -108,9 +108,12 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
 
   // Adds remote plasyers with ack informations
   List<GameComponent> _getComponents(JoinMapEvent event, BuildContext context) {
-    return event.players.map((e) {
-      return _createRemotePlayer(e);
-    }).toList();
+    List<GameComponent> components = [];
+
+    components.addAll(event.players.map((e) => _createRemotePlayer(e)));
+    components.addAll(event.npcs.map((e) => _createRemoteEnemy(e)));
+
+    return components;
   }
 
   // When the game is ready init listeners:
@@ -124,8 +127,6 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     _eventManager.onRemoved(_onRemoved);
     _eventManager.onJoinMapEvent(_onJoinMap);
 
-    _onPlayerState(joinMapEvent.players);
-    _onEnemyState(joinMapEvent.npcs);
     Future.delayed(const Duration(milliseconds: 100), _controller.forward);
   }
 
@@ -189,7 +190,6 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   GameComponent _createRemotePlayer(ComponentStateModel state) {
     return MyRemotePlayer(
       position: state.position.toVector2(),
-      initDirection: state.lastDirection?.toDirection(),
       skin: PlayerSkin.fromName(state.properties['skin']),
       eventManager: _eventManager,
       id: state.id,
