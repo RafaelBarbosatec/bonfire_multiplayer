@@ -200,8 +200,8 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
                                   child: FutureBuilder(
                                     future: Sprite.load(
                                       skinOption.path,
-                                      srcSize: const Vector2.all(32),
-                                      srcPosition: const Vector2(0, 32),
+                                      srcSize: Vector2.all(32),
+                                      srcPosition: Vector2(0, 32),
                                     ),
                                     builder: (context, snapshot) {
                                       if (!snapshot.hasData) {
@@ -286,8 +286,8 @@ class _CharacterCard extends StatelessWidget {
             FutureBuilder(
               future: Sprite.load(
                 skin.path,
-                srcSize: const Vector2.all(32),
-                srcPosition: const Vector2(0, 32),
+                srcSize: Vector2.all(32),
+                srcPosition: Vector2(0, 32),
               ),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
