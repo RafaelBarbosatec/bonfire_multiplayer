@@ -12,6 +12,20 @@ final pathsNotAuthenticated = [
   '/',
 ];
 
+/// Prefixes that never require auth. Map files are public game content —
+/// the client fetches them via plain HTTP (WorldMapReader.fromNetwork).
+final pathPrefixesNotAuthenticated = [
+  '/maps/',
+];
+
+bool _isPublicPath(String path) {
+  if (pathsNotAuthenticated.contains(path)) return true;
+  for (final prefix in pathPrefixesNotAuthenticated) {
+    if (path.startsWith(prefix)) return true;
+  }
+  return false;
+}
+
 Handler middleware(Handler handler) {
   return handler.use(
     bearerAuthentication<UserModel>(
@@ -21,7 +35,7 @@ Handler middleware(Handler handler) {
       },
       applies: (context) async {
         final path = context.request.uri.path;
-        return !pathsNotAuthenticated.contains(path);
+        return !_isPublicPath(path);
       },
     ),
   );

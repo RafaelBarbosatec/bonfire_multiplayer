@@ -4,17 +4,31 @@ import 'package:bonfire_server/bonfire_server.dart';
 import 'package:shared_events/shared_events.dart';
 
 import '../../main.dart';
+import '../api/data/model/character_model.dart';
+import '../api/data/repositories/character_repository.dart';
+import '../api/usecases/authenticator.dart';
 import '../infrastructure/websocket/websocket_provider.dart';
 import 'components/player.dart';
 import 'state_tracker.dart';
 
 class GameServer extends Game {
-  GameServer({required this.server, required super.maps});
+  GameServer({
+    required this.server,
+    required super.maps,
+    required this.characterRepository,
+    required this.authenticator,
+  });
   static const tileSize = 16.0;
 
   List<WebsocketClient> clients = [];
 
   final WebsocketProvider server;
+
+  /// Used to load the selected character when a client joins with a JWT.
+  final CharacterRepository characterRepository;
+
+  /// Validates the JWT sent in [JoinEvent].
+  final Authenticator authenticator;
 
   /// State tracker per map for delta updates
   final Map<String, MapStateTracker> _mapTrackers = {};
@@ -79,29 +93,65 @@ class GameServer extends Game {
     }
   }
 
-  void _joinPlayerInTheGame(WebsocketClient client, JoinEvent message) {
+  Future<void> _joinPlayerInTheGame(
+    WebsocketClient client,
+    JoinEvent message,
+  ) async {
     if (components
         .whereType<Player>()
         .any((element) => element.id == client.id)) {
       return;
     }
 
-    // Create initial position
-    final position = GameVector(
-      x: (3 + Random().nextInt(3)) * tileSize,
-      y: 11 * tileSize,
-    );
-    // Adds Player
+    if (maps.isEmpty) {
+      return;
+    }
 
+    // Auth: when a JWT is provided, validate it and load the selected
+    // character. Anonymous join (no token) keeps working for quick tests.
+    CharacterModel? character;
+    if (message.token != null) {
+      final user = await authenticator.verifyToken(message.token!);
+      if (user == null) {
+        logger.e('Client(${client.id}) join rejected: invalid token');
+        return;
+      }
+      if (message.characterId == null) {
+        logger.e('Client(${client.id}) join rejected: characterId missing');
+        return;
+      }
+      final result = await characterRepository.getById(message.characterId!);
+      character = result.when(
+        (c) => c.userId == user.id ? c : null,
+        (error) => null,
+      );
+      if (character == null) {
+        logger.e('Client(${client.id}) join rejected: character not found');
+        return;
+      }
+    }
+
+    // Position: saved character position or default spawn.
+    final position = character != null
+        ? GameVector(
+            x: character.position.x,
+            y: character.position.y,
+          )
+        : GameVector(
+            x: (3 + Random().nextInt(3)) * tileSize,
+            y: 11 * tileSize,
+          );
+
+    // Adds Player
     final player = Player(
       state: ComponentStateModel(
         id: client.id,
-        name: message.name,
+        name: character?.nickName ?? message.name,
         position: position,
         size: GameVector.all(16),
         life: 100,
         properties: {
-          'skin': message.skin,
+          'skin': character?.skin ?? message.skin,
         },
       ),
       client: client,
@@ -109,7 +159,12 @@ class GameServer extends Game {
 
     player.state.serverTimestamp = DateTime.now().microsecondsSinceEpoch;
 
-    final initialMap = maps[0]..add(player);
+    // Map: character's saved map or the first map.
+    final initialMap = maps.firstWhere(
+      (m) => m.id == character?.mapId,
+      orElse: () => maps[0],
+    );
+    initialMap.add(player);
 
     // send ACK to client that request join.
     client.send(

@@ -11,7 +11,7 @@ class GenerateJwtUsecase {
     final jwt = JWT(
       {
         'user_id': user.id,
-        'login': user.login,
+        'email': user.email,
         'iat': DateTime.now().millisecondsSinceEpoch,
       },
     );

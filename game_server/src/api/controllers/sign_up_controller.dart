@@ -17,9 +17,9 @@ class SignUpController extends RestController {
   @override
   Future<Result<ApiResponse, Failure>>? post(RequestContext context) async {
     final body = await context.bodyAsMap();
-    final login = body['login'] as String;
+    final email = body['email'] as String;
     final password = body['password'] as String;
-    final result = await repository.createuser(login, password);
+    final result = await repository.createUser(email, password);
     return result.when(
       (user) {
         final token = generateJwtUsecase(user);

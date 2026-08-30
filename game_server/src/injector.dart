@@ -1,5 +1,6 @@
 import 'package:dart_frog/dart_frog.dart';
 
+import 'api/controllers/character_controller.dart';
 import 'api/controllers/sign_in_controller.dart';
 import 'api/controllers/sign_up_controller.dart';
 import 'api/data/datasource/datasource.dart';
@@ -13,6 +14,13 @@ import 'config.dart';
 abstract class Injector {
   static Handler run(Handler handler) {
     return handler
+        .use(
+          provider(
+            (context) => CharacterController(
+              repository: context.read(),
+            ),
+          ),
+        )
         .use(
           provider(
             (context) => SignInController(

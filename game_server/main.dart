@@ -6,6 +6,10 @@ import 'package:bonfire_server/bonfire_server.dart';
 import 'package:bonfire_socket_server/bonfire_socket_server.dart';
 import 'package:dart_frog/dart_frog.dart';
 
+import 'src/api/data/datasource/memory_datasource.dart';
+import 'src/api/data/repositories/character_repository.dart';
+import 'src/api/data/repositories/user_repository.dart';
+import 'src/api/usecases/authenticator.dart';
 import 'src/game/game_server.dart';
 import 'src/game/maps/desert.dart';
 import 'src/game/maps/florest.dart';
@@ -29,12 +33,20 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
     );
     injectServerTypes(server!);
   }
+  // Shared in-memory datasource: the REST API (users/characters) and the
+  // websocket join validation read/write the SAME data.
+  final datasource = MemoryDatasource();
+  final userRepository = UserRepository(datasource: datasource);
+  final characterRepository = CharacterRepository(datasource: datasource);
+
   game ??= GameServer(
     server: server!,
     maps: [
       FlorestMap(),
       DesertMap(),
     ],
+    characterRepository: characterRepository,
+    authenticator: Authenticator(userRepository),
   );
 
   await game!.start();

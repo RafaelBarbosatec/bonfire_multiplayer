@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../infrastructure/controller/rest_controller.dart';
@@ -12,20 +15,33 @@ class UserRepository {
 
   final Datasource datasource;
 
-  Future<Result<UserModel, GetUserException>> getUserByLogin(
-    String login,
+  /// Hashes a password with a per-user salt (the user id).
+  ///
+  /// Not bcrypt/argon2 (that needs native deps) — good enough for the
+  /// current stage; swap for a KDF when moving to a real database.
+  String hashPassword(String password, String salt) {
+    return sha256.convert(utf8.encode('$salt|$password')).toString();
+  }
+
+  Future<Result<UserModel, GetUserException>> getUserByEmail(
+    String email,
     String password,
   ) async {
     final userMap = await datasource.getFirst(
       document: UserModel.document,
       test: (element) {
-        return element['login'] == login && element['password'] == password;
+        return element['email'] == email;
       },
     );
     if (userMap == null) {
       return Error(NotFoundUserException());
     }
-    return Success(UserModel.fromMap(userMap));
+    final user = UserModel.fromMap(userMap);
+    // Constant-ish comparison: hashed compare to avoid leaking which part failed.
+    if (user.password != hashPassword(password, user.id)) {
+      return Error(NotFoundUserException());
+    }
+    return Success(user);
   }
 
   Future<Result<UserModel, GetUserException>> getById(
@@ -43,23 +59,24 @@ class UserRepository {
     return Success(UserModel.fromMap(userMap));
   }
 
-  Future<Result<UserModel, CreateUserException>> createuser(
-    String login,
+  Future<Result<UserModel, CreateUserException>> createUser(
+    String email,
     String password,
   ) async {
     final userMap = await datasource.getFirst(
       document: UserModel.document,
       test: (element) {
-        return element['login'] == login;
+        return element['email'] == email;
       },
     );
     if (userMap != null) {
       return Error(UserAlreadyExistException());
     }
+    final id = uuid.v4();
     final user = UserModel(
-      id: uuid.v4(),
-      login: login,
-      password: password,
+      id: id,
+      email: email,
+      password: hashPassword(password, id),
     );
     await datasource.insert(
       document: UserModel.document,

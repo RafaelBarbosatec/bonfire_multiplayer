@@ -45,22 +45,23 @@ class CharacterModel {
 class CharacterPosition {
   CharacterPosition({
     required this.x,
-    required this.z,
+    required this.y,
   });
 
   factory CharacterPosition.fromMap(Map<String, dynamic> map) {
     return CharacterPosition(
       x: map['x'] as double,
-      z: map['z'] as double,
+      y: map['y'] as double,
     );
   }
+
   final double x;
-  final double z;
+  final double y;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'x': x,
-      'z': z,
+      'y': y,
     };
   }
 }

@@ -3,18 +3,18 @@
 class UserModel {
   UserModel({
     required this.id,
-    required this.login,
+    required this.email,
     required this.password,
   });
   final String id;
-  final String login;
+  final String email;
   final String password;
   static const document = 'users';
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'login': login,
+      'email': email,
       'password': password,
     };
   }
@@ -22,7 +22,7 @@ class UserModel {
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       id: map['id'] as String,
-      login: map['login'] as String,
+      email: map['email'] as String,
       password: map['password'] as String,
     );
   }
