@@ -58,7 +58,7 @@ class CharacterController extends RestController {
       nickName: nickName.trim(),
       skin: skin,
       userId: user.id,
-      position: const CharacterPosition(
+      position: CharacterPosition(
         x: _defaultSpawnX,
         y: _defaultSpawnY,
       ),
