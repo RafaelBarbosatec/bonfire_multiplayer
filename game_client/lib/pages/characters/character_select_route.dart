@@ -1,11 +1,11 @@
-import 'package:bonfire_multiplayer/pages/home/home_page.dart';
+import 'package:bonfire_multiplayer/pages/characters/character_select_page.dart';
 import 'package:flutter/material.dart';
 
-class HomeRoute {
-  static const name = '/home';
+class CharacterSelectRoute {
+  static const name = '/characters';
 
   static Map<String, WidgetBuilder> get builder => {
-        name: (context) => const HomePage(),
+        name: (context) => const CharacterSelectPage(),
       };
 
   static Future open(BuildContext context) {

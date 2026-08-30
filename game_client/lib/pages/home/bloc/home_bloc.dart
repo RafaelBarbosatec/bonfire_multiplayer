@@ -86,6 +86,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       JoinEvent(
         name: event.name,
         skin: state.skinSelected.name,
+        token: event.token,
+        characterId: event.characterId,
       ),
     );
   }

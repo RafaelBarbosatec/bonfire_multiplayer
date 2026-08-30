@@ -3,7 +3,9 @@ import 'package:bonfire_multiplayer/bootstrap_injector.dart';
 import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_enemy/my_remote_enemy.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
+import 'package:bonfire_multiplayer/data/auth/auth_session.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
+import 'package:bonfire_multiplayer/pages/characters/character_select_route.dart';
 import 'package:bonfire_multiplayer/pages/game/widgets/menu_widget.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
@@ -224,7 +226,11 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   Future<void> _onDisconnect() async {
     await Future.delayed(Duration.zero);
     if (mounted) {
-      HomeRoute.open(context);
+      if (AuthSession.instance.isLogged) {
+        CharacterSelectRoute.open(context);
+      } else {
+        HomeRoute.open(context);
+      }
     }
   }
 }

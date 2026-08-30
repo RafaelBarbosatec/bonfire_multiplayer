@@ -1,11 +1,11 @@
-import 'package:bonfire_multiplayer/pages/home/home_page.dart';
+import 'package:bonfire_multiplayer/pages/login/login_page.dart';
 import 'package:flutter/material.dart';
 
-class HomeRoute {
-  static const name = '/home';
+class LoginRoute {
+  static const name = '/';
 
   static Map<String, WidgetBuilder> get builder => {
-        name: (context) => const HomePage(),
+        name: (context) => const LoginPage(),
       };
 
   static Future open(BuildContext context) {
