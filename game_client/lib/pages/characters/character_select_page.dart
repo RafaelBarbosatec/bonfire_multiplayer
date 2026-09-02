@@ -144,123 +144,147 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
   }
 
   Future<void> _showCreateDialog() async {
-    final nickNameController = TextEditingController();
-    var skin = PlayerSkin.boy;
-    final formKey = GlobalKey<FormState>();
-
-    await showDialog<void>(
+    final result = await showDialog<_CreateCharacterData>(
       context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (dialogContext, setDialogState) {
-            return AlertDialog(
-              title: const Text('Novo personagem'),
-              content: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      controller: nickNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Apelido',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if ((value ?? '').trim().isEmpty) {
-                          return 'Informe um apelido';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: PlayerSkin.values.map((skinOption) {
-                        final selected = skinOption == skin;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: InkWell(
-                            onTap: () {
-                              setDialogState(() => skin = skinOption);
-                            },
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: selected
-                                          ? Colors.green
-                                          : Colors.grey,
-                                      width: selected ? 3 : 1,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.all(8),
-                                  child: FutureBuilder(
-                                    future: Sprite.load(
-                                      skinOption.path,
-                                      srcSize: Vector2.all(32),
-                                      srcPosition: Vector2(0, 32),
-                                    ),
-                                    builder: (context, snapshot) {
-                                      if (!snapshot.hasData) {
-                                        return const SizedBox(
-                                          width: 48,
-                                          height: 48,
-                                        );
-                                      }
-                                      return SizedBox(
-                                        width: 48,
-                                        height: 48,
-                                        child: snapshot.data!.asWidget(),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  skinOption.name,
-                                  style: TextStyle(
-                                    color: selected ? Colors.green : null,
-                                    fontWeight: selected
-                                        ? FontWeight.bold
-                                        : null,
-                                  ),
-                                ),
-                              ],
+      builder: (dialogContext) => const _CreateCharacterDialog(),
+    );
+    // Only touch the bloc AFTER the dialog route is fully popped. Adding the
+    // event while the pop is in-flight made the page rebuild collide with the
+    // dialog teardown (framework `_dependents.isEmpty` assertion).
+    if (result != null && mounted) {
+      _bloc.add(CreateCharacterEvent(
+        nickName: result.nickName,
+        skin: result.skin,
+      ));
+    }
+  }
+}
+
+class _CreateCharacterData {
+  const _CreateCharacterData({required this.nickName, required this.skin});
+
+  final String nickName;
+  final PlayerSkin skin;
+}
+
+class _CreateCharacterDialog extends StatefulWidget {
+  const _CreateCharacterDialog();
+
+  @override
+  State<_CreateCharacterDialog> createState() => _CreateCharacterDialogState();
+}
+
+class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
+  final _nickNameController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  PlayerSkin _skin = PlayerSkin.boy;
+
+  @override
+  void dispose() {
+    _nickNameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Novo personagem'),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _nickNameController,
+              decoration: const InputDecoration(
+                labelText: 'Apelido',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if ((value ?? '').trim().isEmpty) {
+                  return 'Informe um apelido';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: PlayerSkin.values.map((skinOption) {
+                final selected = skinOption == _skin;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: InkWell(
+                    onTap: () => setState(() => _skin = skinOption),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: selected ? Colors.green : Colors.grey,
+                              width: selected ? 3 : 1,
                             ),
                           ),
-                        );
-                      }).toList(),
+                          padding: const EdgeInsets.all(8),
+                          child: FutureBuilder(
+                            future: Sprite.load(
+                              skinOption.path,
+                              srcSize: Vector2.all(32),
+                              srcPosition: Vector2(0, 32),
+                            ),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return const SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                );
+                              }
+                              return SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: snapshot.data!.asWidget(),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          skinOption.name,
+                          style: TextStyle(
+                            color: selected ? Colors.green : null,
+                            fontWeight: selected ? FontWeight.bold : null,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              Navigator.of(context).pop(
+                _CreateCharacterData(
+                  nickName: _nickNameController.text.trim(),
+                  skin: _skin,
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancelar'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      Navigator.of(dialogContext).pop();
-                      _bloc.add(CreateCharacterEvent(
-                        nickName: nickNameController.text.trim(),
-                        skin: skin,
-                      ));
-                    }
-                  },
-                  child: const Text('Criar'),
-                ),
-              ],
-            );
+              );
+            }
           },
-        );
-      },
+          child: const Text('Criar'),
+        ),
+      ],
     );
-    nickNameController.dispose();
   }
 }
 
