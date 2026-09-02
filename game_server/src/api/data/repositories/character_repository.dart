@@ -72,4 +72,35 @@ class CharacterRepository {
     );
     return Success(character);
   }
+
+  /// Updates only the position/map of a character (keeps skin/nickname/etc).
+  Future<Result<CharacterModel, GetCharacterException>> updatePosition({
+    required String characterId,
+    required double x,
+    required double y,
+    required String mapId,
+  }) async {
+    final characterMap = await datasource.getFirst(
+      document: CharacterModel.document,
+      test: (element) => element['id'] == characterId,
+    );
+    if (characterMap == null) {
+      return Error(GetCharacterException());
+    }
+    final character = CharacterModel.fromMap(characterMap.cast());
+    final updated = CharacterModel(
+      id: character.id,
+      nickName: character.nickName,
+      skin: character.skin,
+      userId: character.userId,
+      position: CharacterPosition(x: x, y: y),
+      mapId: mapId,
+    );
+    await datasource.update(
+      document: CharacterModel.document,
+      test: (element) => element['id'] == characterId,
+      data: updated.toMap(),
+    );
+    return Success(updated);
+  }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:bonfire_server/bonfire_server.dart';
@@ -20,6 +21,9 @@ class GameServer extends Game {
   });
   static const tileSize = 16.0;
 
+  /// Interval between automatic position saves (safety net for crashes).
+  static const _saveInterval = Duration(seconds: 5);
+
   List<WebsocketClient> clients = [];
 
   final WebsocketProvider server;
@@ -29,6 +33,14 @@ class GameServer extends Game {
 
   /// Validates the JWT sent in [JoinEvent].
   final Authenticator authenticator;
+
+  /// Maps client id → character id (only for authenticated joins).
+  final Map<String, String> _clientCharacterIds = {};
+
+  /// Last persisted position per character — avoids redundant writes.
+  final Map<String, _SavedPosition> _lastSaved = {};
+
+  Timer? _saveTimer;
 
   /// State tracker per map for delta updates
   final Map<String, MapStateTracker> _mapTrackers = {};
@@ -45,10 +57,15 @@ class GameServer extends Game {
   void leaveClient(WebsocketClient client) {
     clients.remove(client);
     for (final map in maps) {
-      map.components
+      final players = map.components
           .whereType<Player>()
           .where((element) => element.id == client.id)
-          .forEach((element) => element.removeFromParent());
+          .toList();
+      for (final player in players) {
+        // Persist the final position before removing the player.
+        _saveCharacterPosition(player, map);
+        player.removeFromParent();
+      }
     }
     requestUpdate();
     logger.i('Client(${client.id}) Disconnected!');
@@ -129,6 +146,8 @@ class GameServer extends Game {
         logger.e('Client(${client.id}) join rejected: character not found');
         return;
       }
+      // Remember the character so position/map can be persisted later.
+      _clientCharacterIds[client.id] = character.id;
     }
 
     // Position: saved character position or default spawn.
@@ -180,6 +199,8 @@ class GameServer extends Game {
 
   @override
   void onPlayerChangeMap(GamePlayer player, GameMap map) {
+    // Persist the new map + spawn position so a later re-join returns here.
+    _saveCharacterPosition(player, map);
     player.send(
       EventType.JOIN_MAP.name,
       JoinMapEvent(
@@ -200,12 +221,75 @@ class GameServer extends Game {
   @override
   void onStart() {
     logger.i('Start Game loop');
+    _saveTimer ??= Timer.periodic(
+      _saveInterval,
+      (_) => _saveAllPlayersPosition(),
+    );
     super.onStart();
   }
 
   @override
   void stop() {
     logger.i('Stop Game loop');
+    _saveTimer?.cancel();
+    _saveTimer = null;
     super.stop();
   }
+
+  /// Periodically persists the position of every authenticated player, so a
+  /// server crash loses at most [_saveInterval] of movement.
+  void _saveAllPlayersPosition() {
+    for (final map in maps) {
+      for (final player in map.players) {
+        _saveCharacterPosition(player, map);
+      }
+    }
+  }
+
+  /// Persists [player]'s current position/map to its character (best-effort,
+  /// fire-and-forget). Anonymous players (no character) are ignored.
+  Future<void> _saveCharacterPosition(GamePlayer player, GameMap map) async {
+    final characterId = _clientCharacterIds[player.state.id];
+    if (characterId == null) return;
+
+    final x = player.position.x;
+    final y = player.position.y;
+    final mapId = map.id;
+
+    // Skip when nothing changed since the last save (avoids redundant writes).
+    final last = _lastSaved[characterId];
+    if (last != null &&
+        last.mapId == mapId &&
+        (last.x - x).abs() < 0.01 &&
+        (last.y - y).abs() < 0.01) {
+      return;
+    }
+    _lastSaved[characterId] = _SavedPosition(x, y, mapId);
+
+    try {
+      final result = await characterRepository.updatePosition(
+        characterId: characterId,
+        x: x,
+        y: y,
+        mapId: mapId,
+      );
+      result.when(
+        (_) {},
+        (error) => logger.e(
+          'Failed to save position for character($characterId): $error',
+        ),
+      );
+    } catch (e) {
+      logger.e('Failed to save position for character($characterId): $e');
+    }
+  }
+}
+
+/// Last persisted position/map of a character.
+class _SavedPosition {
+  _SavedPosition(this.x, this.y, this.mapId);
+
+  final double x;
+  final double y;
+  final String mapId;
 }
