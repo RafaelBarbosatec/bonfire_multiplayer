@@ -28,8 +28,15 @@ class SelectSkinEvent extends HomeEvent {
 class JoinGameEvent extends HomeEvent {
   final String name;
 
+  /// JWT from the auth session — when present the server validates it and
+  /// spawns the player using the selected [characterId].
+  final String? token;
+  final String? characterId;
+
   const JoinGameEvent({
     required this.name,
+    this.token,
+    this.characterId,
   });
 }
 

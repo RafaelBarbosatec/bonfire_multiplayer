@@ -1,6 +1,8 @@
 import 'package:bonfire_multiplayer/bootstrap_injector.dart';
+import 'package:bonfire_multiplayer/pages/characters/character_select_route.dart';
 import 'package:bonfire_multiplayer/pages/game/game_route.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
+import 'package:bonfire_multiplayer/pages/login/login_route.dart';
 import 'package:bonfire_multiplayer/util/my_page_transition.dart';
 import 'package:flutter/material.dart';
 
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
         ),
       ),
       routes: {
+        ...LoginRoute.builder,
+        ...CharacterSelectRoute.builder,
         ...HomeRoute.builder,
         ...GameRoute.builder,
       },

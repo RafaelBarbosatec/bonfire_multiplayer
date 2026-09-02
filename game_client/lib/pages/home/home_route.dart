@@ -2,7 +2,7 @@ import 'package:bonfire_multiplayer/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
 
 class HomeRoute {
-  static const name = '/';
+  static const name = '/home';
 
   static Map<String, WidgetBuilder> get builder => {
         name: (context) => const HomePage(),
