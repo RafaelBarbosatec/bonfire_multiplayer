@@ -2,6 +2,7 @@ import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/move_state.dart';
 import 'package:bonfire_multiplayer/util/smooth_movement_mixin.dart';
+import 'package:shared_events/shared_events.dart';
 
 /// Mixin for handling remote player/enemy movement updates from server.
 /// Must be used together with SmoothMovementMixin on a component that carries
