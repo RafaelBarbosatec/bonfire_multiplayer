@@ -1,9 +1,8 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:bonfire_bloc/bonfire_bloc.dart';
-import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/bloc/my_remote_player_bloc.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
+import 'package:bonfire_multiplayer/util/bonfire_bloc.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
 import 'package:bonfire_multiplayer/util/smooth_movement_mixin.dart';
@@ -11,7 +10,6 @@ import 'package:bonfire_multiplayer/util/update_movement_mixin.dart';
 
 class MyRemotePlayer extends SimplePlayer
     with
-        BlockMovementCollision,
         WithNameBottom,
         SmoothMovementMixin,
         UpdateMovementMixin,
@@ -38,29 +36,11 @@ class MyRemotePlayer extends SimplePlayer
       position,
       eventManager,
     );
-    movementOnlyVisible = false;
   }
 
-  @override
-  Future<void> onLoad() {
-    // adds Rectangle collision
-    add(
-      RectangleHitbox(
-        size: size / 2,
-        position: Vector2(size.x / 4, size.y / 2),
-      ),
-    );
-    return super.onLoad();
-  }
-
-  @override
-  bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
-    // cancel collision with Myplayer
-    if (other is MyPlayer || other is MyRemotePlayer) {
-      return false;
-    }
-    return super.onBlockMovement(intersectionPoints, other);
-  }
+  // NOTE: no hitbox/collision on purpose — the remote player is a "ghost":
+  // its position is fully owned by SmoothMovementMixin interpolation and the
+  // local player passes through it (see MyPlayer's collision listener).
 
   @override
   void onNewState(MyRemotePlayerState state) {

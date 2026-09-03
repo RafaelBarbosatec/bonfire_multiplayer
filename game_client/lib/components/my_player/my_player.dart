@@ -1,10 +1,11 @@
 import 'dart:async' as async;
 
 import 'package:bonfire/bonfire.dart';
-import 'package:bonfire_bloc/bonfire_bloc.dart';
 import 'package:bonfire_multiplayer/components/my_player/bloc/my_player_bloc.dart';
+import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
+import 'package:bonfire_multiplayer/util/bonfire_bloc.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
@@ -13,7 +14,7 @@ import 'package:shared_events/shared_events.dart';
 
 class MyPlayer extends SimplePlayer
     with
-        BlockMovementCollision,
+        WithCollision,
         WithNameBottom,
         BonfireBlocListenable<MyPlayerBloc, MyPlayerState> {
   JoystickMoveDirectional? _joystickDirectional;
@@ -191,6 +192,13 @@ class MyPlayer extends SimplePlayer
         position: Vector2(size.x / 4, size.y / 2),
       ),
     );
+    // Players pass through each other; everything else (walls, NPCs) blocks.
+    collision.onBlockMovementListener((intersectionPoints, other) {
+      if (other is MyPlayer || other is MyRemotePlayer) {
+        return false;
+      }
+      return true;
+    });
     return super.onLoad();
   }
 }
