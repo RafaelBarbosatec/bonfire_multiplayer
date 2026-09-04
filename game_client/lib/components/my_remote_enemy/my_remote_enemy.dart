@@ -1,7 +1,7 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:bonfire_bloc/bonfire_bloc.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/spritesheets/players_spritesheet.dart';
+import 'package:bonfire_multiplayer/util/bonfire_bloc.dart';
 import 'package:bonfire_multiplayer/util/name_bottom.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
 import 'package:bonfire_multiplayer/util/smooth_movement_mixin.dart';
@@ -38,13 +38,11 @@ class MyRemoteEnemy extends SimpleEnemy
       position,
       eventManager,
     );
-
-    movementOnlyVisible = false;
   }
 
   @override
   Future<void> onLoad() {
-    // adds Rectangle collision
+    // Hitbox so the local player collides with (is blocked by) this enemy.
     add(
       RectangleHitbox(
         size: size / 2,
@@ -72,15 +70,5 @@ class MyRemoteEnemy extends SimpleEnemy
   void onRemove() {
     bloc.add(RemoveSubscribe());
     super.onRemove();
-  }
-
-  // Remote position is FULLY controlled by SmoothMovementMixin interpolation.
-  // The movement engine must NOT move remote entities — if it does, the
-  // engine's translate() fights the interpolation (both write position),
-  // causing constant jitter/corrections. Animation only is triggered via
-  // moveFromDirection() in UpdateMovementMixin.
-  @override
-  void translate(Vector2 displacement) {
-    // no-op
   }
 }

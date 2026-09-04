@@ -1,12 +1,11 @@
-import 'dart:async';
-
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 
 mixin WithNameBottom on GameComponent {
   String name = '';
+
   @override
-  Future<void> onLoad() {
+  Future<void> onLoad() async {
     // Adds name text
     final textRender = TextPaint(
       style: TextStyle(
@@ -15,7 +14,7 @@ mixin WithNameBottom on GameComponent {
       ),
     );
     final metrics = textRender.getLineMetrics(name);
-    final x = (width - metrics.width) / 2;
+    final x = (width - metrics.size.x) / 2;
     add(
       TextComponent(
         text: name,
@@ -28,6 +27,6 @@ mixin WithNameBottom on GameComponent {
         ),
       ),
     );
-    return super.onLoad().asFuture();
+    return super.onLoad();
   }
 }
