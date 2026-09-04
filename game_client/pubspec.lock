@@ -37,18 +37,10 @@ packages:
     dependency: "direct main"
     description:
       name: bonfire
-      sha256: "61ba9016dc79299469c39c478e790da821fb37e86b0f8e7aec8b6c3b55375851"
+      sha256: "194dc965bd4ff4b23b1d03221f132ad061c81ac32827958cdb5495b72c1c3e79"
       url: "https://pub.dev"
     source: hosted
-    version: "3.13.3"
-  bonfire_bloc:
-    dependency: "direct main"
-    description:
-      name: bonfire_bloc
-      sha256: "87ca2037e506176f3a53d3b3495bf71cd2d9764ac36dec0a7c0e71f229ba49c3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
+    version: "4.0.0-beta.13"
   bonfire_socket_client:
     dependency: "direct main"
     description:
@@ -123,10 +115,10 @@ packages:
     dependency: transitive
     description:
       name: flame
-      sha256: "79133dc46a3ff870950f41d0dc1598414e7bd7ae2c29bd9f0a9de208d9a70cb7"
+      sha256: b4d7e59b81f35a426f8b39dcec10175180b9c2984b2b2e619021660d8951307c
       url: "https://pub.dev"
     source: hosted
-    version: "1.18.0"
+    version: "1.38.2"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -253,10 +245,10 @@ packages:
     dependency: transitive
     description:
       name: ordered_set
-      sha256: "1bfaaaee0419e43ecc9eaebd410eb4bd5039657b72011de75ff3e2915c9aac60"
+      sha256: ca415a0e28b8e8f5e284af4b7d1b189d2d09af6d2082532ddaec54473f67d226
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.3"
+    version: "8.0.1"
   path:
     dependency: transitive
     description:
@@ -398,5 +390,5 @@ packages:
     source: hosted
     version: "0.1.5"
 sdks:
-  dart: ">=3.9.0-0 <4.0.0"
-  flutter: ">=3.22.0"
+  dart: ">=3.11.0 <4.0.0"
+  flutter: ">=3.41.0"
