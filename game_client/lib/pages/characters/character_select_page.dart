@@ -135,11 +135,9 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
               const _RoBackground(),
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                   child: Column(
                     children: [
-                      const _Header(),
-                      const SizedBox(height: 10),
                       Expanded(
                         child: LayoutBuilder(
                           builder: (context, constraints) {
@@ -530,56 +528,6 @@ class _OrnatePanel extends StatelessWidget {
 }
 
 // ===========================================================================
-// Header
-// ===========================================================================
-class _Header extends StatelessWidget {
-  const _Header();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const SizedBox(width: 44),
-        Expanded(
-          child: Column(
-            children: [
-              Text(
-                '✦  SELEÇÃO DE PERSONAGEM  ✦',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: _Ro.goldBright.withValues(alpha: 0.95),
-                  fontSize: 21,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 5,
-                  shadows: const [
-                    Shadow(
-                      color: Color(0xAA000000),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 3),
-              const Text(
-                'Escolha seu herói e continue sua jornada',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: _Ro.textSoft,
-                  fontSize: 12,
-                  letterSpacing: 2,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 44),
-      ],
-    );
-  }
-}
-
-// ===========================================================================
 // Slot card (left list)
 // ===========================================================================
 class _SlotCard extends StatelessWidget {
@@ -740,15 +688,15 @@ class _CharacterShowcase extends StatelessWidget {
   Widget build(BuildContext context) {
     final skin = PlayerSkin.fromName(character.skin);
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 420),
+      constraints: const BoxConstraints(maxWidth: 380),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 2),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Sprite with pulsing halo + pedestal.
             SizedBox(
-              height: 168,
+              height: 138,
               child: Stack(
                 alignment: Alignment.bottomCenter,
                 children: [
@@ -757,8 +705,8 @@ class _CharacterShowcase extends StatelessWidget {
                     builder: (context, _) {
                       final opacity = 0.16 + glow.value * 0.14;
                       return Container(
-                        width: 190,
-                        height: 96,
+                        width: 150,
+                        height: 70,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
@@ -790,14 +738,14 @@ class _CharacterShowcase extends StatelessWidget {
                     ),
                     child: Padding(
                       key: ValueKey(character.id),
-                      padding: const EdgeInsets.only(bottom: 18),
-                      child: _CharacterSprite(skin.path, size: 118),
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _CharacterSprite(skin.path, size: 92),
                     ),
                   ),
                   // Pedestal.
                   Container(
-                    width: 150,
-                    height: 12,
+                    width: 116,
+                    height: 10,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
                       gradient: const LinearGradient(
@@ -813,7 +761,7 @@ class _CharacterShowcase extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               character.nickName,
               textAlign: TextAlign.center,
@@ -821,23 +769,23 @@ class _CharacterShowcase extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: _Ro.goldBright,
-                fontSize: 24,
+                fontSize: 19,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 1.5,
+                letterSpacing: 1,
                 shadows: [
                   Shadow(color: Color(0x99000000), blurRadius: 6),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 5),
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 60),
+              padding: EdgeInsets.symmetric(horizontal: 70),
               child: Divider(color: _Ro.border, height: 1),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 5),
             Wrap(
               spacing: 8,
-              runSpacing: 6,
+              runSpacing: 4,
               alignment: WrapAlignment.center,
               children: [
                 _InfoChip(icon: Icons.face, label: _skinName(character.skin)),
@@ -846,11 +794,6 @@ class _CharacterShowcase extends StatelessWidget {
                   label: 'Local: ${_mapName(character.mapId)}',
                 ),
               ],
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Toque duas vezes no personagem para entrar',
-              style: TextStyle(color: _Ro.textFaint, fontSize: 10.5),
             ),
           ],
         ),
@@ -1174,12 +1117,19 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final dialogWidth = (media.size.width - 40).clamp(300.0, 430.0);
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      child: Container(
-        width: 420,
-        decoration: BoxDecoration(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: dialogWidth,
+          maxHeight: media.size.height - 40,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: _Ro.gold, width: 1.6),
           boxShadow: const [
@@ -1196,12 +1146,13 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                 colors: [Color(0xF2263A5E), Color(0xF2122036)],
               ),
             ),
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 18),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 18),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                   const Text(
                     '✦  NOVO PERSONAGEM  ✦',
                     textAlign: TextAlign.center,
@@ -1217,7 +1168,7 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                     'Forje seu novo herói',
                     style: TextStyle(color: _Ro.textSoft, fontSize: 12),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
                   TextFormField(
                     controller: _nickNameController,
                     style: const TextStyle(color: _Ro.ivory),
@@ -1227,6 +1178,7 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                       labelText: 'Apelido',
                       labelStyle: const TextStyle(color: _Ro.textSoft),
                       counterStyle: const TextStyle(color: _Ro.textFaint),
+                      counterText: '',
                       filled: true,
                       fillColor: const Color(0x33000000),
                       contentPadding: const EdgeInsets.symmetric(
@@ -1324,7 +1276,7 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -1355,7 +1307,9 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 
