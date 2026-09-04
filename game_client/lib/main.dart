@@ -5,8 +5,15 @@ import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/pages/login/login_route.dart';
 import 'package:bonfire_multiplayer/util/my_page_transition.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // The game is designed to be played in landscape (Ragnarok-style).
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   BootstrapInjector.run();
   runApp(const MyApp());
 }
