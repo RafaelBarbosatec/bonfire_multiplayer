@@ -161,6 +161,13 @@ class GameServer extends Game {
             y: 11 * tileSize,
           );
 
+    // Attributes: from the saved character (stamina restored to full on
+    // spawn) or defaults for anonymous quick-test joins. From here on the
+    // authoritative values live in `player.state.attributes` (see Player).
+    final savedAttributes = character?.attributes ?? const PlayerAttributes();
+    final attributes =
+        savedAttributes.copyWith(stamina: savedAttributes.maxStamina);
+
     // Adds Player
     final player = Player(
       state: ComponentStateModel(
@@ -172,6 +179,7 @@ class GameServer extends Game {
         properties: {
           'skin': character?.skin ?? message.skin,
         },
+        attributes: attributes,
       ),
       client: client,
     );
@@ -255,16 +263,20 @@ class GameServer extends Game {
     final x = player.position.x;
     final y = player.position.y;
     final mapId = map.id;
+    final attributes = player.state.attributes;
 
-    // Skip when nothing changed since the last save (avoids redundant writes).
+    // Skip when nothing changed since the last save (avoids redundant
+    // writes) — compares position/map AND attributes (a player standing
+    // still can still level up / regen stamina).
     final last = _lastSaved[characterId];
     if (last != null &&
         last.mapId == mapId &&
         (last.x - x).abs() < 0.01 &&
-        (last.y - y).abs() < 0.01) {
+        (last.y - y).abs() < 0.01 &&
+        last.attributes == attributes) {
       return;
     }
-    _lastSaved[characterId] = _SavedPosition(x, y, mapId);
+    _lastSaved[characterId] = _SavedPosition(x, y, mapId, attributes);
 
     try {
       final result = await characterRepository.updatePosition(
@@ -272,6 +284,7 @@ class GameServer extends Game {
         x: x,
         y: y,
         mapId: mapId,
+        attributes: attributes,
       );
       result.when(
         (_) {},
@@ -285,11 +298,12 @@ class GameServer extends Game {
   }
 }
 
-/// Last persisted position/map of a character.
+/// Last persisted position/map/attributes of a character.
 class _SavedPosition {
-  _SavedPosition(this.x, this.y, this.mapId);
+  _SavedPosition(this.x, this.y, this.mapId, this.attributes);
 
   final double x;
   final double y;
   final String mapId;
+  final PlayerAttributes? attributes;
 }

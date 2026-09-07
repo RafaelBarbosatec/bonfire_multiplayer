@@ -73,12 +73,14 @@ class CharacterRepository {
     return Success(character);
   }
 
-  /// Updates only the position/map of a character (keeps skin/nickname/etc).
+  /// Updates only the position/map (and optionally attributes) of a
+  /// character, keeping skin/nickname/etc untouched.
   Future<Result<CharacterModel, GetCharacterException>> updatePosition({
     required String characterId,
     required double x,
     required double y,
     required String mapId,
+    PlayerAttributes? attributes,
   }) async {
     final characterMap = await datasource.getFirst(
       document: CharacterModel.document,
@@ -95,6 +97,7 @@ class CharacterRepository {
       userId: character.userId,
       position: CharacterPosition(x: x, y: y),
       mapId: mapId,
+      attributes: attributes ?? character.attributes,
     );
     await datasource.update(
       document: CharacterModel.document,
