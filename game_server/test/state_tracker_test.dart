@@ -1,6 +1,7 @@
-import 'package:game_server/src/game/state_tracker.dart';
 import 'package:shared_events/shared_events.dart';
 import 'package:test/test.dart';
+
+import '../src/game/state_tracker.dart';
 
 ComponentStateModel _player({
   PlayerAttributes? attributes,
@@ -43,10 +44,7 @@ void main() {
     test('no delta when nothing changed', () {
       final tracker = MapStateTracker();
       final state = _player(attributes: const PlayerAttributes());
-      tracker.generateFullState(
-        currentPlayers: [state],
-        currentNpcs: const [],
-      );
+      tracker.generateFullState(currentPlayers: [state], currentNpcs: const []);
 
       final delta = tracker.generateDelta(
         currentPlayers: [state],

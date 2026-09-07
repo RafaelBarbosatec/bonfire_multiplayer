@@ -1,4 +1,5 @@
 import 'package:multiple_result/multiple_result.dart';
+import 'package:shared_events/shared_events.dart';
 import 'package:uuid/uuid.dart';
 
 import '../datasource/datasource.dart';
@@ -7,9 +8,7 @@ import '../exceptions/get_character_exception.dart';
 import '../model/character_model.dart';
 
 class CharacterRepository {
-  CharacterRepository({
-    required this.datasource,
-  });
+  CharacterRepository({required this.datasource});
   Uuid uuid = const Uuid();
 
   final Datasource datasource;
@@ -45,9 +44,7 @@ class CharacterRepository {
     if (characterMap == null) {
       return Error(GetCharacterException());
     }
-    return Success(
-      CharacterModel.fromMap(characterMap.cast()),
-    );
+    return Success(CharacterModel.fromMap(characterMap.cast()));
   }
 
   Future<Result<CharacterModel, CreateCharacterException>> create(
