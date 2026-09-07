@@ -4,6 +4,13 @@ import 'package:shared_events/shared_events.dart';
 
 import '../../infrastructure/websocket/websocket_provider.dart';
 
+/// Authoritative server-side player.
+///
+/// Besides movement, it owns the [PlayerAttributes] lifecycle: stamina drains
+/// while walking and regenerates while idle, and the game hooks ([takeDamage],
+/// [heal], [addXp], [restoreStamina]) are the only way to mutate HP/XP/level.
+/// Every change is pushed to clients through the regular state delta
+/// ([requestUpdate]), so the HUD stays in sync without extra events.
 class Player extends GamePlayer
     with Collision, MapRef, BlockMovementOnCollision {
   Player({
@@ -19,7 +26,16 @@ class Player extends GamePlayer
     );
   }
 
+  /// Stamina points drained per second while moving.
+  static const double staminaDrainPerSecond = 10;
+
+  /// Stamina points regenerated per second while idle.
+  static const double staminaRegenPerSecond = 12;
+
   final WebsocketClient client;
+
+  /// Fractional stamina accumulator so drain/regen is smooth across ticks.
+  double _staminaAccumulator = 0;
 
   String get id => state.id;
 
@@ -49,6 +65,38 @@ class Player extends GamePlayer
       );
   }
 
+  // --- Game hooks (server-authoritative attribute mutations) -------------
+
+  /// Reduces HP by [damage] (clamped to 0 by [PlayerAttributes]).
+  void takeDamage(int damage) {
+    _apply(state.attributes?.takeDamage(damage) ?? const PlayerAttributes());
+  }
+
+  /// Restores [amount] HP (clamped to max by [PlayerAttributes]).
+  void heal(int amount) {
+    _apply(state.attributes?.heal(amount) ?? const PlayerAttributes());
+  }
+
+  /// Grants [amount] XP, applying level-ups (100 XP per level).
+  void addXp(int amount) {
+    _apply(state.attributes?.addXp(amount) ?? const PlayerAttributes());
+  }
+
+  /// Fills stamina to its maximum (e.g. when the player spawns).
+  void restoreStamina() {
+    final attrs = state.attributes;
+    if (attrs == null || attrs.stamina >= attrs.maxStamina) return;
+    _apply(attrs.changeStamina(attrs.maxStamina - attrs.stamina));
+  }
+
+  void _apply(PlayerAttributes next) {
+    if (state.attributes == next) return;
+    state.attributes = next;
+    requestUpdate();
+  }
+
+  // --- Engine hooks -------------------------------------------------------
+
   @override
   bool checkContact(Collision other) {
     if (other is Player) {
@@ -68,7 +116,26 @@ class Player extends GamePlayer
     } else {
       stopMove();
     }
+    _updateStamina(dt, moving: moveDirection != null);
     super.onUpdate(dt);
+  }
+
+  /// Drains stamina while walking, regenerates it while idle. Only pushes a
+  /// state update when a whole point changes (no per-tick spam).
+  void _updateStamina(double dt, {required bool moving}) {
+    final attrs = state.attributes;
+    if (attrs == null) return;
+    final rate = moving ? -staminaDrainPerSecond : staminaRegenPerSecond;
+    if ((!moving && attrs.stamina >= attrs.maxStamina) ||
+        (moving && attrs.stamina <= 0)) {
+      _staminaAccumulator = 0;
+      return;
+    }
+    _staminaAccumulator += dt * rate;
+    final whole = _staminaAccumulator.truncate();
+    if (whole == 0) return;
+    _staminaAccumulator -= whole.toDouble();
+    _apply(attrs.changeStamina(whole));
   }
 
   @override

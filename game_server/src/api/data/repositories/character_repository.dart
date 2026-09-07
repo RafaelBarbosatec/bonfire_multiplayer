@@ -1,4 +1,5 @@
 import 'package:multiple_result/multiple_result.dart';
+import 'package:shared_events/shared_events.dart';
 import 'package:uuid/uuid.dart';
 
 import '../datasource/datasource.dart';
@@ -7,9 +8,7 @@ import '../exceptions/get_character_exception.dart';
 import '../model/character_model.dart';
 
 class CharacterRepository {
-  CharacterRepository({
-    required this.datasource,
-  });
+  CharacterRepository({required this.datasource});
   Uuid uuid = const Uuid();
 
   final Datasource datasource;
@@ -45,9 +44,7 @@ class CharacterRepository {
     if (characterMap == null) {
       return Error(GetCharacterException());
     }
-    return Success(
-      CharacterModel.fromMap(characterMap.cast()),
-    );
+    return Success(CharacterModel.fromMap(characterMap.cast()));
   }
 
   Future<Result<CharacterModel, CreateCharacterException>> create(
@@ -73,12 +70,14 @@ class CharacterRepository {
     return Success(character);
   }
 
-  /// Updates only the position/map of a character (keeps skin/nickname/etc).
+  /// Updates only the position/map (and optionally attributes) of a
+  /// character, keeping skin/nickname/etc untouched.
   Future<Result<CharacterModel, GetCharacterException>> updatePosition({
     required String characterId,
     required double x,
     required double y,
     required String mapId,
+    PlayerAttributes? attributes,
   }) async {
     final characterMap = await datasource.getFirst(
       document: CharacterModel.document,
@@ -95,6 +94,7 @@ class CharacterRepository {
       userId: character.userId,
       position: CharacterPosition(x: x, y: y),
       mapId: mapId,
+      attributes: attributes ?? character.attributes,
     );
     await datasource.update(
       document: CharacterModel.document,

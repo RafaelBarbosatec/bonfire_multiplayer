@@ -7,6 +7,7 @@ import 'package:bonfire_multiplayer/data/auth/auth_session.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/pages/characters/character_select_route.dart';
 import 'package:bonfire_multiplayer/pages/game/widgets/menu_widget.dart';
+import 'package:bonfire_multiplayer/pages/game/widgets/player_status_widget.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
@@ -28,10 +29,17 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   late AnimationController _controller;
   late JoinMapEvent joinMapEvent;
 
+  /// Latest server snapshot of our own player, feeding the status HUD.
+  /// Only replaced when the attributes actually change, so the HUD doesn't
+  /// rebuild on every movement tick (position updates are irrelevant here).
+  final ValueNotifier<ComponentStateModel?> _ownState =
+      ValueNotifier<ComponentStateModel?>(null);
+
   @override
   void initState() {
     _eventManager = inject();
     joinMapEvent = widget.event;
+    _ownState.value = widget.event.state;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -45,6 +53,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     _eventManager.removeOnEnemyState(_onEnemyState);
     _eventManager.removeOnRemoved(_onRemoved);
     _eventManager.onJoinMapEvent(null);
+    _ownState.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -94,13 +103,30 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
               ),
               onReady: _onReady,
               overlayBuilderMap: {
+                PlayerStatusWidget.overlayName: (context, gameRef) {
+                  return ValueListenableBuilder<ComponentStateModel?>(
+                    valueListenable: _ownState,
+                    builder: (context, state, _) {
+                      final s = state ?? joinMapEvent.state;
+                      return PlayerStatusWidget(
+                        attributes: s.attributes ?? const PlayerAttributes(),
+                        name: s.name,
+                        skinPath:
+                            PlayerSkin.fromName(s.properties['skin']).path,
+                      );
+                    },
+                  );
+                },
                 MenuWidget.overlayName: (context, gameRef) {
                   return MenuWidget(
                     game: gameRef,
                   );
                 },
               },
-              initialActiveOverlays: const [MenuWidget.overlayName],
+              initialActiveOverlays: const [
+                PlayerStatusWidget.overlayName,
+                MenuWidget.overlayName,
+              ],
             ),
           ),
         ],
@@ -137,18 +163,31 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
 
     final remotePlayers = game?.query<MyRemotePlayer>() ?? [];
 
-    // Add new players that don't exist locally
     for (var serverPlayer in serverPlayers) {
-      if (serverPlayer.id != joinMapEvent.state.id) {
-        final exists = remotePlayers.any(
-          (element) => element.id == serverPlayer.id,
-        );
-        if (!exists) {
-          game?.add(_createRemotePlayer(serverPlayer));
-        }
+      // Our own updates feed the status HUD (HP/SP/EXP/level) and are never
+      // turned into a remote entity.
+      if (serverPlayer.id == joinMapEvent.state.id) {
+        _updateOwnState(serverPlayer);
+        continue;
+      }
+      // Add new players that don't exist locally
+      final exists = remotePlayers.any(
+        (element) => element.id == serverPlayer.id,
+      );
+      if (!exists) {
+        game?.add(_createRemotePlayer(serverPlayer));
       }
     }
     // Note: Removals are now handled by _onRemoved
+  }
+
+  /// Keeps the HUD snapshot fresh: replaces the value only when the server
+  /// attributes actually changed (avoids rebuilding on every move tick).
+  void _updateOwnState(ComponentStateModel serverPlayer) {
+    final current = _ownState.value;
+    if (current == null || current.attributes != serverPlayer.attributes) {
+      _ownState.value = serverPlayer;
+    }
   }
 
   void _onEnemyState(Iterable<ComponentStateModel> serverEnemies) {
@@ -219,6 +258,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     if (mounted) {
       setState(() {
         joinMapEvent = event;
+        _ownState.value = event.state;
       });
     }
   }

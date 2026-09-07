@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
 
 
-  bonfire: ^4.0.0-beta.13
+  bonfire: ^4.0.0
   flutter_bloc: ^8.1.3
   shared_events:
     path: "../shared_events"
