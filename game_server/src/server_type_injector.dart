@@ -5,16 +5,10 @@ import 'infrastructure/websocket/websocket_provider.dart';
 void injectServerTypes(WebsocketProvider server) {
   server
     ..registerType<JoinEvent>(
-      TypeAdapter(
-        toMap: (type) => type.toMap(),
-        fromMap: JoinEvent.fromMap,
-      ),
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: JoinEvent.fromMap),
     )
     ..registerType<JoinMapEvent>(
-      TypeAdapter(
-        toMap: (type) => type.toMap(),
-        fromMap: JoinMapEvent.fromMap,
-      ),
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: JoinMapEvent.fromMap),
     )
     ..registerType<GameStateModel>(
       TypeAdapter(
@@ -23,15 +17,15 @@ void injectServerTypes(WebsocketProvider server) {
       ),
     )
     ..registerType<PlayerEvent>(
-      TypeAdapter(
-        toMap: (type) => type.toMap(),
-        fromMap: PlayerEvent.fromMap,
-      ),
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: PlayerEvent.fromMap),
     )
     ..registerType<MoveEvent>(
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: MoveEvent.fromMap),
+    )
+    ..registerType<AllocateStatEvent>(
       TypeAdapter(
         toMap: (type) => type.toMap(),
-        fromMap: MoveEvent.fromMap,
+        fromMap: AllocateStatEvent.fromMap,
       ),
     );
 }

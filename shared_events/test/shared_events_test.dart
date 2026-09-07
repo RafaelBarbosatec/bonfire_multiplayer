@@ -99,12 +99,20 @@ void main() {
   });
 
   group('PlayerAttributes', () {
-    test('defaults describe a fresh level-1 character', () {
+    test('defaults describe a fresh level-1 Novice', () {
       const attrs = PlayerAttributes();
       expect(attrs.level, 1);
       expect(attrs.xp, 0);
       expect(attrs.hp, attrs.maxHp);
       expect(attrs.stamina, attrs.maxStamina);
+      // Ragnarok: base stats start at 1, Novice has 48 status points.
+      expect(attrs.str, 1);
+      expect(attrs.agi, 1);
+      expect(attrs.vit, 1);
+      expect(attrs.intel, 1);
+      expect(attrs.dex, 1);
+      expect(attrs.luk, 1);
+      expect(attrs.statusPoints, PlayerAttributes.initialStatusPoints);
     });
 
     test('round-trip toMap/fromMap', () {
@@ -120,7 +128,8 @@ void main() {
       expect(restored, original);
     });
 
-    test('fromMap falls back to defaults on missing keys and tolerates '
+    test(
+        'fromMap falls back to defaults on missing keys and tolerates '
         'numeric strings', () {
       expect(PlayerAttributes.fromMap({}), const PlayerAttributes());
       expect(
@@ -149,7 +158,8 @@ void main() {
       expect(base.copyWith(stamina: 999).stamina, 100);
       expect(base.copyWith(maxHp: 300, hp: 250).hp, 250);
       expect(base.copyWith(maxStamina: 200, stamina: 150).stamina, 150);
-      expect(base.copyWith(level: 4, xp: 5), const PlayerAttributes(level: 4, xp: 5, hp: 50, stamina: 30));
+      expect(base.copyWith(level: 4, xp: 5),
+          const PlayerAttributes(level: 4, xp: 5, hp: 50, stamina: 30));
     });
 
     test('addXp levels up every 100 XP keeping the remainder', () {
@@ -157,17 +167,20 @@ void main() {
         const PlayerAttributes().addXp(99),
         const PlayerAttributes(level: 1, xp: 99),
       );
+      // 1→2 grants floor(1/5)+3 = 3 points.
       expect(
         const PlayerAttributes().addXp(100),
-        const PlayerAttributes(level: 2, xp: 0),
+        const PlayerAttributes(level: 2, xp: 0, statusPoints: 51),
       );
+      // 1→2 (3 pts) + 2→3 (3 pts) = 6 points.
       expect(
         const PlayerAttributes().addXp(250),
-        const PlayerAttributes(level: 3, xp: 50),
+        const PlayerAttributes(level: 3, xp: 50, statusPoints: 54),
       );
+      // 5→6 grants floor(5/5)+3 = 4 points.
       expect(
         const PlayerAttributes(level: 5, xp: 90).addXp(20),
-        const PlayerAttributes(level: 6, xp: 10),
+        const PlayerAttributes(level: 6, xp: 10, statusPoints: 52),
       );
       expect(const PlayerAttributes().addXp(0), const PlayerAttributes());
     });
@@ -200,6 +213,82 @@ void main() {
       // No-op mutations return the same logical attributes.
       expect(const PlayerAttributes().takeDamage(0), const PlayerAttributes());
       expect(const PlayerAttributes().heal(0), const PlayerAttributes());
+    });
+
+    test('stat raise cost follows the classic Ragnarok table', () {
+      // ⌊(x-1)/10⌋+2 → 2 pts (1-10), 3 pts (11-20), 4 pts (21-30), ...
+      expect(PlayerAttributes.costToRaiseStat(1), 2);
+      expect(PlayerAttributes.costToRaiseStat(10), 2);
+      expect(PlayerAttributes.costToRaiseStat(11), 3);
+      expect(PlayerAttributes.costToRaiseStat(20), 3);
+      expect(PlayerAttributes.costToRaiseStat(21), 4);
+      expect(PlayerAttributes.costToRaiseStat(99), 11);
+    });
+
+    test('tryAllocateStat spends points, raises stat and recomputes maxima',
+        () {
+      const attrs = PlayerAttributes();
+      // STR 1→2 costs 2; VIT raise must grow MaxHP (derived from VIT).
+      final allocated = attrs.tryAllocateStat('str')!;
+      expect(allocated.str, 2);
+      expect(allocated.statusPoints, 46);
+
+      final withVit = attrs.tryAllocateStat('vit')!;
+      expect(withVit.vit, 2);
+      expect(withVit.maxHp, greaterThan(attrs.maxHp));
+
+      final withInt = attrs.tryAllocateStat('int')!;
+      expect(withInt.intel, 2);
+      expect(withInt.maxStamina, greaterThan(attrs.maxStamina));
+
+      // INT map key is 'int' (protocol) while the field is intel.
+      expect(attrs.statValueOrNull('int'), 1);
+      expect(attrs.statValueOrNull('nope'), isNull);
+    });
+
+    test('tryAllocateStat rejects unaffordable, capped and invalid stats', () {
+      // Not enough points for the cost (needs 2, has 1).
+      expect(
+        const PlayerAttributes(statusPoints: 1).tryAllocateStat('agi'),
+        isNull,
+      );
+      // Stat already at the 99 cap.
+      expect(
+        const PlayerAttributes(str: 99, statusPoints: 100).tryAllocateStat(
+          'str',
+        ),
+        isNull,
+      );
+      expect(const PlayerAttributes().tryAllocateStat('mystery'), isNull);
+    });
+
+    test('derived combat substats follow classic approximations', () {
+      const attrs = PlayerAttributes(
+        level: 10,
+        str: 15,
+        agi: 12,
+        vit: 50,
+        intel: 33,
+        dex: 10,
+        luk: 5,
+      );
+      expect(attrs.atk, 15 + 1 + 2 + 1); // STR + ⌊STR/10⌋² + DEX/5 + LUK/5
+      expect(attrs.matkMin, 33 + 4 * 4); // INT + ⌊INT/7⌋² (wiki: 33 → 49)
+      expect(attrs.matkMax, 33 + 6 * 6); // INT + ⌊INT/5⌋² (wiki: 33 → 69)
+      expect(attrs.hit, 10 + 10);
+      expect(attrs.flee, 10 + 12);
+      expect(attrs.crit, 2); // ⌊5*0.3⌋ + 1
+      expect(attrs.softDef, 40); // 0.8 * 50
+      expect(attrs.softMdef, 33);
+    });
+
+    test('withDerivedMax recomputes pools from level + VIT/INT', () {
+      final attrs = const PlayerAttributes(level: 10, vit: 20).withDerivedMax();
+      expect(attrs.maxHp, ((100 + 10 * 9) * 120) ~/ 100);
+      expect(attrs.maxStamina, ((30 + 3 * 9) * 101) ~/ 100);
+      // HP is clamped when the recomputed pool shrinks below current HP.
+      final clamped = const PlayerAttributes(hp: 500, vit: 1).withDerivedMax();
+      expect(clamped.hp, clamped.maxHp);
     });
   });
 

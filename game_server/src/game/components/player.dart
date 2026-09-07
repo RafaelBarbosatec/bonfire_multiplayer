@@ -13,16 +13,10 @@ import '../../infrastructure/websocket/websocket_provider.dart';
 /// ([requestUpdate]), so the HUD stays in sync without extra events.
 class Player extends GamePlayer
     with Collision, MapRef, BlockMovementOnCollision {
-  Player({
-    required super.state,
-    required this.client,
-  }) {
+  Player({required super.state, required this.client}) {
     _listenMove();
     setupCollision(
-      RectangleShape(
-        GameVector.all(16),
-        position: GameVector(x: 8, y: 16),
-      ),
+      RectangleShape(GameVector.all(16), position: GameVector(x: 8, y: 16)),
     );
   }
 
@@ -43,26 +37,23 @@ class Player extends GamePlayer
 
   void _listenMove() {
     client
-      ..on<MoveEvent>(
-        EventType.MOVE.name,
-        (data) {
-          if (data.mapId == map.id) {
-            moveDirection = data.direction;
-            // Echo the last processed input id back to the client so it
-            // can reconcile its pending inputs (client-side prediction).
-            if (data.inputId != null) {
-              state.lastInputId = data.inputId;
-            }
+      ..on<MoveEvent>(EventType.MOVE.name, (data) {
+        if (data.mapId == map.id) {
+          moveDirection = data.direction;
+          // Echo the last processed input id back to the client so it
+          // can reconcile its pending inputs (client-side prediction).
+          if (data.inputId != null) {
+            state.lastInputId = data.inputId;
           }
-        },
-      )
-      ..on<MoveEvent>(
-        EventType.LEAVE.name,
-        (data) {
-          client.cleanListener(EventType.MOVE.name);
-          removeFromParent();
-        },
-      );
+        }
+      })
+      ..on<MoveEvent>(EventType.LEAVE.name, (data) {
+        client.cleanListener(EventType.MOVE.name);
+        removeFromParent();
+      })
+      ..on<AllocateStatEvent>(EventType.ALLOCATE_STAT.name, (data) {
+        _allocateStat(data.stat);
+      });
   }
 
   // --- Game hooks (server-authoritative attribute mutations) -------------
@@ -77,10 +68,28 @@ class Player extends GamePlayer
     _apply(state.attributes?.heal(amount) ?? const PlayerAttributes());
   }
 
-  /// Grants [amount] XP, applying level-ups (100 XP per level).
+  /// Grants [amount] XP, applying level-ups (100 XP per level, status points
+  /// per classic Ragnarok) and recomputing the derived max pools.
   void addXp(int amount) {
-    _apply(state.attributes?.addXp(amount) ?? const PlayerAttributes());
+    final current = state.attributes;
+    if (current == null) return;
+    final leveled = current.addXp(amount);
+    if (identical(leveled, current)) return;
+    _apply(leveled.withDerivedMax());
   }
+
+  /// Invests one status point in [stat] ('str'/'agi'/'vit'/'int'/'dex'/'luk').
+  /// Validated server-side (progressive cost, cap 99, available points).
+  /// No dedicated ack — the regular state delta carries the result.
+  void allocateStat(String stat) {
+    final current = state.attributes;
+    if (current == null) return;
+    final updated = current.tryAllocateStat(stat);
+    if (updated == null) return;
+    _apply(updated);
+  }
+
+  void _allocateStat(String stat) => allocateStat(stat);
 
   /// Fills stamina to its maximum (e.g. when the player spawns).
   void restoreStamina() {
