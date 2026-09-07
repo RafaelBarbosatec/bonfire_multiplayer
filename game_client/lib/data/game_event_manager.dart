@@ -6,15 +6,15 @@ class GameEventManager {
   final WebsocketProvider websocket;
 
   final Map<String, void Function(ComponentStateModel data)>
-      specificPlayerStateSubscriber = {};
+  specificPlayerStateSubscriber = {};
   final Map<String, void Function(ComponentStateModel data)>
-      specificEnemyStateSubscriber = {};
+  specificEnemyStateSubscriber = {};
 
   final List<void Function(Iterable<ComponentStateModel> data)>
-      playerStateSubscriber = [];
+  playerStateSubscriber = [];
 
   final List<void Function(Iterable<ComponentStateModel> data)>
-      enemyStateSubscriber = [];
+  enemyStateSubscriber = [];
 
   /// Callbacks for when entities are removed (by ID)
   final List<void Function(List<String> removedIds)> removedSubscriber = [];
@@ -154,26 +154,17 @@ class GameEventManager {
       EventType.UPDATE_STATE.name,
       _listenState,
     );
-    websocket.onEvent<JoinMapEvent>(
-      EventType.JOIN_MAP.name,
-      (data) {
-        _onJoinMapEvent?.call(data);
-      },
-    );
+    websocket.onEvent<JoinMapEvent>(EventType.JOIN_MAP.name, (data) {
+      _onJoinMapEvent?.call(data);
+    });
   }
 
   void _registerTypes() {
     websocket.registerType<JoinMapEvent>(
-      TypeAdapter(
-        toMap: (type) => type.toMap(),
-        fromMap: JoinMapEvent.fromMap,
-      ),
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: JoinMapEvent.fromMap),
     );
     websocket.registerType<JoinEvent>(
-      TypeAdapter(
-        toMap: (type) => type.toMap(),
-        fromMap: JoinEvent.fromMap,
-      ),
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: JoinEvent.fromMap),
     );
     websocket.registerType<GameStateModel>(
       TypeAdapter(
@@ -182,15 +173,15 @@ class GameEventManager {
       ),
     );
     websocket.registerType<MoveEvent>(
-      TypeAdapter(
-        toMap: (type) => type.toMap(),
-        fromMap: MoveEvent.fromMap,
-      ),
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: MoveEvent.fromMap),
     );
     websocket.registerType<PlayerEvent>(
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: PlayerEvent.fromMap),
+    );
+    websocket.registerType<AllocateStatEvent>(
       TypeAdapter(
         toMap: (type) => type.toMap(),
-        fromMap: PlayerEvent.fromMap,
+        fromMap: AllocateStatEvent.fromMap,
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:bonfire_multiplayer/data/auth/auth_session.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/pages/characters/character_select_route.dart';
 import 'package:bonfire_multiplayer/pages/game/widgets/menu_widget.dart';
+import 'package:bonfire_multiplayer/pages/game/widgets/player_stats_dialog.dart';
 import 'package:bonfire_multiplayer/pages/game/widgets/player_status_widget.dart';
 import 'package:bonfire_multiplayer/pages/home/home_route.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
@@ -111,16 +112,16 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
                       return PlayerStatusWidget(
                         attributes: s.attributes ?? const PlayerAttributes(),
                         name: s.name,
-                        skinPath:
-                            PlayerSkin.fromName(s.properties['skin']).path,
+                        skinPath: PlayerSkin.fromName(
+                          s.properties['skin'],
+                        ).path,
+                        onOpenStatus: () => _openStatsDialog(context),
                       );
                     },
                   );
                 },
                 MenuWidget.overlayName: (context, gameRef) {
-                  return MenuWidget(
-                    game: gameRef,
-                  );
+                  return MenuWidget(game: gameRef);
                 },
               },
               initialActiveOverlays: const [
@@ -272,5 +273,23 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
         HomeRoute.open(context);
       }
     }
+  }
+
+  /// Opens the Ragnarok-style Status dialog (base stats + derived stats).
+  Future<void> _openStatsDialog(BuildContext context) {
+    return showPlayerStatsDialog(
+      context,
+      ownState: _ownState,
+      onAllocateStat: _sendAllocateStat,
+    );
+  }
+
+  /// Sends a server-authoritative stat investment. The result comes back in
+  /// the regular state delta (see `Player.allocateStat`).
+  void _sendAllocateStat(String stat) {
+    _eventManager.send(
+      EventType.ALLOCATE_STAT.name,
+      AllocateStatEvent(stat: stat),
+    );
   }
 }
