@@ -227,23 +227,25 @@ void main() {
 
     test('tryAllocateStat spends points, raises stat and recomputes maxima',
         () {
-      const attrs = PlayerAttributes();
+      // Baseline is the *derived* sheet (server normalizes on join), not the
+      // raw const defaults — that is what the player actually sees.
+      final base = const PlayerAttributes().withDerivedMax();
       // STR 1→2 costs 2; VIT raise must grow MaxHP (derived from VIT).
-      final allocated = attrs.tryAllocateStat('str')!;
+      final allocated = base.tryAllocateStat('str')!;
       expect(allocated.str, 2);
       expect(allocated.statusPoints, 46);
 
-      final withVit = attrs.tryAllocateStat('vit')!;
+      final withVit = base.tryAllocateStat('vit')!;
       expect(withVit.vit, 2);
-      expect(withVit.maxHp, greaterThan(attrs.maxHp));
+      expect(withVit.maxHp, greaterThan(base.maxHp));
 
-      final withInt = attrs.tryAllocateStat('int')!;
+      final withInt = base.tryAllocateStat('int')!;
       expect(withInt.intel, 2);
-      expect(withInt.maxStamina, greaterThan(attrs.maxStamina));
+      expect(withInt.maxStamina, greaterThan(base.maxStamina));
 
       // INT map key is 'int' (protocol) while the field is intel.
-      expect(attrs.statValueOrNull('int'), 1);
-      expect(attrs.statValueOrNull('nope'), isNull);
+      expect(base.statValueOrNull('int'), 1);
+      expect(base.statValueOrNull('nope'), isNull);
     });
 
     test('tryAllocateStat rejects unaffordable, capped and invalid stats', () {
@@ -285,8 +287,7 @@ void main() {
     test('withDerivedMax recomputes pools from level + VIT/INT', () {
       final attrs = const PlayerAttributes(level: 10, vit: 20).withDerivedMax();
       expect(attrs.maxHp, ((100 + 10 * 9) * 120) ~/ 100);
-      expect(attrs.maxStamina, ((30 + 3 * 9) * 101) ~/ 100);
-      // HP is clamped when the recomputed pool shrinks below current HP.
+      expect(attrs.maxStamina, ((100 + 5 * 9) * 101) ~/ 100);
       final clamped = const PlayerAttributes(hp: 500, vit: 1).withDerivedMax();
       expect(clamped.hp, clamped.maxHp);
     });

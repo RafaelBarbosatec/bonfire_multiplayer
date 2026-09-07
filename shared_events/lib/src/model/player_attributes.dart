@@ -78,8 +78,10 @@ class PlayerAttributes {
   /// MaxHP grows with level and +1% per VIT (VIT section, irowiki).
   int get derivedMaxHp => ((100 + 10 * (level - 1)) * (100 + vit)) ~/ 100;
 
-  /// Max stamina/SP grows with level and +1% per INT.
-  int get derivedMaxStamina => ((30 + 3 * (level - 1)) * (100 + intel)) ~/ 100;
+  /// Max stamina/SP pool: base ~100 growing +5/level and +1% per INT, so a
+  /// single INT point is always visible at low levels (a 30-point base would
+  /// round +1% to nothing).
+  int get derivedMaxStamina => ((100 + 5 * (level - 1)) * (100 + intel)) ~/ 100;
 
   // --- Derived combat substats (classic-inspired, v1 display) -------------
 
