@@ -17,123 +17,160 @@ class PlayerStatusWidget extends StatelessWidget {
   final String name;
   final String skinPath;
 
+  /// Opens the character Status dialog (allocating base stats).
+  final VoidCallback? onOpenStatus;
+
   const PlayerStatusWidget({
     super.key,
     required this.attributes,
     required this.name,
     required this.skinPath,
+    this.onOpenStatus,
   });
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                border: Border.all(color: _Ro.border, width: 1.4),
-                borderRadius: BorderRadius.circular(6),
-                gradient: const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xF21B2C4A), Color(0xE60D1626)],
-                ),
-                boxShadow: const [
-                  BoxShadow(color: Color(0x66000000), blurRadius: 8),
-                ],
+    return Align(
+      alignment: Alignment.topLeft,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              border: Border.all(color: _Ro.border, width: 1.4),
+              borderRadius: BorderRadius.circular(6),
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xF21B2C4A), Color(0xE60D1626)],
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _Portrait(path: skinPath),
-                  const SizedBox(width: 10),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 110),
-                            child: Text(
-                              name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: _Ro.ivory,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.4,
-                                shadows: [Shadow(color: Colors.black87)],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: _Ro.border),
-                              borderRadius: BorderRadius.circular(3),
-                              color: const Color(0x66102030),
-                            ),
-                            child: Text(
-                              'Lv. ${attributes.level}',
-                              style: const TextStyle(
-                                color: _Ro.goldBright,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      _StatusBar(
-                        label: 'HP',
-                        value: attributes.hp,
-                        maxValue: attributes.maxHp,
-                        labelColor: const Color(0xFFFFB0A0),
-                        gradientColors: const [
-                          Color(0xFFE05545),
-                          Color(0xFF8E1F1F),
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      _StatusBar(
-                        label: 'SP',
-                        value: attributes.stamina,
-                        maxValue: attributes.maxStamina,
-                        labelColor: _Ro.gold,
-                        gradientColors: const [
-                          Color(0xFFEAC469),
-                          Color(0xFF8A6A2F),
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      _StatusBar(
-                        label: 'EXP',
-                        value: attributes.xp,
-                        maxValue: PlayerAttributes.xpPerLevel,
-                        labelColor: const Color(0xFF8FC1FF),
-                        gradientColors: const [
-                          Color(0xFF5E9ADE),
-                          Color(0xFF214E79),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              boxShadow: const [
+                BoxShadow(color: Color(0x66000000), blurRadius: 8),
+              ],
             ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _Portrait(path: skinPath),
+                const SizedBox(width: 10),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 110),
+                          child: Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: _Ro.ivory,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.4,
+                              shadows: [Shadow(color: Colors.black87)],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: _Ro.border),
+                            borderRadius: BorderRadius.circular(3),
+                            color: const Color(0x66102030),
+                          ),
+                          child: Text(
+                            'Lv. ${attributes.level}',
+                            style: const TextStyle(
+                              color: _Ro.goldBright,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (onOpenStatus != null) ...[
+                          const SizedBox(width: 6),
+                          _StatusButton(onTap: onOpenStatus!),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    _StatusBar(
+                      label: 'HP',
+                      value: attributes.hp,
+                      maxValue: attributes.maxHp,
+                      labelColor: const Color(0xFFFFB0A0),
+                      gradientColors: const [
+                        Color(0xFFE05545),
+                        Color(0xFF8E1F1F),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    _StatusBar(
+                      label: 'SP',
+                      value: attributes.stamina,
+                      maxValue: attributes.maxStamina,
+                      labelColor: _Ro.gold,
+                      gradientColors: const [
+                        Color(0xFFEAC469),
+                        Color(0xFF8A6A2F),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    _StatusBar(
+                      label: 'EXP',
+                      value: attributes.xp,
+                      maxValue: PlayerAttributes.xpPerLevel,
+                      labelColor: const Color(0xFF8FC1FF),
+                      gradientColors: const [
+                        Color(0xFF5E9ADE),
+                        Color(0xFF214E79),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Small gold-outlined button that opens the character Status dialog.
+class _StatusButton extends StatelessWidget {
+  const _StatusButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Atributos',
+      child: Material(
+        type: MaterialType.transparency,
+        child: Ink(
+          width: 22,
+          height: 22,
+          decoration: BoxDecoration(
+            color: const Color(0x66102030),
+            border: Border.all(color: _Ro.border),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(4),
+            onTap: onTap,
+            child: const Icon(Icons.person, size: 14, color: _Ro.goldBright),
           ),
         ),
       ),
@@ -203,9 +240,7 @@ class _StatusBar extends StatelessWidget {
                     widthFactor: pct,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: gradientColors,
-                        ),
+                        gradient: LinearGradient(colors: gradientColors),
                       ),
                     ),
                   ),

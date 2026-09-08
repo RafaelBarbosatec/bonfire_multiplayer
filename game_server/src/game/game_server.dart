@@ -114,9 +114,9 @@ class GameServer extends Game {
     WebsocketClient client,
     JoinEvent message,
   ) async {
-    if (components
-        .whereType<Player>()
-        .any((element) => element.id == client.id)) {
+    if (components.whereType<Player>().any(
+      (element) => element.id == client.id,
+    )) {
       return;
     }
 
@@ -152,21 +152,17 @@ class GameServer extends Game {
 
     // Position: saved character position or default spawn.
     final position = character != null
-        ? GameVector(
-            x: character.position.x,
-            y: character.position.y,
-          )
-        : GameVector(
-            x: (3 + Random().nextInt(3)) * tileSize,
-            y: 11 * tileSize,
-          );
+        ? GameVector(x: character.position.x, y: character.position.y)
+        : GameVector(x: (3 + Random().nextInt(3)) * tileSize, y: 11 * tileSize);
 
-    // Attributes: from the saved character (stamina restored to full on
-    // spawn) or defaults for anonymous quick-test joins. From here on the
-    // authoritative values live in `player.state.attributes` (see Player).
+    // Attributes: from the saved character or defaults for anonymous
+    // quick-test joins. Pools are normalized from level/VIT/INT (formula may
+    // have changed since the last session) and stamina restores to full on
+    // spawn. From here on the authoritative values live in
+    // `player.state.attributes` (see Player).
     final savedAttributes = character?.attributes ?? const PlayerAttributes();
-    final attributes =
-        savedAttributes.copyWith(stamina: savedAttributes.maxStamina);
+    final normalized = savedAttributes.withDerivedMax();
+    final attributes = normalized.copyWith(stamina: normalized.maxStamina);
 
     // Adds Player
     final player = Player(
@@ -176,9 +172,7 @@ class GameServer extends Game {
         position: position,
         size: GameVector.all(16),
         life: 100,
-        properties: {
-          'skin': character?.skin ?? message.skin,
-        },
+        properties: {'skin': character?.skin ?? message.skin},
         attributes: attributes,
       ),
       client: client,
