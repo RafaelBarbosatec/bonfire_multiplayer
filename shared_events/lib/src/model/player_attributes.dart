@@ -11,8 +11,9 @@
 ///
 /// Rules follow classic Ragnarok (irowiki.org/classic/Stats):
 /// - base stats start at 1 and cap at [statCap] (99);
-/// - a normal Novice starts with [initialStatusPoints] (48) to invest;
-/// - each base level grants `(level ~/ 5) + 3` status points;
+/// - new characters start with 0 points to invest ([initialStatusPoints]) —
+///   the classic Novice 48-point creation bonus is intentionally removed;
+/// - each base level grants `(level ~/ 5) + 3` status points (classic);
 /// - raising a stat from `x` to `x+1` costs `((x - 1) ~/ 10) + 2` points;
 /// - investments cannot be reversed.
 class PlayerAttributes {
@@ -38,8 +39,10 @@ class PlayerAttributes {
   /// Base stats a fresh character starts with.
   static const int initialStatValue = 1;
 
-  /// Unspent status points a normal Novice starts with (classic Ragnarok).
-  static const int initialStatusPoints = 48;
+  /// Unspent status points a fresh character is created with. Ragnarok's
+  /// Novice gets 48 at creation, but here points only come from leveling
+  /// (see [addXp]) — new characters start with 0.
+  static const int initialStatusPoints = 0;
 
   /// Base stats can be raised up to 99 (bonuses may pass it later).
   static const int statCap = 99;

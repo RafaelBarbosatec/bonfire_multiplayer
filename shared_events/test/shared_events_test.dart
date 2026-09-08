@@ -105,7 +105,7 @@ void main() {
       expect(attrs.xp, 0);
       expect(attrs.hp, attrs.maxHp);
       expect(attrs.stamina, attrs.maxStamina);
-      // Ragnarok: base stats start at 1, Novice has 48 status points.
+      // Ragnarok: base stats start at 1; points only come from leveling.
       expect(attrs.str, 1);
       expect(attrs.agi, 1);
       expect(attrs.vit, 1);
@@ -113,6 +113,7 @@ void main() {
       expect(attrs.dex, 1);
       expect(attrs.luk, 1);
       expect(attrs.statusPoints, PlayerAttributes.initialStatusPoints);
+      expect(attrs.statusPoints, 0);
     });
 
     test('round-trip toMap/fromMap', () {
@@ -167,20 +168,20 @@ void main() {
         const PlayerAttributes().addXp(99),
         const PlayerAttributes(level: 1, xp: 99),
       );
-      // 1→2 grants floor(1/5)+3 = 3 points.
+      // 1→2 grants floor(1/5)+3 = 3 points (from a 0-point fresh character).
       expect(
         const PlayerAttributes().addXp(100),
-        const PlayerAttributes(level: 2, xp: 0, statusPoints: 51),
+        const PlayerAttributes(level: 2, xp: 0, statusPoints: 3),
       );
       // 1→2 (3 pts) + 2→3 (3 pts) = 6 points.
       expect(
         const PlayerAttributes().addXp(250),
-        const PlayerAttributes(level: 3, xp: 50, statusPoints: 54),
+        const PlayerAttributes(level: 3, xp: 50, statusPoints: 6),
       );
       // 5→6 grants floor(5/5)+3 = 4 points.
       expect(
         const PlayerAttributes(level: 5, xp: 90).addXp(20),
-        const PlayerAttributes(level: 6, xp: 10, statusPoints: 52),
+        const PlayerAttributes(level: 6, xp: 10, statusPoints: 4),
       );
       expect(const PlayerAttributes().addXp(0), const PlayerAttributes());
     });
@@ -227,13 +228,15 @@ void main() {
 
     test('tryAllocateStat spends points, raises stat and recomputes maxima',
         () {
-      // Baseline is the *derived* sheet (server normalizes on join), not the
-      // raw const defaults — that is what the player actually sees.
-      final base = const PlayerAttributes().withDerivedMax();
+      // Baseline = a real level-up from a fresh character (level 2, the 3
+      // classic points) with derived pools normalized as the server does.
+      final base = const PlayerAttributes().addXp(100).withDerivedMax();
+      expect(base.level, 2);
+      expect(base.statusPoints, 3);
       // STR 1→2 costs 2; VIT raise must grow MaxHP (derived from VIT).
       final allocated = base.tryAllocateStat('str')!;
       expect(allocated.str, 2);
-      expect(allocated.statusPoints, 46);
+      expect(allocated.statusPoints, 1);
 
       final withVit = base.tryAllocateStat('vit')!;
       expect(withVit.vit, 2);
@@ -247,8 +250,9 @@ void main() {
       expect(base.statValueOrNull('int'), 1);
       expect(base.statValueOrNull('nope'), isNull);
     });
-
     test('tryAllocateStat rejects unaffordable, capped and invalid stats', () {
+      // Fresh characters start with 0 points — nothing to invest yet.
+      expect(const PlayerAttributes().tryAllocateStat('str'), isNull);
       // Not enough points for the cost (needs 2, has 1).
       expect(
         const PlayerAttributes(statusPoints: 1).tryAllocateStat('agi'),
