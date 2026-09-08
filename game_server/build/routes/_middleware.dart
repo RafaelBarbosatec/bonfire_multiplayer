@@ -18,6 +18,13 @@ final pathPrefixesNotAuthenticated = [
   '/maps/',
 ];
 
+const _corsHeaders = <String, String>{
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers':
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+};
+
 bool _isPublicPath(String path) {
   if (pathsNotAuthenticated.contains(path)) return true;
   for (final prefix in pathPrefixesNotAuthenticated) {
@@ -27,7 +34,7 @@ bool _isPublicPath(String path) {
 }
 
 Handler middleware(Handler handler) {
-  return handler.use(
+  final authHandler = handler.use(
     bearerAuthentication<UserModel>(
       authenticator: (context, token) async {
         final authenticator = context.read<Authenticator>();
@@ -39,4 +46,18 @@ Handler middleware(Handler handler) {
       },
     ),
   );
+
+  return (context) async {
+    if (context.request.method == HttpMethod.options) {
+      return Response(headers: _corsHeaders);
+    }
+
+    final response = await authHandler(context);
+    return response.copyWith(
+      headers: {
+        ...response.headers,
+        ..._corsHeaders,
+      },
+    );
+  };
 }

@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:shared_events/shared_events.dart';
 
 class CharacterModel {
   CharacterModel({
@@ -8,6 +9,7 @@ class CharacterModel {
     required this.userId,
     required this.position,
     required this.mapId,
+    this.attributes = const PlayerAttributes(),
   });
 
   static const document = 'players';
@@ -19,6 +21,9 @@ class CharacterModel {
   final CharacterPosition position;
   final String mapId;
 
+  /// Persisted attributes (level/XP/HP/stamina survive re-login).
+  final PlayerAttributes attributes;
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
@@ -27,6 +32,7 @@ class CharacterModel {
       'userId': userId,
       'position': position.toMap(),
       'mapId': mapId,
+      'attributes': attributes.toMap(),
     };
   }
 
@@ -38,6 +44,9 @@ class CharacterModel {
       userId: map['userId'] as String,
       position: CharacterPosition.fromMap((map['position'] as Map).cast()),
       mapId: map['mapId'] as String,
+      attributes: map['attributes'] != null
+          ? PlayerAttributes.fromMap((map['attributes'] as Map).cast())
+          : const PlayerAttributes(),
     );
   }
 }

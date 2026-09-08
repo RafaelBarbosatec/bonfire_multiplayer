@@ -4,22 +4,32 @@ import 'package:shared_events/shared_events.dart';
 
 import '../../infrastructure/websocket/websocket_provider.dart';
 
+/// Authoritative server-side player.
+///
+/// Besides movement, it owns the [PlayerAttributes] lifecycle: stamina drains
+/// while walking and regenerates while idle, and the game hooks ([takeDamage],
+/// [heal], [addXp], [restoreStamina]) are the only way to mutate HP/XP/level.
+/// Every change is pushed to clients through the regular state delta
+/// ([requestUpdate]), so the HUD stays in sync without extra events.
 class Player extends GamePlayer
     with Collision, MapRef, BlockMovementOnCollision {
-  Player({
-    required super.state,
-    required this.client,
-  }) {
+  Player({required super.state, required this.client}) {
     _listenMove();
     setupCollision(
-      RectangleShape(
-        GameVector.all(16),
-        position: GameVector(x: 8, y: 16),
-      ),
+      RectangleShape(GameVector.all(16), position: GameVector(x: 8, y: 16)),
     );
   }
 
+  /// Stamina points drained per second while moving.
+  static const double staminaDrainPerSecond = 10;
+
+  /// Stamina points regenerated per second while idle.
+  static const double staminaRegenPerSecond = 12;
+
   final WebsocketClient client;
+
+  /// Fractional stamina accumulator so drain/regen is smooth across ticks.
+  double _staminaAccumulator = 0;
 
   String get id => state.id;
 
@@ -27,27 +37,74 @@ class Player extends GamePlayer
 
   void _listenMove() {
     client
-      ..on<MoveEvent>(
-        EventType.MOVE.name,
-        (data) {
-          if (data.mapId == map.id) {
-            moveDirection = data.direction;
-            // Echo the last processed input id back to the client so it
-            // can reconcile its pending inputs (client-side prediction).
-            if (data.inputId != null) {
-              state.lastInputId = data.inputId;
-            }
+      ..on<MoveEvent>(EventType.MOVE.name, (data) {
+        if (data.mapId == map.id) {
+          moveDirection = data.direction;
+          // Echo the last processed input id back to the client so it
+          // can reconcile its pending inputs (client-side prediction).
+          if (data.inputId != null) {
+            state.lastInputId = data.inputId;
           }
-        },
-      )
-      ..on<MoveEvent>(
-        EventType.LEAVE.name,
-        (data) {
-          client.cleanListener(EventType.MOVE.name);
-          removeFromParent();
-        },
-      );
+        }
+      })
+      ..on<MoveEvent>(EventType.LEAVE.name, (data) {
+        client.cleanListener(EventType.MOVE.name);
+        removeFromParent();
+      })
+      ..on<AllocateStatEvent>(EventType.ALLOCATE_STAT.name, (data) {
+        _allocateStat(data.stat);
+      });
   }
+
+  // --- Game hooks (server-authoritative attribute mutations) -------------
+
+  /// Reduces HP by [damage] (clamped to 0 by [PlayerAttributes]).
+  void takeDamage(int damage) {
+    _apply(state.attributes?.takeDamage(damage) ?? const PlayerAttributes());
+  }
+
+  /// Restores [amount] HP (clamped to max by [PlayerAttributes]).
+  void heal(int amount) {
+    _apply(state.attributes?.heal(amount) ?? const PlayerAttributes());
+  }
+
+  /// Grants [amount] XP, applying level-ups (100 XP per level, status points
+  /// per classic Ragnarok) and recomputing the derived max pools.
+  void addXp(int amount) {
+    final current = state.attributes;
+    if (current == null) return;
+    final leveled = current.addXp(amount);
+    if (identical(leveled, current)) return;
+    _apply(leveled.withDerivedMax());
+  }
+
+  /// Invests one status point in [stat] ('str'/'agi'/'vit'/'int'/'dex'/'luk').
+  /// Validated server-side (progressive cost, cap 99, available points).
+  /// No dedicated ack — the regular state delta carries the result.
+  void allocateStat(String stat) {
+    final current = state.attributes;
+    if (current == null) return;
+    final updated = current.tryAllocateStat(stat);
+    if (updated == null) return;
+    _apply(updated);
+  }
+
+  void _allocateStat(String stat) => allocateStat(stat);
+
+  /// Fills stamina to its maximum (e.g. when the player spawns).
+  void restoreStamina() {
+    final attrs = state.attributes;
+    if (attrs == null || attrs.stamina >= attrs.maxStamina) return;
+    _apply(attrs.changeStamina(attrs.maxStamina - attrs.stamina));
+  }
+
+  void _apply(PlayerAttributes next) {
+    if (state.attributes == next) return;
+    state.attributes = next;
+    requestUpdate();
+  }
+
+  // --- Engine hooks -------------------------------------------------------
 
   @override
   bool checkContact(Collision other) {
@@ -68,7 +125,26 @@ class Player extends GamePlayer
     } else {
       stopMove();
     }
+    _updateStamina(dt, moving: moveDirection != null);
     super.onUpdate(dt);
+  }
+
+  /// Drains stamina while walking, regenerates it while idle. Only pushes a
+  /// state update when a whole point changes (no per-tick spam).
+  void _updateStamina(double dt, {required bool moving}) {
+    final attrs = state.attributes;
+    if (attrs == null) return;
+    final rate = moving ? -staminaDrainPerSecond : staminaRegenPerSecond;
+    if ((!moving && attrs.stamina >= attrs.maxStamina) ||
+        (moving && attrs.stamina <= 0)) {
+      _staminaAccumulator = 0;
+      return;
+    }
+    _staminaAccumulator += dt * rate;
+    final whole = _staminaAccumulator.truncate();
+    if (whole == 0) return;
+    _staminaAccumulator -= whole.toDouble();
+    _apply(attrs.changeStamina(whole));
   }
 
   @override

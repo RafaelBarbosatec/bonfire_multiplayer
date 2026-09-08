@@ -114,9 +114,9 @@ class GameServer extends Game {
     WebsocketClient client,
     JoinEvent message,
   ) async {
-    if (components
-        .whereType<Player>()
-        .any((element) => element.id == client.id)) {
+    if (components.whereType<Player>().any(
+      (element) => element.id == client.id,
+    )) {
       return;
     }
 
@@ -152,14 +152,17 @@ class GameServer extends Game {
 
     // Position: saved character position or default spawn.
     final position = character != null
-        ? GameVector(
-            x: character.position.x,
-            y: character.position.y,
-          )
-        : GameVector(
-            x: (3 + Random().nextInt(3)) * tileSize,
-            y: 11 * tileSize,
-          );
+        ? GameVector(x: character.position.x, y: character.position.y)
+        : GameVector(x: (3 + Random().nextInt(3)) * tileSize, y: 11 * tileSize);
+
+    // Attributes: from the saved character or defaults for anonymous
+    // quick-test joins. Pools are normalized from level/VIT/INT (formula may
+    // have changed since the last session) and stamina restores to full on
+    // spawn. From here on the authoritative values live in
+    // `player.state.attributes` (see Player).
+    final savedAttributes = character?.attributes ?? const PlayerAttributes();
+    final normalized = savedAttributes.withDerivedMax();
+    final attributes = normalized.copyWith(stamina: normalized.maxStamina);
 
     // Adds Player
     final player = Player(
@@ -169,9 +172,8 @@ class GameServer extends Game {
         position: position,
         size: GameVector.all(16),
         life: 100,
-        properties: {
-          'skin': character?.skin ?? message.skin,
-        },
+        properties: {'skin': character?.skin ?? message.skin},
+        attributes: attributes,
       ),
       client: client,
     );
@@ -255,16 +257,20 @@ class GameServer extends Game {
     final x = player.position.x;
     final y = player.position.y;
     final mapId = map.id;
+    final attributes = player.state.attributes;
 
-    // Skip when nothing changed since the last save (avoids redundant writes).
+    // Skip when nothing changed since the last save (avoids redundant
+    // writes) — compares position/map AND attributes (a player standing
+    // still can still level up / regen stamina).
     final last = _lastSaved[characterId];
     if (last != null &&
         last.mapId == mapId &&
         (last.x - x).abs() < 0.01 &&
-        (last.y - y).abs() < 0.01) {
+        (last.y - y).abs() < 0.01 &&
+        last.attributes == attributes) {
       return;
     }
-    _lastSaved[characterId] = _SavedPosition(x, y, mapId);
+    _lastSaved[characterId] = _SavedPosition(x, y, mapId, attributes);
 
     try {
       final result = await characterRepository.updatePosition(
@@ -272,6 +278,7 @@ class GameServer extends Game {
         x: x,
         y: y,
         mapId: mapId,
+        attributes: attributes,
       );
       result.when(
         (_) {},
@@ -285,11 +292,12 @@ class GameServer extends Game {
   }
 }
 
-/// Last persisted position/map of a character.
+/// Last persisted position/map/attributes of a character.
 class _SavedPosition {
-  _SavedPosition(this.x, this.y, this.mapId);
+  _SavedPosition(this.x, this.y, this.mapId, this.attributes);
 
   final double x;
   final double y;
   final String mapId;
+  final PlayerAttributes? attributes;
 }

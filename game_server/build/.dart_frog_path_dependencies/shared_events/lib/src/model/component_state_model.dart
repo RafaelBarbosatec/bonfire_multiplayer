@@ -15,6 +15,7 @@ class ComponentStateModel {
     Map<String, dynamic>? properties,
     this.lastInputId, // For client-side prediction acknowledgment
     this.serverTimestamp, // Server timestamp for lag compensation
+    this.attributes, // Authoritative player attributes (HP/stamina/level/XP)
   })  : properties = properties ?? {},
         _direction = direction,
         _lastDirection = lastDirection ?? direction {
@@ -38,6 +39,10 @@ class ComponentStateModel {
   int life;
   final Map<String, dynamic> properties;
   late final GameVector initPosition;
+
+  /// Authoritative attributes (players only; NPCs keep it null). The server
+  /// replaces the whole instance whenever a value changes.
+  PlayerAttributes? attributes;
 
   set direction(MoveDirectionEnum? d) {
     if (d == null && _direction != null) {
@@ -63,6 +68,7 @@ class ComponentStateModel {
       'properties': properties,
       'lastInputId': lastInputId,
       'serverTimestamp': serverTimestamp,
+      'attributes': attributes?.toMap(),
     };
   }
 
@@ -84,6 +90,9 @@ class ComponentStateModel {
       properties: (map['properties'] as Map?)?.cast() ?? {},
       lastInputId: map['lastInputId'] as int?,
       serverTimestamp: map['serverTimestamp'] as int?,
+      attributes: map['attributes'] != null
+          ? PlayerAttributes.fromMap((map['attributes'] as Map).cast())
+          : null,
     );
   }
 }
