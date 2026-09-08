@@ -15,12 +15,14 @@
 - 🔐 **Auth + characters** — sign up/in by e-mail (SHA-256 + per-user salt), JWT issued/validated by the server, REST + WebSocket sharing the same data. Characters have nickname + skin (`boy`/`girl`); joining with a JWT spawns you at the character's **saved position**.
 - 🗺️ **Tiled worlds served by the server** — the client loads maps over HTTP (`/maps/...`) and crosses **portals/gateways** between maps (florest ↔ desert) with seamless `JoinMap` transitions.
 - ⚔️ **Enemy NPCs** — server-driven movement/vision, rendered on clients as remote entities (collision blocks the local player).
-- 🎨 **Ragnarok-inspired UI** — login/character-select screens in landscape with ornate panels; game is locked to landscape.
+- 🎨 **Ragnarok-inspired UI** — login/character-select screens in landscape with ornate panels, in-game status HUD (HP/SP/EXP) and a character **Status dialog** (base stats + derived substats); game is locked to landscape.
 
 ## 🖼️ Screenshots
 
-![Screenshot 1](https://raw.githubusercontent.com/RafaelBarbosatec/bonfire_multiplayer/main/imgs/screenshot1.png)
-![Screenshot 2](https://raw.githubusercontent.com/RafaelBarbosatec/bonfire_multiplayer/main/imgs/screenshot2.png)
+| | |
+| :-: | :-: |
+| ![Login](https://raw.githubusercontent.com/RafaelBarbosatec/bonfire_multiplayer/main/imgs/login.png)<br>**Login** | ![Character select](https://raw.githubusercontent.com/RafaelBarbosatec/bonfire_multiplayer/main/imgs/character_selector.png)<br>**Character select** |
+| ![Gameplay](https://raw.githubusercontent.com/RafaelBarbosatec/bonfire_multiplayer/main/imgs/game.png)<br>**Gameplay** | ![Character status](https://raw.githubusercontent.com/RafaelBarbosatec/bonfire_multiplayer/main/imgs/attributes.png)<br>**Character status** |
 
 ## 📦 Repository layout
 
@@ -29,7 +31,7 @@ Monorepo — every Dart package lives here and is wired with `path:` dependencie
 | Path | What it is |
 | --- | --- |
 | `game_server/` | **Dart Frog server**: REST auth API + the authoritative game loop (`GameServer`, maps, players, NPCs) |
-| `game_client/` | **Flutter client** (Bonfire 4.0.0-beta): login → character select → world |
+| `game_client/` | **Flutter client** (Bonfire 4.0): login → character select → world |
 | `shared_events/` | Protocol models shared by server & client (`ComponentStateModel`, `MoveEvent`, `GameStateModel`, `JoinMapEvent`...) with hand-written `toMap/fromMap` |
 | `packages/bonfire_server/` | Headless game engine (components, maps, movement, collision) |
 | `packages/bonfire_socket_shared/` | Transport envelope (`BEvent`), event serializer (msgpack/JSON), `TimeSync` clock sync |
