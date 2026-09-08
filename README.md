@@ -98,8 +98,10 @@ The client points at `http://127.0.0.1:8080` by default (`game_client/lib/util/e
 - [x] Login / sign-up screens (e-mail + password)
 - [x] Character select screen — **Ragnarok-inspired**, landscape-first
 - [x] Enemy NPC rendering (server-driven movement)
-- [x] Bonfire **4.0.0-beta.13** (collision API, `bonfire_bloc` vendored until a 4.x release)
+- [x] Bonfire **4.0** (collision API, `bonfire_bloc` vendored until a 4.x release)
 - [x] **Game locked to landscape**
+- [x] In-game **status HUD** (portrait, HP/SP/EXP bars, level badge) fed by the server state
+- [x] Character **Status dialog** — Ragnarok base stats (STR/AGI/VIT/INT/DEX/LUK) + derived substats, with server-validated point allocation
 
 **Server**
 - [x] Game loop + per-map delta broadcast (`MapStateTracker`, only on change)
@@ -109,19 +111,22 @@ The client points at `http://127.0.0.1:8080` by default (`game_client/lib/util/e
 - [x] **Auth**: sign up/in, password hashing (salt), JWT issue/validate (REST **and** WebSocket join)
 - [x] **Characters**: create/list, skins
 - [x] **Position persistence** (map change / disconnect / 5s safety timer)
+- [x] **Player attributes** (authoritative): HP/SP synced through the state delta; stamina drains while moving, regenerates while idle
+- [x] **Ragnarok base stats** + classic economy — 0 points at creation, ⌊lv/5⌋+3 per level-up, progressive cost (⌊(x−1)/10⌋+2), cap 99
+- [x] **XP & leveling**: every 100 XP → level up (remainder kept); MaxHP/MaxSP derived from level + VIT/INT; level/XP/stats/HP persist on the character
 
-### 🎯 Next milestone — Player attributes & leveling
+### 🎯 Next milestone — Combat
 
-- [ ] **HP, Stamina and Mana (MP)** — authoritative on the server, synced to clients
-- [ ] **Experience & level**: gain XP → every **100 XP** you level up (XP resets, level +1)
-- [ ] Attributes HUD on the client (life/stamina/mana bars + level)
-- [ ] Basic combat hooking into life (melee → damage → XP)
+- [ ] Melee combat hooking into **life** (`takeDamage`/`heal` are already wired on the server)
+- [ ] Killable enemies → the first in-game **XP source** (`addXp` is already wired end-to-end: this unlocks real leveling and status points)
+- [ ] Attack feedback, death & respawn
+- [ ] Status bars above enemies and other players (the state already carries `life` and attributes)
 
 ### 🔭 Later
 
 | Client | Server |
 | --- | --- |
-| Melee / ranged attacks, damage feedback, death & respawn | Combat validation (melee/range), damage, death/respawn |
+| Ranged attacks, skills & MATK, separate Mana (MP) pool, ASPD | Ranged/skill validation, MATK/ASPD resolution |
 | Inventory & equipment | Drops, inventory & equipment |
 | Quests, chat, party, friends | Quests, chat, party, friends |
 | — | Real database (currently in-memory) |
