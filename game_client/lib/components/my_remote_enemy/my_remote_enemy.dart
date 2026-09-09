@@ -6,6 +6,7 @@ import 'package:bonfire_multiplayer/util/name_bottom.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
 import 'package:bonfire_multiplayer/util/smooth_movement_mixin.dart';
 import 'package:bonfire_multiplayer/util/update_movement_mixin.dart';
+import 'package:flutter/material.dart';
 
 import 'bloc/my_remote_enemy_bloc.dart';
 
@@ -30,11 +31,11 @@ class MyRemoteEnemy extends SimpleEnemy
     Direction? initDirection,
     super.speed,
   }) : super(
-         size: Vector2.all(32),
-         animation: PlayersSpriteSheet.simpleAnimation(skin.path),
-         initDirection: initDirection ?? Direction.down,
-         life: maxLife,
-       ) {
+          size: Vector2.all(32),
+          animation: PlayersSpriteSheet.simpleAnimation(skin.path),
+          initDirection: initDirection ?? Direction.down,
+          life: maxLife,
+        ) {
     this.name = name;
 
     // The server spawns enemies at full life, but a client that joins
@@ -52,6 +53,7 @@ class MyRemoteEnemy extends SimpleEnemy
       offset: Vector2(0, -4),
       showLifeText: false,
       borderWidth: 1,
+      borderRadius: BorderRadius.circular(1),
     );
 
     bloc = MyRemoteEnemyBloc(id, position, eventManager);

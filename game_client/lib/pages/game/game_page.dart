@@ -204,6 +204,8 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     }
   }
 
+  List<String> addedIds = [];
+
   void _onEnemyState(Iterable<ComponentStateModel> serverEnemies) {
     if (game == null) return;
 
@@ -213,15 +215,16 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     // single delta (e.g. a not-yet-removed corpse + its respawn) never create
     // two overlapping enemies with the same id.
     for (var serverEnemy in serverEnemies) {
-      final exists =
-          game?.query<MyRemoteEnemy>().any(
-            (element) => element.id == serverEnemy.id,
-          ) ??
+      final exists = game?.query<MyRemoteEnemy>().any(
+                (element) => element.id == serverEnemy.id,
+              ) ??
           false;
-      if (!exists) {
+      if (!exists && !addedIds.contains(serverEnemy.id)) {
+        addedIds.add(serverEnemy.id);
         game?.add(_createRemoteEnemy(serverEnemy));
       }
     }
+
     // Note: Removals are now handled by _onRemoved
   }
 
@@ -263,6 +266,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   /// Handle entity removals (both players and NPCs)
   void _onRemoved(List<String> removedIds) {
     if (game == null || removedIds.isEmpty) return;
+    addedIds.removeWhere((id) => removedIds.contains(id));
 
     // Remove players with matching IDs
     final remotePlayers = game?.query<MyRemotePlayer>() ?? [];

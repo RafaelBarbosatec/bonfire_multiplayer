@@ -23,11 +23,9 @@ class DesertMap extends GameMap with GameRef<GameServer> {
               name: 'Enemy',
               position: object.position,
               size: object.size,
-              life: 100,
+              life: 30,
               speed: 25,
-              properties: {
-                'skin': 'girl',
-              },
+              properties: {'skin': 'girl'},
             ),
           ),
         );
