@@ -52,7 +52,6 @@ class MyEnemy extends GameNpc
     if (spawnMap == null || _respawnTimer != null) return;
     _respawnTimer = Timer(respawnDelay, () {
       _respawnTimer = null;
-      if (spawnMap == null) return;
 
       // The dead enemy was queued for removal (deferred until the map's next
       // tick). Before spawning the replacement, make sure the old instance is
