@@ -7,5 +7,7 @@ enum EventType {
   MOVE,
   CHANGE_MAP,
   ALLOCATE_STAT,
+  ATTACK,
+  DAMAGE,
   LEAVE;
 }

@@ -278,7 +278,8 @@ void main() {
         dex: 10,
         luk: 5,
       );
-      expect(attrs.atk, 15 + 1 + 2 + 1); // STR + ⌊STR/10⌋² + DEX/5 + LUK/5
+      expect(attrs.atk,
+          4 + 15 + 1 + 2 + 1); // unarmed + STR + ⌊STR/10⌋² + DEX/5 + LUK/5
       expect(attrs.matkMin, 33 + 4 * 4); // INT + ⌊INT/7⌋² (wiki: 33 → 49)
       expect(attrs.matkMax, 33 + 6 * 6); // INT + ⌊INT/5⌋² (wiki: 33 → 69)
       expect(attrs.hit, 10 + 10);
@@ -324,6 +325,31 @@ void main() {
       final restored = MoveEvent.fromMap(original.toMap());
       expect(restored.direction, isNull);
       expect(restored.inputId, isNull);
+    });
+  });
+
+  group('AttackEvent', () {
+    test('round-trip toMap/fromMap', () {
+      final original = AttackEvent(mapId: 'desertId', time: 1780000000000000);
+      final restored = AttackEvent.fromMap(original.toMap());
+      expect(restored.mapId, original.mapId);
+      expect(restored.time, original.time);
+    });
+  });
+
+  group('DamageEvent', () {
+    test('round-trip toMap/fromMap', () {
+      final original = DamageEvent(
+        sourceId: 'player-1',
+        targetId: 'enemy-1',
+        damage: 7,
+        targetDied: true,
+      );
+      final restored = DamageEvent.fromMap(original.toMap());
+      expect(restored.sourceId, original.sourceId);
+      expect(restored.targetId, original.targetId);
+      expect(restored.damage, original.damage);
+      expect(restored.targetDied, original.targetDied);
     });
   });
 
