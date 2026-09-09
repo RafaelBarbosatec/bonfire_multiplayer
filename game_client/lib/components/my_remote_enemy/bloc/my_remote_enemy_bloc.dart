@@ -15,16 +15,15 @@ class MyRemoteEnemyBloc extends Bloc<MyRemoteEnemyEvent, MyRemoteEnemyState> {
   final String playerId;
   final Vector2 initPosition;
   MyRemoteEnemyBloc(this.playerId, this.initPosition, this._eventManager)
-      : super(MyRemoteEnemyState(
+    : super(
+        MyRemoteEnemyState(
           position: initPosition,
           lastDirection: MoveDirectionEnum.down,
-        )) {
+        ),
+      ) {
     on<UpdateStateEvent>(_onUpdateStateEvent);
     on<RemoveSubscribe>(_onRemoveSubscribe);
-    _eventManager.onSpecificEnemyState(
-      playerId,
-      _onStateListener,
-    );
+    _eventManager.onSpecificEnemyState(playerId, _onStateListener);
   }
 
   void _onStateListener(state) => add(UpdateStateEvent(state: state));
@@ -39,6 +38,7 @@ class MyRemoteEnemyBloc extends Bloc<MyRemoteEnemyEvent, MyRemoteEnemyState> {
         position: event.state.position.toVector2(),
         lastDirection: event.state.lastDirection,
         serverTimestamp: event.state.serverTimestamp,
+        life: event.state.life,
       ),
     );
   }

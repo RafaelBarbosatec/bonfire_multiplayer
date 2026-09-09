@@ -5,7 +5,12 @@ import 'package:shared_events/shared_events.dart';
 export 'package:bonfire_server/src/extensions/movement_ext.dart';
 
 mixin Movement on PositionedGameComponent {
-  static const diaginalReduction = 0.7853981633974483;
+  /// Diagonal speed factor. MUST match the client's `Movement.diagonalFactor`
+  /// (bonfire lib: √2/2 ≈ 0.7071): a different factor makes the authoritative
+  /// server walk diagonals faster/slower than the client's prediction, so the
+  /// two drift apart over time and server-positioned effects (attack slash)
+  /// appear far from the rendered player.
+  static const double diaginalReduction = 0.7071067811865476;
 
   MoveDirectionEnum? direction;
   final GameTimer _timer = GameTimer(

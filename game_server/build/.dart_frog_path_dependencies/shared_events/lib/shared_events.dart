@@ -5,6 +5,9 @@ library;
 
 export 'src/event_type.dart';
 export 'src/events/allocate_stat_event.dart';
+export 'src/events/attack_effect_event.dart';
+export 'src/events/attack_event.dart';
+export 'src/events/damage_event.dart';
 export 'src/events/join_map_event.dart';
 export 'src/events/join_event.dart';
 export 'src/events/move_event.dart';

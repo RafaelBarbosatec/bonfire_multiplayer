@@ -6,11 +6,16 @@ class MyRemoteEnemyState extends MoveState {
   /// interpolate on the server timeline (immune to network jitter).
   final int? serverTimestamp;
 
+  /// Server-authoritative remaining life (null until the first delta
+  /// arrives). Drives the enemy's life bar.
+  final int? life;
+
   const MyRemoteEnemyState({
     required super.position,
     super.direction,
     required super.lastDirection,
     this.serverTimestamp,
+    this.life,
   });
 
   MyRemoteEnemyState copyWith({
@@ -18,16 +23,23 @@ class MyRemoteEnemyState extends MoveState {
     MoveDirectionEnum? direction,
     MoveDirectionEnum? lastDirection,
     int? serverTimestamp,
+    int? life,
   }) {
     return MyRemoteEnemyState(
       position: position ?? this.position,
       direction: direction,
       lastDirection: lastDirection ?? this.lastDirection,
       serverTimestamp: serverTimestamp ?? this.serverTimestamp,
+      life: life ?? this.life,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [position, direction, lastDirection, serverTimestamp];
+  List<Object?> get props => [
+    position,
+    direction,
+    lastDirection,
+    serverTimestamp,
+    life,
+  ];
 }

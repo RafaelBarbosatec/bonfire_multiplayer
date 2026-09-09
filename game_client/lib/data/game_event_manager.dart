@@ -21,6 +21,14 @@ class GameEventManager {
 
   void Function(JoinMapEvent event)? _onJoinMapEvent;
 
+  /// Called for every landed hit broadcast by the server (damage feedback).
+  void Function(DamageEvent event)? _onDamageEvent;
+
+  /// Called for every attack effect broadcast by the server (visual swing).
+  /// The callback decides what to render based on [AttackEffectEvent.effectId]
+  /// — unknown ids are ignored (renders nothing).
+  void Function(AttackEffectEvent event)? _onAttackEffectEvent;
+
   GameEventManager({required this.websocket});
 
   Future<void> connect({
@@ -110,6 +118,18 @@ class GameEventManager {
     _onJoinMapEvent = callback;
   }
 
+  /// Registers (or clears, with null) the damage-feedback callback.
+  void onDamageEvent(void Function(DamageEvent event)? callback) {
+    _onDamageEvent = callback;
+  }
+
+  /// Registers (or clears, with null) the attack-effect callback. The client
+  /// renders only effect ids it knows how to display; unknown ids (newer
+  /// server, older client) are silently ignored.
+  void onAttackEffectEvent(void Function(AttackEffectEvent event)? callback) {
+    _onAttackEffectEvent = callback;
+  }
+
   /// Clear all subscribers (call on disconnect)
   void clearSubscribers() {
     specificPlayerStateSubscriber.clear();
@@ -118,6 +138,8 @@ class GameEventManager {
     enemyStateSubscriber.clear();
     removedSubscriber.clear();
     _onJoinMapEvent = null;
+    _onDamageEvent = null;
+    _onAttackEffectEvent = null;
   }
 
   void _listenState(GameStateModel state) {
@@ -157,6 +179,12 @@ class GameEventManager {
     websocket.onEvent<JoinMapEvent>(EventType.JOIN_MAP.name, (data) {
       _onJoinMapEvent?.call(data);
     });
+    websocket.onEvent<DamageEvent>(EventType.DAMAGE.name, (data) {
+      _onDamageEvent?.call(data);
+    });
+    websocket.onEvent<AttackEffectEvent>(EventType.ATTACK_EFFECT.name, (data) {
+      _onAttackEffectEvent?.call(data);
+    });
   }
 
   void _registerTypes() {
@@ -182,6 +210,18 @@ class GameEventManager {
       TypeAdapter(
         toMap: (type) => type.toMap(),
         fromMap: AllocateStatEvent.fromMap,
+      ),
+    );
+    websocket.registerType<AttackEvent>(
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: AttackEvent.fromMap),
+    );
+    websocket.registerType<DamageEvent>(
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: DamageEvent.fromMap),
+    );
+    websocket.registerType<AttackEffectEvent>(
+      TypeAdapter(
+        toMap: (type) => type.toMap(),
+        fromMap: AttackEffectEvent.fromMap,
       ),
     );
   }

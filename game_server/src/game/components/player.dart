@@ -20,11 +20,11 @@ class Player extends GamePlayer
     );
   }
 
-  /// Stamina points drained per second while moving.
-  static const double staminaDrainPerSecond = 10;
-
   /// Stamina points regenerated per second while idle.
-  static const double staminaRegenPerSecond = 12;
+  static const double staminaRegenPerSecond = 1;
+
+  /// Cost of a melee attack in SP (special attacks will cost more later).
+  static const int meleeStaminaCost = 5;
 
   final WebsocketClient client;
 
@@ -98,6 +98,15 @@ class Player extends GamePlayer
     _apply(attrs.changeStamina(attrs.maxStamina - attrs.stamina));
   }
 
+  /// Consumes [amount] SP for a melee attack. Returns `false` (and changes
+  /// nothing) when there isn't enough SP — the attack simply doesn't happen.
+  bool spendStamina(int amount) {
+    final attrs = state.attributes;
+    if (attrs == null || attrs.stamina < amount) return false;
+    _apply(attrs.changeStamina(-amount));
+    return true;
+  }
+
   void _apply(PlayerAttributes next) {
     if (state.attributes == next) return;
     state.attributes = next;
@@ -125,22 +134,20 @@ class Player extends GamePlayer
     } else {
       stopMove();
     }
-    _updateStamina(dt, moving: moveDirection != null);
+    _updateStamina(dt);
     super.onUpdate(dt);
   }
 
-  /// Drains stamina while walking, regenerates it while idle. Only pushes a
-  /// state update when a whole point changes (no per-tick spam).
-  void _updateStamina(double dt, {required bool moving}) {
+  /// SP is only spent by attacks ([spendStamina]) — walking is free, so it
+  /// does not pause regeneration. SP refills slowly (1/s). Only pushes a state
+  /// update when a whole point regenerates (no per-tick spam).
+  void _updateStamina(double dt) {
     final attrs = state.attributes;
-    if (attrs == null) return;
-    final rate = moving ? -staminaDrainPerSecond : staminaRegenPerSecond;
-    if ((!moving && attrs.stamina >= attrs.maxStamina) ||
-        (moving && attrs.stamina <= 0)) {
+    if (attrs == null || attrs.stamina >= attrs.maxStamina) {
       _staminaAccumulator = 0;
       return;
     }
-    _staminaAccumulator += dt * rate;
+    _staminaAccumulator += dt * staminaRegenPerSecond;
     final whole = _staminaAccumulator.truncate();
     if (whole == 0) return;
     _staminaAccumulator -= whole.toDouble();

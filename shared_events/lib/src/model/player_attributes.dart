@@ -88,9 +88,15 @@ class PlayerAttributes {
 
   // --- Derived combat substats (classic-inspired, v1 display) -------------
 
-  /// Melee ATK: STR scales 1:1 plus the STR/10 square bonus; DEX/LUK add 1
-  /// every 5 points (classic bonus tables).
-  int get atk => str + (str ~/ 10) * (str ~/ 10) + dex ~/ 5 + luk ~/ 5;
+  /// Melee ATK: an unarmed base (no weapon system yet, so level-1 combat is
+  /// playable) + STR scaling 1:1 with the STR/10 square bonus, +1 every 5
+  /// DEX/LUK (classic bonus tables). The server uses exactly this value as
+  /// the damage of a melee hit.
+  int get atk =>
+      unarmedBaseAttack + str + (str ~/ 10) * (str ~/ 10) + dex ~/ 5 + luk ~/ 5;
+
+  /// Unarmed damage floor while there is no equipment/weapon system.
+  static const int unarmedBaseAttack = 4;
 
   /// MATK minimum = INT + ⌊INT/7⌋² (classic INT chart).
   int get matkMin => intel + (intel ~/ 7) * (intel ~/ 7);

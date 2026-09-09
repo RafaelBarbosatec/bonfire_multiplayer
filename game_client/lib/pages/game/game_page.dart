@@ -1,5 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/bootstrap_injector.dart';
+import 'package:bonfire_multiplayer/components/attack_effect_renderer.dart';
 import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_enemy/my_remote_enemy.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
@@ -53,6 +54,8 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     _eventManager.removeOnPlayerState(_onPlayerState);
     _eventManager.removeOnEnemyState(_onEnemyState);
     _eventManager.removeOnRemoved(_onRemoved);
+    _eventManager.onDamageEvent(null);
+    _eventManager.onAttackEffectEvent(null);
     _eventManager.onJoinMapEvent(null);
     _ownState.dispose();
     _controller.dispose();
@@ -89,6 +92,14 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
               playerControllers: [
                 Joystick(
                   directional: JoystickDirectional(enableDiagonalInput: false),
+                  actions: [
+                    JoystickAction(
+                      actionId: 'attack',
+                      color: const Color(0xE0E05545),
+                      size: 64,
+                      margin: const EdgeInsets.only(bottom: 100, right: 28),
+                    ),
+                  ],
                 ),
                 Keyboard(config: KeyboardConfig(enableDiagonalInput: false)),
               ],
@@ -154,6 +165,8 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     _eventManager.onPlayerState(_onPlayerState);
     _eventManager.onEnemyState(_onEnemyState);
     _eventManager.onRemoved(_onRemoved);
+    _eventManager.onDamageEvent(_onDamageEvent);
+    _eventManager.onAttackEffectEvent(_onAttackEffectEvent);
     _eventManager.onJoinMapEvent(_onJoinMap);
 
     Future.delayed(const Duration(milliseconds: 100), _controller.forward);
@@ -191,26 +204,69 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     }
   }
 
+  List<String> addedIds = [];
+
   void _onEnemyState(Iterable<ComponentStateModel> serverEnemies) {
     if (game == null) return;
 
-    final remoteEnemies = game?.query<MyRemoteEnemy>() ?? [];
-
-    // Add new NPCs that don't exist locally
+    // Add new NPCs that don't exist locally. The existence check re-queries
+    // the live component list on EVERY iteration (instead of capturing it
+    // once before the loop) so that two states sharing the same id in a
+    // single delta (e.g. a not-yet-removed corpse + its respawn) never create
+    // two overlapping enemies with the same id.
     for (var serverEnemy in serverEnemies) {
-      final exists = remoteEnemies.any(
-        (element) => element.id == serverEnemy.id,
-      );
-      if (!exists) {
+      final exists = game?.query<MyRemoteEnemy>().any(
+                (element) => element.id == serverEnemy.id,
+              ) ??
+          false;
+      if (!exists && !addedIds.contains(serverEnemy.id)) {
+        addedIds.add(serverEnemy.id);
         game?.add(_createRemoteEnemy(serverEnemy));
       }
     }
+
     // Note: Removals are now handled by _onRemoved
+  }
+
+  /// Plays an attack effect broadcast by the server at the exact world
+  /// position the server sent. Effect ids this client doesn't know are
+  /// silently ignored (nothing is rendered).
+  void _onAttackEffectEvent(AttackEffectEvent event) {
+    final currentGame = game;
+    if (currentGame == null) return;
+    renderAttackEffect(currentGame, event);
+  }
+
+  /// Shows a floating damage number over the damaged entity when it is
+  /// currently visible on this client (bonfire's built-in damage text).
+  void _onDamageEvent(DamageEvent damage) {
+    final currentGame = game;
+    if (currentGame == null) return;
+
+    MyRemoteEnemy? target;
+    for (final enemy in currentGame.query<MyRemoteEnemy>()) {
+      if (enemy.id == damage.targetId) {
+        target = enemy;
+        break;
+      }
+    }
+    if (target == null || target.isRemoving) return;
+
+    target.util.showDamage(
+      damage.damage.toDouble(),
+      config: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFFFFE9A8),
+        shadows: [Shadow(color: Colors.black87, blurRadius: 3)],
+      ),
+    );
   }
 
   /// Handle entity removals (both players and NPCs)
   void _onRemoved(List<String> removedIds) {
     if (game == null || removedIds.isEmpty) return;
+    addedIds.removeWhere((id) => removedIds.contains(id));
 
     // Remove players with matching IDs
     final remotePlayers = game?.query<MyRemotePlayer>() ?? [];
@@ -249,6 +305,8 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
       id: state.id,
       name: state.name,
       speed: state.speed,
+      life: state.life.toDouble(),
+      maxLife: state.maxLife.toDouble(),
     );
   }
 

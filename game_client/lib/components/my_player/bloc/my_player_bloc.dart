@@ -28,17 +28,26 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
   static const int _maxPendingInputs = 30;
 
   MyPlayerBloc(this._eventManager, this.initialState, this.mapId)
-      : super(MyPlayerState(
+    : super(
+        MyPlayerState(
           position: initialState.position.toVector2(),
           direction: initialState.direction,
           lastDirection: initialState.lastDirection ?? MoveDirectionEnum.down,
-        )) {
+        ),
+      ) {
     on<UpdateMoveStateEvent>(_onUpdateMoveStateEvent);
     on<UpdatePlayerPositionEvent>(_onUpdatePlayerPositionEvent);
 
-    _eventManager.onSpecificPlayerState(
-      initialState.id,
-      _onPlayerState,
+    _eventManager.onSpecificPlayerState(initialState.id, _onPlayerState);
+  }
+
+  /// Requests a server-authoritative melee attack. The cooldown/range/target
+  /// are resolved server-side; results come back via [DamageEvent] and the
+  /// regular state delta (enemy life/removal + XP/level-up).
+  void meleeAttack() {
+    _eventManager.send(
+      EventType.ATTACK.name,
+      AttackEvent(mapId: mapId, time: DateTime.now().microsecondsSinceEpoch),
     );
   }
 
@@ -74,13 +83,13 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
   }
 
   void _onPlayerState(ComponentStateModel state) => add(
-        UpdatePlayerPositionEvent(
-          position: state.position.toVector2(),
-          direction: state.direction,
-          lastDirection: state.lastDirection,
-          lastInputId: state.lastInputId,
-        ),
-      );
+    UpdatePlayerPositionEvent(
+      position: state.position.toVector2(),
+      direction: state.direction,
+      lastDirection: state.lastDirection,
+      lastInputId: state.lastInputId,
+    ),
+  );
 
   FutureOr<void> _onUpdatePlayerPositionEvent(
     UpdatePlayerPositionEvent event,
