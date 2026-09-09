@@ -235,9 +235,10 @@ class GameServer extends Game {
 
   // --- Melee combat (server-authoritative) --------------------------------
 
-  /// Handles a melee attack request: validates map/cooldown, resolves the
-  /// nearest enemy in reach, applies the player's ATK as damage and
-  /// broadcasts the hit for client feedback.
+  /// Handles a melee attack request: validates map/cooldown, broadcasts the
+  /// attack effect (so every client, including the attacker, sees the swing),
+  /// then resolves the nearest enemy in reach, applies the player's ATK as
+  /// damage and broadcasts the hit for client feedback.
   void _handleMeleeAttack(WebsocketClient client, AttackEvent message) {
     final player = _findPlayerByClient(client);
     if (player == null || player.map.id != message.mapId) return;
@@ -247,7 +248,22 @@ class GameServer extends Game {
     if (last != null && now.difference(last) < meleeAttackCooldown) return;
     _lastAttackByClient[client.id] = now;
 
+    // Visual swing — broadcast even on a whiff so the attacker always sees
+    // the attack happen. Effect id + position come from the server; clients
+    // render only ids they know (unknown → nothing).
     final target = _findMeleeTarget(player);
+    final direction = target != null
+        ? _directionBetween(player.state, target.state)
+        : (player.state.lastDirection ?? MoveDirectionEnum.down);
+    _broadcastAttackEffect(
+      player.map,
+      AttackEffectEvent(
+        sourceId: player.id,
+        effectId: AttackEffectId.meleeSlash,
+        position: _attackEffectPosition(player.state, direction),
+        direction: direction,
+      ),
+    );
     if (target == null) return;
 
     final attrs = player.state.attributes;
@@ -262,6 +278,73 @@ class GameServer extends Game {
         targetDied: target.state.life <= 0,
       ),
     );
+  }
+
+  /// World position where the melee slash effect should be spawned: one
+  /// visual tile (~24px) ahead of the attacker's center, facing [direction].
+  GameVector _attackEffectPosition(
+    ComponentStateModel attacker,
+    MoveDirectionEnum direction,
+  ) {
+    final unit = _directionUnitVector(direction);
+    // Clients render every entity with a fixed 32px sprite whose top-left is
+    // [state.position], so the visual center is +16px on each axis.
+    const visualCenterOffset = 16.0;
+    // Spawn the slash one body-width ahead (center + 16 half-body + 16 tile),
+    // so it covers the tile(s) in melee reach instead of overlapping the body.
+    const effectOffset = 32.0;
+    final centerX = attacker.position.x + visualCenterOffset;
+    final centerY = attacker.position.y + visualCenterOffset;
+    return GameVector(
+      x: centerX + unit.dx * effectOffset,
+      y: centerY + unit.dy * effectOffset,
+    );
+  }
+
+  /// Coarse 8-way direction from [from] to [to] (used to orient the effect).
+  /// Centers use the same +16px visual offset the client renders with, so the
+  /// direction matches what the attacker sees on screen.
+  MoveDirectionEnum _directionBetween(
+    ComponentStateModel from,
+    ComponentStateModel to,
+  ) {
+    const visualCenterOffset = 16.0;
+    final dx = (to.position.x + visualCenterOffset) -
+        (from.position.x + visualCenterOffset);
+    final dy = (to.position.y + visualCenterOffset) -
+        (from.position.y + visualCenterOffset);
+    if (dx.abs() > dy.abs() * 1.2) {
+      return dx > 0 ? MoveDirectionEnum.right : MoveDirectionEnum.left;
+    }
+    if (dy.abs() > dx.abs() * 1.2) {
+      return dy > 0 ? MoveDirectionEnum.down : MoveDirectionEnum.up;
+    }
+    if (dx > 0)
+      return dy > 0 ? MoveDirectionEnum.downRight : MoveDirectionEnum.upRight;
+    return dy > 0 ? MoveDirectionEnum.downLeft : MoveDirectionEnum.upLeft;
+  }
+
+  /// Unit vector for an 8-way direction.
+  ({double dx, double dy}) _directionUnitVector(MoveDirectionEnum direction) {
+    const diag = 0.7071;
+    switch (direction) {
+      case MoveDirectionEnum.up:
+        return (dx: 0, dy: -1);
+      case MoveDirectionEnum.down:
+        return (dx: 0, dy: 1);
+      case MoveDirectionEnum.left:
+        return (dx: -1, dy: 0);
+      case MoveDirectionEnum.right:
+        return (dx: 1, dy: 0);
+      case MoveDirectionEnum.upLeft:
+        return (dx: -diag, dy: -diag);
+      case MoveDirectionEnum.upRight:
+        return (dx: diag, dy: -diag);
+      case MoveDirectionEnum.downLeft:
+        return (dx: -diag, dy: diag);
+      case MoveDirectionEnum.downRight:
+        return (dx: diag, dy: diag);
+    }
   }
 
   Player? _findPlayerByClient(WebsocketClient client) {
@@ -300,6 +383,21 @@ class GameServer extends Game {
     final bytes = players.first.client.serializeEvent<DamageEvent>(
       EventType.DAMAGE.name,
       damage,
+    );
+    for (final player in players) {
+      player.client.sendRaw(bytes);
+    }
+  }
+
+  /// Serializes [effect] once and sends it raw to every player on [map], so
+  /// everyone (including the attacker) renders the same attack effect at the
+  /// same world position.
+  void _broadcastAttackEffect(GameMap map, AttackEffectEvent effect) {
+    final players = map.players.whereType<Player>().toList();
+    if (players.isEmpty) return;
+    final bytes = players.first.client.serializeEvent<AttackEffectEvent>(
+      EventType.ATTACK_EFFECT.name,
+      effect,
     );
     for (final player in players) {
       player.client.sendRaw(bytes);

@@ -1,6 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/bootstrap_injector.dart';
-import 'package:bonfire_multiplayer/components/floating_damage_text.dart';
+import 'package:bonfire_multiplayer/components/attack_effect_renderer.dart';
 import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_enemy/my_remote_enemy.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
@@ -55,6 +55,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     _eventManager.removeOnEnemyState(_onEnemyState);
     _eventManager.removeOnRemoved(_onRemoved);
     _eventManager.onDamageEvent(null);
+    _eventManager.onAttackEffectEvent(null);
     _eventManager.onJoinMapEvent(null);
     _ownState.dispose();
     _controller.dispose();
@@ -165,6 +166,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     _eventManager.onEnemyState(_onEnemyState);
     _eventManager.onRemoved(_onRemoved);
     _eventManager.onDamageEvent(_onDamageEvent);
+    _eventManager.onAttackEffectEvent(_onAttackEffectEvent);
     _eventManager.onJoinMapEvent(_onJoinMap);
 
     Future.delayed(const Duration(milliseconds: 100), _controller.forward);
@@ -219,8 +221,17 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     // Note: Removals are now handled by _onRemoved
   }
 
+  /// Plays an attack effect broadcast by the server at the exact world
+  /// position the server sent. Effect ids this client doesn't know are
+  /// silently ignored (nothing is rendered).
+  void _onAttackEffectEvent(AttackEffectEvent event) {
+    final currentGame = game;
+    if (currentGame == null) return;
+    renderAttackEffect(currentGame, event);
+  }
+
   /// Shows a floating damage number over the damaged entity when it is
-  /// currently visible on this client.
+  /// currently visible on this client (bonfire's built-in damage text).
   void _onDamageEvent(DamageEvent damage) {
     final currentGame = game;
     if (currentGame == null) return;
@@ -234,13 +245,13 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     }
     if (target == null || target.isRemoving) return;
 
-    currentGame.add(
-      FloatingDamageText(
-        at: Vector2(
-          target.position.x + target.size.x / 2,
-          target.position.y - 8,
-        ),
-        damage: damage.damage,
+    target.util.showDamage(
+      damage.damage.toDouble(),
+      config: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFFFFE9A8),
+        shadows: [Shadow(color: Colors.black87, blurRadius: 3)],
       ),
     );
   }
@@ -286,6 +297,8 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
       id: state.id,
       name: state.name,
       speed: state.speed,
+      life: state.life.toDouble(),
+      maxLife: state.maxLife.toDouble(),
     );
   }
 

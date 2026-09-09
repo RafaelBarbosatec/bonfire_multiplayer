@@ -9,5 +9,6 @@ enum EventType {
   ALLOCATE_STAT,
   ATTACK,
   DAMAGE,
+  ATTACK_EFFECT,
   LEAVE;
 }

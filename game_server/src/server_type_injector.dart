@@ -33,5 +33,11 @@ void injectServerTypes(WebsocketProvider server) {
     )
     ..registerType<DamageEvent>(
       TypeAdapter(toMap: (type) => type.toMap(), fromMap: DamageEvent.fromMap),
+    )
+    ..registerType<AttackEffectEvent>(
+      TypeAdapter(
+        toMap: (type) => type.toMap(),
+        fromMap: AttackEffectEvent.fromMap,
+      ),
     );
 }

@@ -14,7 +14,8 @@ class MyRemoteEnemy extends SimpleEnemy
         WithNameBottom,
         SmoothMovementMixin,
         UpdateMovementMixin,
-        BonfireBlocListenable<MyRemoteEnemyBloc, MyRemoteEnemyState> {
+        BonfireBlocListenable<MyRemoteEnemyBloc, MyRemoteEnemyState>,
+        WithLifeBar {
   final String id;
   final GameEventManager eventManager;
 
@@ -24,20 +25,36 @@ class MyRemoteEnemy extends SimpleEnemy
     required this.eventManager,
     required this.id,
     required String name,
+    required double life,
+    required double maxLife,
     Direction? initDirection,
     super.speed,
   }) : super(
-          size: Vector2.all(32),
-          animation: PlayersSpriteSheet.simpleAnimation(skin.path),
-          initDirection: initDirection ?? Direction.down,
-        ) {
+         size: Vector2.all(32),
+         animation: PlayersSpriteSheet.simpleAnimation(skin.path),
+         initDirection: initDirection ?? Direction.down,
+         life: maxLife,
+       ) {
     this.name = name;
 
-    bloc = MyRemoteEnemyBloc(
-      id,
-      position,
-      eventManager,
+    // The server spawns enemies at full life, but a client that joins
+    // mid-fight sees an already-damaged enemy: keep the correct max (from
+    // `maxLife`) and lower only the current value.
+    if (life < maxLife) {
+      this.life.update(life);
+    }
+
+    // Small bar above the head; default colors (green → yellow → red as
+    // life drops) read well at 32px without the numeric text.
+    lifeBar.setup(
+      size: Vector2(size.x * 0.8, 3),
+      drawPosition: BarLifeDrawPosition.top,
+      offset: Vector2(0, -4),
+      showLifeText: false,
+      borderWidth: 1,
     );
+
+    bloc = MyRemoteEnemyBloc(id, position, eventManager);
   }
 
   @override
@@ -55,6 +72,15 @@ class MyRemoteEnemy extends SimpleEnemy
   @override
   void onNewState(MyRemoteEnemyState state) {
     updateStateMove(state, serverTime: _serverTimeOf(state));
+
+    // Server-authoritative life: the delta already carries it (the server
+    // broadcasts the NPC whenever it takes damage). The life bar attached by
+    // WithLifeBar listens to `life` updates, so a simple sync keeps it in
+    // perfect agreement with the server.
+    final serverLife = state.life;
+    if (serverLife != null && serverLife != life.value) {
+      life.update(serverLife.toDouble());
+    }
     super.onNewState(state);
   }
 

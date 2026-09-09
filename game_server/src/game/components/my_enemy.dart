@@ -63,6 +63,7 @@ class MyEnemy extends GameNpc
       position: s.position.clone(),
       size: s.size.clone(),
       life: s.life,
+      maxLife: s.maxLife,
       speed: s.speed,
       direction: s.direction,
       lastDirection: s.lastDirection,

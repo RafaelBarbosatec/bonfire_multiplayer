@@ -8,6 +8,7 @@ class ComponentStateModel {
     required this.position,
     required this.size,
     required this.life,
+    this.maxLife,
     this.speed = 80,
     MoveDirectionEnum? direction,
     MoveDirectionEnum? lastDirection,
@@ -16,7 +17,8 @@ class ComponentStateModel {
     this.lastInputId, // For client-side prediction acknowledgment
     this.serverTimestamp, // Server timestamp for lag compensation
     this.attributes, // Authoritative player attributes (HP/stamina/level/XP)
-  })  : properties = properties ?? {},
+  })  : maxLife = maxLife ?? life,
+        properties = properties ?? {},
         _direction = direction,
         _lastDirection = lastDirection ?? direction {
     initPosition = position.clone();
@@ -37,6 +39,12 @@ class ComponentStateModel {
   GameVector position;
   GameVector size;
   int life;
+
+  /// Maximum life of the entity (spawn value for NPCs; derived pool for
+  /// players). Defaults to [life] so old payloads / full-HP spawns keep
+  /// working without sending it. Used by clients to render life bars with
+  /// the correct scale even when they join mid-fight.
+  final int maxLife;
   final Map<String, dynamic> properties;
   late final GameVector initPosition;
 
@@ -61,6 +69,7 @@ class ComponentStateModel {
       'position': position.toMap(),
       'size': size.toMap(),
       'life': life,
+      'maxLife': maxLife,
       'lastDirection': _lastDirection?.index,
       'direction': direction?.index,
       'action': action,
@@ -79,6 +88,7 @@ class ComponentStateModel {
       position: GameVector.fromMap((map['position'] as Map).cast()),
       size: GameVector.fromMap((map['size'] as Map).cast()),
       life: map['life'] as int,
+      maxLife: map['maxLife'] as int?,
       direction: map['direction'] != null
           ? MoveDirectionEnum.values[map['direction']]
           : null,

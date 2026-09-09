@@ -31,6 +31,7 @@ void main() {
         position: GameVector(x: 100.5, y: 200.25),
         size: GameVector.all(32),
         life: 80,
+        maxLife: 100,
         speed: 120,
         direction: MoveDirectionEnum.upRight,
         lastDirection: MoveDirectionEnum.right,
@@ -45,6 +46,7 @@ void main() {
       expect(restored.position, original.position);
       expect(restored.size, original.size);
       expect(restored.life, original.life);
+      expect(restored.maxLife, original.maxLife);
       expect(restored.speed, original.speed);
       expect(restored.direction, original.direction);
       expect(restored.lastDirection, original.lastDirection);
@@ -334,6 +336,32 @@ void main() {
       final restored = AttackEvent.fromMap(original.toMap());
       expect(restored.mapId, original.mapId);
       expect(restored.time, original.time);
+    });
+  });
+
+  group('AttackEffectEvent', () {
+    test('round-trip toMap/fromMap', () {
+      final original = AttackEffectEvent(
+        sourceId: 'player-1',
+        effectId: AttackEffectId.meleeSlash,
+        position: GameVector(x: 100, y: 200),
+        direction: MoveDirectionEnum.right,
+      );
+      final restored = AttackEffectEvent.fromMap(original.toMap());
+      expect(restored.sourceId, original.sourceId);
+      expect(restored.effectId, original.effectId);
+      expect(restored.position, original.position);
+      expect(restored.direction, original.direction);
+    });
+
+    test('direction is optional (null)', () {
+      final original = AttackEffectEvent(
+        sourceId: 'player-1',
+        effectId: AttackEffectId.meleeSlash,
+        position: GameVector(x: 1, y: 2),
+      );
+      final restored = AttackEffectEvent.fromMap(original.toMap());
+      expect(restored.direction, isNull);
     });
   });
 
