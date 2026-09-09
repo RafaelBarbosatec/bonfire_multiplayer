@@ -257,7 +257,7 @@ class GameServer extends Game {
       player.map,
       DamageEvent(
         sourceId: player.id,
-        targetId: target.id,
+        targetId: target.state.id,
         damage: damage,
         targetDied: target.state.life <= 0,
       ),
