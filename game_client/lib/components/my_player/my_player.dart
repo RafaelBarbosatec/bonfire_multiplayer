@@ -23,6 +23,8 @@ class MyPlayer extends SimplePlayer
   // Thresholds for position correction
   static const double _idleCorrectionThreshold =
       4.0; // Small threshold when idle
+  static const double _moveCorrectionThreshold =
+      32.0; // Rubber-band while moving (2 tiles)
   static const double _emergencyThreshold = 64.0; // Force correction if way off
 
   // Track if we're currently doing a correction
@@ -97,9 +99,18 @@ class MyPlayer extends SimplePlayer
     }
 
     if (isMoving) {
-      // Player is moving - don't correct to avoid "stuttering"
-      // Trust client-side movement, server will correct when player stops
-      _cancelCorrection();
+      // Player is moving - don't do a full correction to avoid "stuttering".
+      // BUT if the drift is already noticeable (e.g. diagonal speed mismatch
+      // accumulated over a long walk), rubber-band a fraction of the way back
+      // instead of waiting for the emergency snap. Server is authoritative:
+      // the attack effect spawns on ITS position, so a drifted client would
+      // see the slash far away from the rendered player.
+      if (distance > _moveCorrectionThreshold) {
+        _cancelCorrection();
+        position = position + (serverPosition - position) * 0.35;
+      } else {
+        _cancelCorrection();
+      }
     } else {
       // Player stopped (server says direction is null)
       // Schedule a correction after a small delay to ensure player really stopped

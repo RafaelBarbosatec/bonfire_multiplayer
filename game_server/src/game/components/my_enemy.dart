@@ -52,6 +52,16 @@ class MyEnemy extends GameNpc
     if (spawnMap == null || _respawnTimer != null) return;
     _respawnTimer = Timer(respawnDelay, () {
       _respawnTimer = null;
+      if (spawnMap == null) return;
+
+      // The dead enemy was queued for removal (deferred until the map's next
+      // tick). Before spawning the replacement, make sure the old instance is
+      // really gone — otherwise the map would briefly hold TWO NPCs with the
+      // same id, and the client would create two overlapping enemies (one
+      // standing still, one walking). Same-id leftovers are dropped here.
+      spawnMap.components.removeWhere(
+        (comp) => comp is MyEnemy && comp.state.id == _spawnState.id,
+      );
       spawnMap.add(MyEnemy(state: _cloneState(_spawnState)));
     });
   }

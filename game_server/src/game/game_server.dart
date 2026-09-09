@@ -235,10 +235,10 @@ class GameServer extends Game {
 
   // --- Melee combat (server-authoritative) --------------------------------
 
-  /// Handles a melee attack request: validates map/cooldown, broadcasts the
-  /// attack effect (so every client, including the attacker, sees the swing),
-  /// then resolves the nearest enemy in reach, applies the player's ATK as
-  /// damage and broadcasts the hit for client feedback.
+  /// Handles a melee attack request: validates map/cooldown/SP, broadcasts
+  /// the attack effect (so every client, including the attacker, sees the
+  /// swing), then resolves the nearest enemy in reach, applies the player's
+  /// ATK as damage and broadcasts the hit for client feedback.
   void _handleMeleeAttack(WebsocketClient client, AttackEvent message) {
     final player = _findPlayerByClient(client);
     if (player == null || player.map.id != message.mapId) return;
@@ -246,6 +246,11 @@ class GameServer extends Game {
     final now = DateTime.now();
     final last = _lastAttackByClient[client.id];
     if (last != null && now.difference(last) < meleeAttackCooldown) return;
+
+    // SP is the melee resource: no SP, no attack. The cooldown is NOT
+    // consumed on a failed attempt, so the next press works as soon as SP
+    // regenerates (no arbitrary 600ms wait on top of the SP regen).
+    if (!player.spendStamina(Player.meleeStaminaCost)) return;
     _lastAttackByClient[client.id] = now;
 
     // Visual swing — broadcast even on a whiff so the attacker always sees
@@ -309,9 +314,11 @@ class GameServer extends Game {
     ComponentStateModel to,
   ) {
     const visualCenterOffset = 16.0;
-    final dx = (to.position.x + visualCenterOffset) -
+    final dx =
+        (to.position.x + visualCenterOffset) -
         (from.position.x + visualCenterOffset);
-    final dy = (to.position.y + visualCenterOffset) -
+    final dy =
+        (to.position.y + visualCenterOffset) -
         (from.position.y + visualCenterOffset);
     if (dx.abs() > dy.abs() * 1.2) {
       return dx > 0 ? MoveDirectionEnum.right : MoveDirectionEnum.left;

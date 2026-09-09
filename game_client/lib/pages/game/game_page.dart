@@ -207,13 +207,17 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   void _onEnemyState(Iterable<ComponentStateModel> serverEnemies) {
     if (game == null) return;
 
-    final remoteEnemies = game?.query<MyRemoteEnemy>() ?? [];
-
-    // Add new NPCs that don't exist locally
+    // Add new NPCs that don't exist locally. The existence check re-queries
+    // the live component list on EVERY iteration (instead of capturing it
+    // once before the loop) so that two states sharing the same id in a
+    // single delta (e.g. a not-yet-removed corpse + its respawn) never create
+    // two overlapping enemies with the same id.
     for (var serverEnemy in serverEnemies) {
-      final exists = remoteEnemies.any(
-        (element) => element.id == serverEnemy.id,
-      );
+      final exists =
+          game?.query<MyRemoteEnemy>().any(
+            (element) => element.id == serverEnemy.id,
+          ) ??
+          false;
       if (!exists) {
         game?.add(_createRemoteEnemy(serverEnemy));
       }
