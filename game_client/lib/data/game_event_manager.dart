@@ -21,6 +21,9 @@ class GameEventManager {
 
   void Function(JoinMapEvent event)? _onJoinMapEvent;
 
+  /// Called for every landed hit broadcast by the server (damage feedback).
+  void Function(DamageEvent event)? _onDamageEvent;
+
   GameEventManager({required this.websocket});
 
   Future<void> connect({
@@ -110,6 +113,11 @@ class GameEventManager {
     _onJoinMapEvent = callback;
   }
 
+  /// Registers (or clears, with null) the damage-feedback callback.
+  void onDamageEvent(void Function(DamageEvent event)? callback) {
+    _onDamageEvent = callback;
+  }
+
   /// Clear all subscribers (call on disconnect)
   void clearSubscribers() {
     specificPlayerStateSubscriber.clear();
@@ -118,6 +126,7 @@ class GameEventManager {
     enemyStateSubscriber.clear();
     removedSubscriber.clear();
     _onJoinMapEvent = null;
+    _onDamageEvent = null;
   }
 
   void _listenState(GameStateModel state) {
@@ -157,6 +166,9 @@ class GameEventManager {
     websocket.onEvent<JoinMapEvent>(EventType.JOIN_MAP.name, (data) {
       _onJoinMapEvent?.call(data);
     });
+    websocket.onEvent<DamageEvent>(EventType.DAMAGE.name, (data) {
+      _onDamageEvent?.call(data);
+    });
   }
 
   void _registerTypes() {
@@ -183,6 +195,12 @@ class GameEventManager {
         toMap: (type) => type.toMap(),
         fromMap: AllocateStatEvent.fromMap,
       ),
+    );
+    websocket.registerType<AttackEvent>(
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: AttackEvent.fromMap),
+    );
+    websocket.registerType<DamageEvent>(
+      TypeAdapter(toMap: (type) => type.toMap(), fromMap: DamageEvent.fromMap),
     );
   }
 }

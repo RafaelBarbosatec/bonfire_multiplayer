@@ -1,5 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/bootstrap_injector.dart';
+import 'package:bonfire_multiplayer/components/floating_damage_text.dart';
 import 'package:bonfire_multiplayer/components/my_player/my_player.dart';
 import 'package:bonfire_multiplayer/components/my_remote_enemy/my_remote_enemy.dart';
 import 'package:bonfire_multiplayer/components/my_remote_player/my_remote_player.dart';
@@ -53,6 +54,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     _eventManager.removeOnPlayerState(_onPlayerState);
     _eventManager.removeOnEnemyState(_onEnemyState);
     _eventManager.removeOnRemoved(_onRemoved);
+    _eventManager.onDamageEvent(null);
     _eventManager.onJoinMapEvent(null);
     _ownState.dispose();
     _controller.dispose();
@@ -89,6 +91,14 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
               playerControllers: [
                 Joystick(
                   directional: JoystickDirectional(enableDiagonalInput: false),
+                  actions: [
+                    JoystickAction(
+                      actionId: 'attack',
+                      color: const Color(0xE0E05545),
+                      size: 64,
+                      margin: const EdgeInsets.only(bottom: 100, right: 28),
+                    ),
+                  ],
                 ),
                 Keyboard(config: KeyboardConfig(enableDiagonalInput: false)),
               ],
@@ -154,6 +164,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     _eventManager.onPlayerState(_onPlayerState);
     _eventManager.onEnemyState(_onEnemyState);
     _eventManager.onRemoved(_onRemoved);
+    _eventManager.onDamageEvent(_onDamageEvent);
     _eventManager.onJoinMapEvent(_onJoinMap);
 
     Future.delayed(const Duration(milliseconds: 100), _controller.forward);
@@ -206,6 +217,32 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
       }
     }
     // Note: Removals are now handled by _onRemoved
+  }
+
+  /// Shows a floating damage number over the damaged entity when it is
+  /// currently visible on this client.
+  void _onDamageEvent(DamageEvent damage) {
+    final currentGame = game;
+    if (currentGame == null) return;
+
+    MyRemoteEnemy? target;
+    for (final enemy in currentGame.query<MyRemoteEnemy>()) {
+      if (enemy.id == damage.targetId) {
+        target = enemy;
+        break;
+      }
+    }
+    if (target == null || target.isRemoving) return;
+
+    currentGame.add(
+      FloatingDamageText(
+        at: Vector2(
+          target.position.x + target.size.x / 2,
+          target.position.y - 8,
+        ),
+        damage: damage.damage,
+      ),
+    );
   }
 
   /// Handle entity removals (both players and NPCs)

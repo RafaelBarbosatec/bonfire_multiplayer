@@ -33,27 +33,23 @@ class MyPlayer extends SimplePlayer
     required GameEventManager eventManager,
     required String mapId,
   }) : super(
-          size: Vector2.all(32),
-          animation: PlayersSpriteSheet.simpleAnimation(
-            PlayerSkin.fromName(state.properties['skin']).path,
-          ),
-          initDirection: state.lastDirection?.toDirection() ?? Direction.down,
-          position: state.position.toVector2(),
-        ) {
+         size: Vector2.all(32),
+         animation: PlayersSpriteSheet.simpleAnimation(
+           PlayerSkin.fromName(state.properties['skin']).path,
+         ),
+         initDirection: state.lastDirection?.toDirection() ?? Direction.down,
+         position: state.position.toVector2(),
+       ) {
     name = state.name;
     speed = state.speed;
-    bloc = MyPlayerBloc(
-      eventManager,
-      state,
-      mapId,
-    );
+    bloc = MyPlayerBloc(eventManager, state, mapId);
   }
 
   @override
   void onJoystickChangeDirectional(JoystickDirectionalEvent event) {
     if (isMounted && _joystickDirectional != event.directional) {
       _joystickDirectional = event.directional;
-// If not visible, snap immediately
+      // If not visible, snap immediately
       if (!isVisible) {
         position.setFrom(bloc.state.position);
         return;
@@ -64,6 +60,15 @@ class MyPlayer extends SimplePlayer
       _sendMove();
     }
     super.onJoystickChangeDirectional(event);
+  }
+
+  @override
+  void onJoystickAction(JoystickActionEvent event) {
+    // Melee attack button: fire on press (server enforces the cooldown).
+    if (event.event == ActionEvent.DOWN && event.id == 'attack') {
+      bloc.meleeAttack();
+    }
+    super.onJoystickAction(event);
   }
 
   @override
@@ -110,15 +115,12 @@ class MyPlayer extends SimplePlayer
 
     // Wait a bit to make sure player really stopped
     // This prevents corrections during brief pauses in movement
-    _correctionTimer = async.Timer(
-      const Duration(milliseconds: 200),
-      () {
-        // Double check we're still supposed to be idle
-        if (_joystickDirectional == JoystickMoveDirectional.IDLE) {
-          _performIdleCorrection(serverPosition);
-        }
-      },
-    );
+    _correctionTimer = async.Timer(const Duration(milliseconds: 200), () {
+      // Double check we're still supposed to be idle
+      if (_joystickDirectional == JoystickMoveDirectional.IDLE) {
+        _performIdleCorrection(serverPosition);
+      }
+    });
   }
 
   void _performIdleCorrection(Vector2 targetPosition) {
