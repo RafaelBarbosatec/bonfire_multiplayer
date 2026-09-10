@@ -62,9 +62,12 @@ class GameServer extends Game {
       logger.i('JoinEvent: ${message.toMap()}');
       _joinPlayerInTheGame(client, message);
     });
-    client.on<AttackEvent>(EventType.ATTACK.name, (message) {
-      _handleMeleeAttack(client, message);
-    });
+    client.on<AttackEvent>(
+      EventType.ATTACK.name,
+      (message) {
+        _handleMeleeAttack(client, message);
+      },
+    );
   }
 
   void leaveClient(WebsocketClient client) {
@@ -94,7 +97,7 @@ class GameServer extends Game {
       // Get or create tracker for this map
       final tracker = _mapTrackers.putIfAbsent(
         compChanged.id,
-        () => MapStateTracker(),
+        MapStateTracker.new,
       );
 
       // Generate delta (only changed entities)
@@ -128,8 +131,8 @@ class GameServer extends Game {
     JoinEvent message,
   ) async {
     if (components.whereType<Player>().any(
-      (element) => element.id == client.id,
-    )) {
+          (element) => element.id == client.id,
+        )) {
       return;
     }
 
@@ -314,11 +317,9 @@ class GameServer extends Game {
     ComponentStateModel to,
   ) {
     const visualCenterOffset = 16.0;
-    final dx =
-        (to.position.x + visualCenterOffset) -
+    final dx = (to.position.x + visualCenterOffset) -
         (from.position.x + visualCenterOffset);
-    final dy =
-        (to.position.y + visualCenterOffset) -
+    final dy = (to.position.y + visualCenterOffset) -
         (from.position.y + visualCenterOffset);
     if (dx.abs() > dy.abs() * 1.2) {
       return dx > 0 ? MoveDirectionEnum.right : MoveDirectionEnum.left;
@@ -326,8 +327,10 @@ class GameServer extends Game {
     if (dy.abs() > dx.abs() * 1.2) {
       return dy > 0 ? MoveDirectionEnum.down : MoveDirectionEnum.up;
     }
-    if (dx > 0)
+    if (dx > 0) {
       return dy > 0 ? MoveDirectionEnum.downRight : MoveDirectionEnum.upRight;
+    }
+
     return dy > 0 ? MoveDirectionEnum.downLeft : MoveDirectionEnum.upLeft;
   }
 
@@ -368,7 +371,7 @@ class GameServer extends Game {
     MyEnemy? nearest;
     var bestDistance = double.infinity;
     final origin = player.state.position;
-    final rangeSquared = meleeAttackRange * meleeAttackRange;
+    const rangeSquared = meleeAttackRange * meleeAttackRange;
     for (final npc in player.map.npcs.whereType<MyEnemy>()) {
       if (npc.state.life <= 0) continue;
       final dx = npc.state.position.x - origin.x;

@@ -1,5 +1,7 @@
 include: package:very_good_analysis/analysis_options.5.1.0.yaml
 analyzer:
+  errors:
+    cascade_invocations: ignore
   exclude:
     - build/**
 linter:

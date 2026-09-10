@@ -28,7 +28,6 @@ class BonfireWebsocketClient extends WebsocketClient {
   }
 
   @override
-  // TODO: implement id
   String get id => client.id;
 
   @override

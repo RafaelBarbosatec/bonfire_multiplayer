@@ -37,7 +37,8 @@ class UserRepository {
       return Error(NotFoundUserException());
     }
     final user = UserModel.fromMap(userMap);
-    // Constant-ish comparison: hashed compare to avoid leaking which part failed.
+    // Constant-ish comparison: hashed compare to avoid leaking
+    //which part failed.
     if (user.password != hashPassword(password, user.id)) {
       return Error(NotFoundUserException());
     }

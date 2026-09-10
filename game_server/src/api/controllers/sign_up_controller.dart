@@ -1,8 +1,8 @@
-import '../data/repositories/user_repository.dart';
 import '../../infrastructure/controller/failure.dart';
 import '../../infrastructure/controller/response.dart';
 import '../../infrastructure/controller/rest_controller.dart';
 import '../../infrastructure/extenssions/request_context_ext.dart';
+import '../data/repositories/user_repository.dart';
 import '../usecases/generate_jwt_usecase.dart';
 
 class SignUpController extends RestController {
