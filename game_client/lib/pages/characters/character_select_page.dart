@@ -4,28 +4,12 @@ import 'package:bonfire/bonfire.dart';
 import 'package:bonfire_multiplayer/bootstrap_injector.dart';
 import 'package:bonfire_multiplayer/data/models/character_summary.dart';
 import 'package:bonfire_multiplayer/pages/characters/bloc/character_select_bloc.dart';
+import 'package:bonfire_multiplayer/pages/common/ro_theme.dart';
 import 'package:bonfire_multiplayer/pages/game/game_route.dart';
 import 'package:bonfire_multiplayer/pages/login/login_route.dart';
 import 'package:bonfire_multiplayer/util/player_skin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-/// Ragnarok-inspired palette used across the character select screen.
-class _Ro {
-  static const bgTop = Color(0xFF070E1C);
-  static const bgBottom = Color(0xFF14294A);
-  static const panelBg = Color(0xE6122036);
-  static const border = Color(0xFF8A6A2F);
-  static const borderDark = Color(0xFF5A4726);
-  static const gold = Color(0xFFE8C36A);
-  static const goldBright = Color(0xFFFFE9A8);
-  static const ivory = Color(0xFFF4EBD6);
-  static const textSoft = Color(0xFFBAC5DB);
-  static const textFaint = Color(0xFF8493AF);
-  static const btnTop = Color(0xFF3D6CA0);
-  static const btnBottom = Color(0xFF16304F);
-  static const danger = Color(0xFFE08270);
-}
 
 const _mapNames = <String, String>{
   'florestId': 'Floresta',
@@ -129,10 +113,10 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
       builder: (context, state) {
         final selected = _selectedOf(state);
         return Scaffold(
-          backgroundColor: _Ro.bgTop,
+          backgroundColor: RoColors.bgTop,
           body: Stack(
             children: [
-              const _RoBackground(),
+              const RoBackground(),
               SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
@@ -200,7 +184,7 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
   Widget _buildSlotsPanel(CharacterSelectState state) {
     final busy = state.joining || state.creating;
     final canCreate = !busy;
-    return _OrnatePanel(
+    return RoOrnatePanel(
       title: 'PERSONAGENS',
       titleIcon: Icons.people_outline,
       child: Column(
@@ -214,7 +198,7 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
                       height: 28,
                       child: CircularProgressIndicator(
                         strokeWidth: 3,
-                        color: _Ro.gold,
+                        color: RoColors.gold,
                       ),
                     ),
                   )
@@ -245,7 +229,7 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
                   ),
           ),
           if (state.error != null && state.characters.isNotEmpty)
-            _ErrorBar(message: state.error!),
+            RoErrorBar(message: state.error!),
         ],
       ),
     );
@@ -256,7 +240,7 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
   // ---------------------------------------------------------------------
   Widget _buildShowcase(CharacterSelectState state, CharacterSummary? selected) {
     if (state.loading && state.characters.isEmpty) {
-      return const _OrnatePanel(
+      return const RoOrnatePanel(
         title: 'AVENTUREIRO',
         child: Center(
           child: SizedBox(
@@ -264,7 +248,7 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
             height: 32,
             child: CircularProgressIndicator(
               strokeWidth: 3,
-              color: _Ro.gold,
+              color: RoColors.gold,
             ),
           ),
         ),
@@ -272,24 +256,24 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
     }
 
     if (state.error != null && state.characters.isEmpty) {
-      return _OrnatePanel(
+      return RoOrnatePanel(
         title: 'AVENTUREIRO',
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, color: _Ro.danger, size: 40),
+              const Icon(Icons.error_outline, color: RoColors.danger, size: 40),
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
                   state.error!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: _Ro.ivory, fontSize: 15),
+                  style: const TextStyle(color: RoColors.ivory, fontSize: 15),
                 ),
               ),
               const SizedBox(height: 16),
-              _PillAction(
+              RoPillAction(
                 icon: Icons.refresh,
                 label: 'TENTAR NOVAMENTE',
                 onTap: () => _bloc.add(LoadCharactersEvent()),
@@ -301,21 +285,21 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
     }
 
     if (selected == null) {
-      return _OrnatePanel(
+      return RoOrnatePanel(
         title: 'AVENTUREIRO',
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.person_add_alt_1, color: _Ro.gold, size: 56),
+              const Icon(Icons.person_add_alt_1, color: RoColors.gold, size: 56),
               const SizedBox(height: 16),
               const Text(
                 'Nenhum personagem ainda.\nCrie seu primeiro herói!',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: _Ro.ivory, fontSize: 16, height: 1.4),
+                style: TextStyle(color: RoColors.ivory, fontSize: 16, height: 1.4),
               ),
               const SizedBox(height: 20),
-              _PillAction(
+              RoPillAction(
                 icon: Icons.add,
                 label: 'CRIAR PERSONAGEM',
                 onTap: state.creating ? null : _openCreateDialog,
@@ -327,7 +311,7 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
     }
 
     final busy = state.joining || state.creating;
-    return _OrnatePanel(
+    return RoOrnatePanel(
       title: 'AVENTUREIRO',
       titleIcon: Icons.star_outline,
       child: Column(
@@ -348,19 +332,19 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
             padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
             child: Row(
               children: [
-                _PillAction(
+                RoPillAction(
                   icon: Icons.add,
                   label: 'NOVO',
                   onTap: busy ? null : _openCreateDialog,
                 ),
                 const SizedBox(width: 8),
-                _PillAction(
+                RoPillAction(
                   icon: Icons.logout,
                   label: 'SAIR',
                   onTap: busy ? null : _logout,
                 ),
                 const Spacer(),
-                _EnterButton(
+                RoPrimaryButton(
                   enabled: !busy,
                   onTap: () => _enterWith(selected),
                 ),
@@ -368,160 +352,6 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ===========================================================================
-// Background
-// ===========================================================================
-class _RoBackground extends StatelessWidget {
-  const _RoBackground();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [_Ro.bgTop, _Ro.bgBottom],
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Soft golden glow (upper area) + deep blue side glow.
-          Positioned(
-            top: -120,
-            right: -80,
-            child: _Glow(
-              size: 420,
-              color: _Ro.gold.withValues(alpha: 0.05),
-            ),
-          ),
-          Positioned(
-            bottom: -140,
-            left: -60,
-            child: _Glow(
-              size: 460,
-              color: const Color(0xFF2E6FA8).withValues(alpha: 0.10),
-            ),
-          ),
-          // Vignette to focus the centre.
-          const Positioned.fill(
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    radius: 1.3,
-                    colors: [Colors.transparent, Color(0x99020812)],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Glow extends StatelessWidget {
-  const _Glow({required this.size, required this.color});
-
-  final double size;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(colors: [color, Colors.transparent]),
-      ),
-    );
-  }
-}
-
-// ===========================================================================
-// Ornamented panel
-// ===========================================================================
-class _OrnatePanel extends StatelessWidget {
-  const _OrnatePanel({
-    required this.child,
-    this.title,
-    this.titleIcon,
-  });
-
-  final Widget child;
-  final String? title;
-  final IconData? titleIcon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _Ro.borderDark, width: 1.4),
-        boxShadow: const [
-          BoxShadow(color: Color(0x59000000), blurRadius: 18, offset: Offset(0, 6)),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(11),
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xF21B2E4C), _Ro.panelBg],
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (title != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (titleIcon != null) ...[
-                        Icon(titleIcon, color: _Ro.gold, size: 16),
-                        const SizedBox(width: 8),
-                      ],
-                      Flexible(
-                        child: Text(
-                          title!,
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: _Ro.gold,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 3,
-                          ),
-                        ),
-                      ),
-                      if (titleIcon != null) ...[
-                        const SizedBox(width: 8),
-                        Icon(titleIcon, color: _Ro.gold, size: 16),
-                      ],
-                    ],
-                  ),
-                ),
-              if (title != null)
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14),
-                  child: Divider(color: _Ro.border, height: 1),
-                ),
-              Expanded(child: child),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -563,7 +393,7 @@ class _SlotCard extends StatelessWidget {
                 ? const Color(0x2EFFFFFF)
                 : const Color(0x12000000),
             border: Border.all(
-              color: selected ? _Ro.gold : _Ro.borderDark,
+              color: selected ? RoColors.gold : RoColors.borderDark,
               width: selected ? 1.6 : 1,
             ),
             boxShadow: selected
@@ -589,7 +419,7 @@ class _SlotCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? _Ro.goldBright : _Ro.ivory,
+                        color: selected ? RoColors.goldBright : RoColors.ivory,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.5,
@@ -601,7 +431,7 @@ class _SlotCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: _Ro.textSoft,
+                        color: RoColors.textSoft,
                         fontSize: 11.5,
                       ),
                     ),
@@ -611,14 +441,14 @@ class _SlotCard extends StatelessWidget {
               if (selected)
                 const Padding(
                   padding: EdgeInsets.only(left: 6),
-                  child: Icon(Icons.check_circle, color: _Ro.gold, size: 18),
+                  child: Icon(Icons.check_circle, color: RoColors.gold, size: 18),
                 )
               else
                 const Padding(
                   padding: EdgeInsets.only(left: 6),
                   child: Icon(
                     Icons.chevron_right,
-                    color: _Ro.textFaint,
+                    color: RoColors.textFaint,
                     size: 18,
                   ),
                 ),
@@ -648,7 +478,7 @@ class _GhostSlot extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: _Ro.borderDark.withValues(alpha: 0.7),
+              color: RoColors.borderDark.withValues(alpha: 0.7),
               width: 1.2,
             ),
             color: const Color(0x0AFFFFFF),
@@ -656,12 +486,12 @@ class _GhostSlot extends StatelessWidget {
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add, color: _Ro.gold, size: 18),
+              Icon(Icons.add, color: RoColors.gold, size: 18),
               SizedBox(width: 8),
               Text(
                 'NOVO PERSONAGEM',
                 style: TextStyle(
-                  color: _Ro.gold,
+                  color: RoColors.gold,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2,
@@ -711,7 +541,7 @@ class _CharacterShowcase extends StatelessWidget {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              _Ro.gold.withValues(alpha: opacity),
+                              RoColors.gold.withValues(alpha: opacity),
                               Colors.transparent,
                             ],
                           ),
@@ -768,7 +598,7 @@ class _CharacterShowcase extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: _Ro.goldBright,
+                color: RoColors.goldBright,
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1,
@@ -780,7 +610,7 @@ class _CharacterShowcase extends StatelessWidget {
             const SizedBox(height: 5),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 70),
-              child: Divider(color: _Ro.border, height: 1),
+              child: Divider(color: RoColors.border, height: 1),
             ),
             const SizedBox(height: 5),
             Wrap(
@@ -815,131 +645,18 @@ class _InfoChip extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: const Color(0x1FFFFFFF),
-        border: Border.all(color: _Ro.borderDark, width: 1),
+        border: Border.all(color: RoColors.borderDark, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: _Ro.gold, size: 14),
+          Icon(icon, color: RoColors.gold, size: 14),
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(color: _Ro.ivory, fontSize: 12),
+            style: const TextStyle(color: RoColors.ivory, fontSize: 12),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ===========================================================================
-// Buttons
-// ===========================================================================
-class _EnterButton extends StatelessWidget {
-  const _EnterButton({required this.enabled, required this.onTap});
-
-  final bool enabled;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: enabled ? 1 : 0.45,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: enabled ? onTap : null,
-          child: Ink(
-            padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [_Ro.btnTop, _Ro.btnBottom],
-              ),
-              border: Border.all(color: _Ro.gold, width: 1.4),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x55000000),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.play_arrow_rounded, color: _Ro.goldBright, size: 22),
-                SizedBox(width: 6),
-                Text(
-                  'ENTRAR',
-                  style: TextStyle(
-                    color: _Ro.goldBright,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PillAction extends StatelessWidget {
-  const _PillAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final enabled = onTap != null;
-    return Opacity(
-      opacity: enabled ? 1 : 0.45,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: onTap,
-          child: Ink(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: const Color(0x1FFFFFFF),
-              border: Border.all(
-                color: enabled ? _Ro.border : _Ro.borderDark,
-                width: 1.1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, color: _Ro.gold, size: 16),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: _Ro.ivory,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -961,7 +678,7 @@ class _JoiningOverlay extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 26),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: _Ro.gold, width: 1.4),
+            border: Border.all(color: RoColors.gold, width: 1.4),
             color: const Color(0xE6142339),
             boxShadow: const [
               BoxShadow(color: Color(0x88000000), blurRadius: 20),
@@ -975,14 +692,14 @@ class _JoiningOverlay extends StatelessWidget {
                 height: 34,
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
-                  color: _Ro.gold,
+                  color: RoColors.gold,
                 ),
               ),
               SizedBox(height: 16),
               Text(
                 'ENTRANDO NO MUNDO...',
                 style: TextStyle(
-                  color: _Ro.goldBright,
+                  color: RoColors.goldBright,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 3,
@@ -991,39 +708,6 @@ class _JoiningOverlay extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ErrorBar extends StatelessWidget {
-  const _ErrorBar({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 0, 10, 8),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: const Color(0x33E08270),
-        border: Border.all(color: _Ro.danger, width: 1),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline, color: _Ro.danger, size: 16),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: _Ro.ivory, fontSize: 12),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1131,7 +815,7 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
         child: Container(
           decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _Ro.gold, width: 1.6),
+          border: Border.all(color: RoColors.gold, width: 1.6),
           boxShadow: const [
             BoxShadow(color: Color(0x99000000), blurRadius: 24),
           ],
@@ -1157,7 +841,7 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                     '✦  NOVO PERSONAGEM  ✦',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: _Ro.goldBright,
+                      color: RoColors.goldBright,
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 3,
@@ -1166,18 +850,18 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                   const SizedBox(height: 4),
                   const Text(
                     'Forje seu novo herói',
-                    style: TextStyle(color: _Ro.textSoft, fontSize: 12),
+                    style: TextStyle(color: RoColors.textSoft, fontSize: 12),
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _nickNameController,
-                    style: const TextStyle(color: _Ro.ivory),
-                    cursorColor: _Ro.gold,
+                    style: const TextStyle(color: RoColors.ivory),
+                    cursorColor: RoColors.gold,
                     maxLength: 20,
                     decoration: InputDecoration(
                       labelText: 'Apelido',
-                      labelStyle: const TextStyle(color: _Ro.textSoft),
-                      counterStyle: const TextStyle(color: _Ro.textFaint),
+                      labelStyle: const TextStyle(color: RoColors.textSoft),
+                      counterStyle: const TextStyle(color: RoColors.textFaint),
                       counterText: '',
                       filled: true,
                       fillColor: const Color(0x33000000),
@@ -1188,28 +872,28 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(
-                          color: _Ro.borderDark,
+                          color: RoColors.borderDark,
                           width: 1.2,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(
-                          color: _Ro.gold,
+                          color: RoColors.gold,
                           width: 1.4,
                         ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(
-                          color: _Ro.danger,
+                          color: RoColors.danger,
                           width: 1.2,
                         ),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(
-                          color: _Ro.danger,
+                          color: RoColors.danger,
                           width: 1.4,
                         ),
                       ),
@@ -1224,7 +908,7 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                   const SizedBox(height: 8),
                   Text(
                     'Escolha sua aparência',
-                    style: TextStyle(color: _Ro.textSoft, fontSize: 12),
+                    style: TextStyle(color: RoColors.textSoft, fontSize: 12),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -1245,7 +929,7 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                                   ? const Color(0x33E8C36A)
                                   : const Color(0x12000000),
                               border: Border.all(
-                                color: selected ? _Ro.gold : _Ro.borderDark,
+                                color: selected ? RoColors.gold : RoColors.borderDark,
                                 width: selected ? 1.8 : 1,
                               ),
                             ),
@@ -1261,8 +945,8 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
                                   _skinName(skinOption.name),
                                   style: TextStyle(
                                     color: selected
-                                        ? _Ro.goldBright
-                                        : _Ro.ivory,
+                                        ? RoColors.goldBright
+                                        : RoColors.ivory,
                                     fontSize: 13,
                                     fontWeight: selected
                                         ? FontWeight.w700
@@ -1340,18 +1024,18 @@ class _DialogButton extends StatelessWidget {
                 : const LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [_Ro.btnTop, _Ro.btnBottom],
+                    colors: [RoColors.btnTop, RoColors.btnBottom],
                   ),
             color: outlined ? const Color(0x1FFFFFFF) : null,
             border: Border.all(
-              color: outlined ? _Ro.border : _Ro.gold,
+              color: outlined ? RoColors.border : RoColors.gold,
               width: 1.2,
             ),
           ),
           child: Text(
             label,
             style: const TextStyle(
-              color: _Ro.goldBright,
+              color: RoColors.goldBright,
               fontSize: 13,
               fontWeight: FontWeight.w800,
               letterSpacing: 2,
