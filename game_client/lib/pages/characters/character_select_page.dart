@@ -187,49 +187,52 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
     return RoOrnatePanel(
       title: 'PERSONAGENS',
       titleIcon: Icons.people_outline,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: state.loading && state.characters.isEmpty
-                ? const Center(
-                    child: SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        color: RoColors.gold,
+      child: Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: state.loading && state.characters.isEmpty
+                  ? const Center(
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          color: RoColors.gold,
+                        ),
                       ),
-                    ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                    itemCount: state.characters.length + 1,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      if (index == state.characters.length) {
-                        return _GhostSlot(
-                          onTap: canCreate ? _openCreateDialog : null,
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                      itemCount: state.characters.length + 1,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        if (index == state.characters.length) {
+                          return _GhostSlot(
+                            onTap: canCreate ? _openCreateDialog : null,
+                          );
+                        }
+                        final character = state.characters[index];
+                        final isSelected = character.id == _selectedId ||
+                            (state.characters.isNotEmpty &&
+                                _selectedId == null &&
+                                index == 0);
+                        return _SlotCard(
+                          character: character,
+                          selected: isSelected,
+                          enabled: !busy,
+                          onTap: () =>
+                              setState(() => _selectedId = character.id),
+                          onEnter: () => _enterWith(character),
                         );
-                      }
-                      final character = state.characters[index];
-                      final isSelected = character.id == _selectedId ||
-                          (state.characters.isNotEmpty &&
-                              _selectedId == null &&
-                              index == 0);
-                      return _SlotCard(
-                        character: character,
-                        selected: isSelected,
-                        enabled: !busy,
-                        onTap: () => setState(() => _selectedId = character.id),
-                        onEnter: () => _enterWith(character),
-                      );
-                    },
-                  ),
-          ),
-          if (state.error != null && state.characters.isNotEmpty)
-            RoErrorBar(message: state.error!),
-        ],
+                      },
+                    ),
+            ),
+            if (state.error != null && state.characters.isNotEmpty)
+              RoErrorBar(message: state.error!),
+          ],
+        ),
       ),
     );
   }
@@ -242,13 +245,15 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
     if (state.loading && state.characters.isEmpty) {
       return const RoOrnatePanel(
         title: 'AVENTUREIRO',
-        child: Center(
-          child: SizedBox(
-            width: 32,
-            height: 32,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              color: RoColors.gold,
+        child: Expanded(
+          child: Center(
+            child: SizedBox(
+              width: 32,
+              height: 32,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: RoColors.gold,
+              ),
             ),
           ),
         ),
@@ -258,27 +263,30 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
     if (state.error != null && state.characters.isEmpty) {
       return RoOrnatePanel(
         title: 'AVENTUREIRO',
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, color: RoColors.danger, size: 40),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  state.error!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: RoColors.ivory, fontSize: 15),
+        child: Expanded(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline,
+                    color: RoColors.danger, size: 40),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    state.error!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: RoColors.ivory, fontSize: 15),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              RoPillAction(
-                icon: Icons.refresh,
-                label: 'TENTAR NOVAMENTE',
-                onTap: () => _bloc.add(LoadCharactersEvent()),
-              ),
-            ],
+                const SizedBox(height: 16),
+                RoPillAction(
+                  icon: Icons.refresh,
+                  label: 'TENTAR NOVAMENTE',
+                  onTap: () => _bloc.add(LoadCharactersEvent()),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -287,26 +295,28 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
     if (selected == null) {
       return RoOrnatePanel(
         title: 'AVENTUREIRO',
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.person_add_alt_1,
-                  color: RoColors.gold, size: 56),
-              const SizedBox(height: 16),
-              const Text(
-                'Nenhum personagem ainda.\nCrie seu primeiro herói!',
-                textAlign: TextAlign.center,
-                style:
-                    TextStyle(color: RoColors.ivory, fontSize: 16, height: 1.4),
-              ),
-              const SizedBox(height: 20),
-              RoPillAction(
-                icon: Icons.add,
-                label: 'CRIAR PERSONAGEM',
-                onTap: state.creating ? null : _openCreateDialog,
-              ),
-            ],
+        child: Expanded(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.person_add_alt_1,
+                    color: RoColors.gold, size: 56),
+                const SizedBox(height: 16),
+                const Text(
+                  'Nenhum personagem ainda.\nCrie seu primeiro herói!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: RoColors.ivory, fontSize: 16, height: 1.4),
+                ),
+                const SizedBox(height: 20),
+                RoPillAction(
+                  icon: Icons.add,
+                  label: 'CRIAR PERSONAGEM',
+                  onTap: state.creating ? null : _openCreateDialog,
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -316,44 +326,46 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
     return RoOrnatePanel(
       title: 'AVENTUREIRO',
       titleIcon: Icons.star_outline,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Center(
-                child: _CharacterShowcase(
-                  character: selected,
-                  glow: _glow,
+      child: Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Center(
+                  child: _CharacterShowcase(
+                    character: selected,
+                    glow: _glow,
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
-            child: Row(
-              children: [
-                RoPillAction(
-                  icon: Icons.add,
-                  label: 'NOVO',
-                  onTap: busy ? null : _openCreateDialog,
-                ),
-                const SizedBox(width: 8),
-                RoPillAction(
-                  icon: Icons.logout,
-                  label: 'SAIR',
-                  onTap: busy ? null : _logout,
-                ),
-                const Spacer(),
-                RoPrimaryButton(
-                  enabled: !busy,
-                  onTap: () => _enterWith(selected),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+              child: Row(
+                children: [
+                  RoPillAction(
+                    icon: Icons.add,
+                    label: 'NOVO',
+                    onTap: busy ? null : _openCreateDialog,
+                  ),
+                  const SizedBox(width: 8),
+                  RoPillAction(
+                    icon: Icons.logout,
+                    label: 'SAIR',
+                    onTap: busy ? null : _logout,
+                  ),
+                  const Spacer(),
+                  RoPrimaryButton(
+                    enabled: !busy,
+                    onTap: () => _enterWith(selected),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
