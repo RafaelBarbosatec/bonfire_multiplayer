@@ -214,15 +214,14 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
                       }
                       final character = state.characters[index];
                       final isSelected = character.id == _selectedId ||
-                          (state.characters.length > 0 &&
+                          (state.characters.isNotEmpty &&
                               _selectedId == null &&
                               index == 0);
                       return _SlotCard(
                         character: character,
                         selected: isSelected,
                         enabled: !busy,
-                        onTap: () =>
-                            setState(() => _selectedId = character.id),
+                        onTap: () => setState(() => _selectedId = character.id),
                         onEnter: () => _enterWith(character),
                       );
                     },
@@ -238,7 +237,8 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
   // ---------------------------------------------------------------------
   // Right panel: showcase + actions
   // ---------------------------------------------------------------------
-  Widget _buildShowcase(CharacterSelectState state, CharacterSummary? selected) {
+  Widget _buildShowcase(
+      CharacterSelectState state, CharacterSummary? selected) {
     if (state.loading && state.characters.isEmpty) {
       return const RoOrnatePanel(
         title: 'AVENTUREIRO',
@@ -291,12 +291,14 @@ class _CharacterSelectPageState extends State<CharacterSelectPage>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.person_add_alt_1, color: RoColors.gold, size: 56),
+              const Icon(Icons.person_add_alt_1,
+                  color: RoColors.gold, size: 56),
               const SizedBox(height: 16),
               const Text(
                 'Nenhum personagem ainda.\nCrie seu primeiro herói!',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: RoColors.ivory, fontSize: 16, height: 1.4),
+                style:
+                    TextStyle(color: RoColors.ivory, fontSize: 16, height: 1.4),
               ),
               const SizedBox(height: 20),
               RoPillAction(
@@ -389,9 +391,7 @@ class _SlotCard extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: selected
-                ? const Color(0x2EFFFFFF)
-                : const Color(0x12000000),
+            color: selected ? const Color(0x2EFFFFFF) : const Color(0x12000000),
             border: Border.all(
               color: selected ? RoColors.gold : RoColors.borderDark,
               width: selected ? 1.6 : 1,
@@ -441,7 +441,8 @@ class _SlotCard extends StatelessWidget {
               if (selected)
                 const Padding(
                   padding: EdgeInsets.only(left: 6),
-                  child: Icon(Icons.check_circle, color: RoColors.gold, size: 18),
+                  child:
+                      Icon(Icons.check_circle, color: RoColors.gold, size: 18),
                 )
               else
                 const Padding(
@@ -814,186 +815,191 @@ class _CreateCharacterDialogState extends State<_CreateCharacterDialog> {
         ),
         child: Container(
           decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: RoColors.gold, width: 1.6),
-          boxShadow: const [
-            BoxShadow(color: Color(0x99000000), blurRadius: 24),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(13),
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xF2263A5E), Color(0xF2122036)],
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: RoColors.gold, width: 1.6),
+            boxShadow: const [
+              BoxShadow(color: Color(0x99000000), blurRadius: 24),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(13),
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xF2263A5E), Color(0xF2122036)],
+                ),
               ),
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 18),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                  const Text(
-                    '✦  NOVO PERSONAGEM  ✦',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: RoColors.goldBright,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 3,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Forje seu novo herói',
-                    style: TextStyle(color: RoColors.textSoft, fontSize: 12),
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _nickNameController,
-                    style: const TextStyle(color: RoColors.ivory),
-                    cursorColor: RoColors.gold,
-                    maxLength: 20,
-                    decoration: InputDecoration(
-                      labelText: 'Apelido',
-                      labelStyle: const TextStyle(color: RoColors.textSoft),
-                      counterStyle: const TextStyle(color: RoColors.textFaint),
-                      counterText: '',
-                      filled: true,
-                      fillColor: const Color(0x33000000),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: RoColors.borderDark,
-                          width: 1.2,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 18),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        '✦  NOVO PERSONAGEM  ✦',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: RoColors.goldBright,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 3,
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: RoColors.gold,
-                          width: 1.4,
-                        ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Forje seu novo herói',
+                        style:
+                            TextStyle(color: RoColors.textSoft, fontSize: 12),
                       ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: RoColors.danger,
-                          width: 1.2,
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: RoColors.danger,
-                          width: 1.4,
-                        ),
-                      ),
-                    ),
-                    validator: (value) {
-                      if ((value ?? '').trim().isEmpty) {
-                        return 'Informe um apelido';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Escolha sua aparência',
-                    style: TextStyle(color: RoColors.textSoft, fontSize: 12),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: PlayerSkin.values.map((skinOption) {
-                      final selected = skinOption == _skin;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(10),
-                          onTap: () => setState(() => _skin = skinOption),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 160),
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: selected
-                                  ? const Color(0x33E8C36A)
-                                  : const Color(0x12000000),
-                              border: Border.all(
-                                color: selected ? RoColors.gold : RoColors.borderDark,
-                                width: selected ? 1.8 : 1,
-                              ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _nickNameController,
+                        style: const TextStyle(color: RoColors.ivory),
+                        cursorColor: RoColors.gold,
+                        maxLength: 20,
+                        decoration: InputDecoration(
+                          labelText: 'Apelido',
+                          labelStyle: const TextStyle(color: RoColors.textSoft),
+                          counterStyle:
+                              const TextStyle(color: RoColors.textFaint),
+                          counterText: '',
+                          filled: true,
+                          fillColor: const Color(0x33000000),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: RoColors.borderDark,
+                              width: 1.2,
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _CharacterSprite(
-                                  skinOption.path,
-                                  size: 56,
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  _skinName(skinOption.name),
-                                  style: TextStyle(
-                                    color: selected
-                                        ? RoColors.goldBright
-                                        : RoColors.ivory,
-                                    fontSize: 13,
-                                    fontWeight: selected
-                                        ? FontWeight.w700
-                                        : FontWeight.w500,
-                                  ),
-                                ),
-                              ],
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: RoColors.gold,
+                              width: 1.4,
+                            ),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: RoColors.danger,
+                              width: 1.2,
+                            ),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: RoColors.danger,
+                              width: 1.4,
                             ),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      _DialogButton(
-                        label: 'CANCELAR',
-                        outlined: true,
-                        onTap: () => Navigator.of(context).pop(),
-                      ),
-                      const SizedBox(width: 12),
-                      _DialogButton(
-                        label: 'CRIAR',
-                        onTap: () {
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.of(context).pop(
-                              _CreateCharacterData(
-                                nickName: _nickNameController.text.trim(),
-                                skin: _skin,
-                              ),
-                            );
+                        validator: (value) {
+                          if ((value ?? '').trim().isEmpty) {
+                            return 'Informe um apelido';
                           }
+                          return null;
                         },
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Escolha sua aparência',
+                        style:
+                            TextStyle(color: RoColors.textSoft, fontSize: 12),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: PlayerSkin.values.map((skinOption) {
+                          final selected = skinOption == _skin;
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(10),
+                              onTap: () => setState(() => _skin = skinOption),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 160),
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: selected
+                                      ? const Color(0x33E8C36A)
+                                      : const Color(0x12000000),
+                                  border: Border.all(
+                                    color: selected
+                                        ? RoColors.gold
+                                        : RoColors.borderDark,
+                                    width: selected ? 1.8 : 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _CharacterSprite(
+                                      skinOption.path,
+                                      size: 56,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      _skinName(skinOption.name),
+                                      style: TextStyle(
+                                        color: selected
+                                            ? RoColors.goldBright
+                                            : RoColors.ivory,
+                                        fontSize: 13,
+                                        fontWeight: selected
+                                            ? FontWeight.w700
+                                            : FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          _DialogButton(
+                            label: 'CANCELAR',
+                            outlined: true,
+                            onTap: () => Navigator.of(context).pop(),
+                          ),
+                          const SizedBox(width: 12),
+                          _DialogButton(
+                            label: 'CRIAR',
+                            onTap: () {
+                              if (_formKey.currentState!.validate()) {
+                                Navigator.of(context).pop(
+                                  _CreateCharacterData(
+                                    nickName: _nickNameController.text.trim(),
+                                    skin: _skin,
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 }
 

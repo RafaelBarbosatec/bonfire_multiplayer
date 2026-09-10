@@ -34,6 +34,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         onDisconnect: _onDisconnect,
       );
     } catch (e) {
+      // ignore: avoid_print
       print(e);
       emit(state.copyWith(error: true));
     }

@@ -51,7 +51,8 @@ class CharacterSelectBloc
     } on AuthException catch (e) {
       emit(state.copyWith(loading: false, error: e.message));
     } catch (_) {
-      emit(state.copyWith(loading: false, error: 'Erro ao carregar personagens'));
+      emit(state.copyWith(
+          loading: false, error: 'Erro ao carregar personagens'));
     }
   }
 
@@ -105,7 +106,11 @@ class CharacterSelectBloc
     // character not found), release the loading state after 10s.
     Future.delayed(const Duration(seconds: 10), () {
       if (!isClosed && state.joining) {
-        add(JoinErrorEvent(message: 'O servidor não respondeu. Tente novamente.'));
+        add(
+          const JoinErrorEvent(
+            message: 'O servidor não respondeu. Tente novamente.',
+          ),
+        );
       }
     });
   }
@@ -131,7 +136,7 @@ class CharacterSelectBloc
   }
 
   void _onDisconnect() {
-    add(JoinErrorEvent(message: 'Conexão com o servidor perdida'));
+    add(const JoinErrorEvent(message: 'Conexão com o servidor perdida'));
   }
 
   FutureOr<void> _onEnterGame(
