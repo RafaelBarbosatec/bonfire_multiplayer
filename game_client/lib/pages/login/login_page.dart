@@ -61,9 +61,8 @@ class _LoginPageState extends State<LoginPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(
+                          constraints: const BoxConstraints(
                             maxWidth: 460,
-                            maxHeight: constraints.maxHeight,
                           ),
                           child: RoOrnatePanel(
                             title: 'RPG MULTIPLAYER',
@@ -162,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
             enabled: !busy,
             onTap: () => _submit(signUp: false),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 32),
           Wrap(
             alignment: WrapAlignment.center,
             spacing: 10,

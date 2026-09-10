@@ -133,6 +133,7 @@ class RoOrnatePanel extends StatelessWidget {
             ),
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (title != null)
@@ -170,7 +171,7 @@ class RoOrnatePanel extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 14),
                   child: Divider(color: RoColors.border, height: 1),
                 ),
-              Expanded(child: child),
+              child,
             ],
           ),
         ),
