@@ -114,6 +114,15 @@ class _PlayerStatsDialog extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           _buildPointsRow(attrs),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'O ◆ ao lado do atributo é o custo em pontos de '
+                            'cada +1.',
+                            style: TextStyle(
+                              color: _Ro.textFaint,
+                              fontSize: 9.5,
+                            ),
+                          ),
                           const SizedBox(height: 10),
                           ..._buildStatRows(attrs),
                           const SizedBox(height: 10),
@@ -213,23 +222,25 @@ class _PlayerStatsDialog extends StatelessWidget {
 
   List<Widget> _buildStatRows(PlayerAttributes attrs) {
     return [
-      for (final stat in _stats)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: _StatRow(
-            stat: stat,
-            value: attrs.statValueOrNull(stat.key) ?? 1,
-            canRaise:
-                attrs.statusPoints >=
-                    PlayerAttributes.costToRaiseStat(
-                      attrs.statValueOrNull(stat.key) ?? 1,
-                    ) &&
-                (attrs.statValueOrNull(stat.key) ?? 1) <
-                    PlayerAttributes.statCap,
-            onRaise: () => onAllocateStat(stat.key),
-          ),
-        ),
+      for (final stat in _stats) _buildStatRow(attrs, stat),
     ];
+  }
+
+  Widget _buildStatRow(PlayerAttributes attrs, _StatInfo stat) {
+    final value = attrs.statValueOrNull(stat.key) ?? 1;
+    final capped = value >= PlayerAttributes.statCap;
+    // Cost in status points of the next +1 (null when the stat is maxed).
+    final cost = capped ? null : PlayerAttributes.costToRaiseStat(value);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: _StatRow(
+        stat: stat,
+        value: value,
+        cost: cost,
+        canRaise: cost != null && attrs.statusPoints >= cost,
+        onRaise: () => onAllocateStat(stat.key),
+      ),
+    );
   }
 
   Widget _buildDerivedPanel(PlayerAttributes a) {
@@ -320,12 +331,17 @@ class _StatRow extends StatelessWidget {
   const _StatRow({
     required this.stat,
     required this.value,
+    required this.cost,
     required this.canRaise,
     required this.onRaise,
   });
 
   final _StatInfo stat;
   final int value;
+
+  /// Status points needed for the next +1, or null when the stat is already
+  /// at [PlayerAttributes.statCap].
+  final int? cost;
   final bool canRaise;
   final VoidCallback onRaise;
 
@@ -365,8 +381,65 @@ class _StatRow extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
+          _CostBadge(cost: cost, affordable: canRaise),
+          const SizedBox(width: 6),
           _RaiseButton(canRaise: canRaise, onRaise: onRaise),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shows how many status points the next +1 of a stat costs, so the classic
+/// Ragnarok cost curve (2 points for the first tier, 3 for the next, ...) is
+/// visible instead of looking like points vanished.
+class _CostBadge extends StatelessWidget {
+  const _CostBadge({required this.cost, required this.affordable});
+
+  final int? cost;
+  final bool affordable;
+
+  @override
+  Widget build(BuildContext context) {
+    final capped = cost == null;
+    final color = capped
+        ? _Ro.textFaint
+        : affordable
+        ? _Ro.gold
+        : _Ro.textSoft;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      decoration: BoxDecoration(
+        color: const Color(0x33000000),
+        border: Border.all(color: color.withValues(alpha: 0.6), width: 0.8),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (capped)
+            Text(
+              'MAX',
+              style: TextStyle(
+                color: color,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.6,
+              ),
+            )
+          else ...[
+            Icon(Icons.circle, size: 5, color: color),
+            const SizedBox(width: 3),
+            Text(
+              '$cost',
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ],
       ),
     );
